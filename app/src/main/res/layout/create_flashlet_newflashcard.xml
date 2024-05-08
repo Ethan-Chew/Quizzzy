@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="15sp"
+    android:paddingTop="15sp"
+    android:paddingRight="15sp"
+    android:paddingBottom="15sp"
+    android:orientation="vertical"
+    android:background="@drawable/list_item_background">
+
+    <TextView
+        android:id="@+id/newFlashcardKeywordTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keyword"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/newFlashcardKeywordInput"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:hint="Keyword for the Flashcard"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10sp" />
+
+    <TextView
+        android:id="@+id/newFlashcardDefinitionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Definition"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/newFlashcardDefinitionInput"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:hint="Flashcard Definition"/>
+</LinearLayout>
