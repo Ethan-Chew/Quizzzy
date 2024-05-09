@@ -1,17 +1,28 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
+import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
 
@@ -33,10 +44,46 @@ public class FlashletList extends AppCompatActivity {
             return insets;
         });
 
+        // Temp Data
+//        ArrayList<Flashcard> tempFlashcards = new ArrayList<Flashcard>();
+//        tempFlashcards.add(new Flashcard("Keyword 1", "Defintion 1"));
+//        tempFlashcards.add(new Flashcard("Keyword 2", "Defintion 2"));
+//        tempFlashcards.add(new Flashcard("Keyword 3", "Defintion 3"));
+//        userFlashlets.add(new Flashlet("0", "Test Flashlet", null, new ArrayList<String>(), null, tempFlashcards, 1714883105));
+
         // Get Data from Firebase
         /// Get User Info
 
         /// Get Flashlets related to User
 
+        // Update Flashlet Count
+        TextView flashletCount = findViewById(R.id.fLCounterLabel);
+        String flashletCountStr = "You have " + userFlashlets.size() + " Total Flashlet" + (userFlashlets.size() == 1 ? "" : "s");
+        flashletCount.setText(flashletCountStr);
+
+        // If user has no Flashlets, display a message to ask them to create one
+        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
+        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
+        if (userFlashlets.isEmpty()) {
+            Button nFNCreateFlashlet = findViewById(R.id.fLNoFlashletsCreate);
+            nFNCreateFlashlet.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent createFlashletIntent = new Intent(FlashletList.this, CreateFlashlet.class);
+                    startActivity(createFlashletIntent);
+                }
+            });
+            recyclerView.setVisibility(View.GONE);
+            noFlashletNotif.setVisibility(View.VISIBLE);
+        }
+
+        /// Display Flashlet List on Screen
+        if (!userFlashlets.isEmpty()) {
+            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this);
+            LinearLayoutManager userLayoutManager = new LinearLayoutManager(this);
+            recyclerView.setLayoutManager(userLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(userAdapter);
+        }
     }
 }

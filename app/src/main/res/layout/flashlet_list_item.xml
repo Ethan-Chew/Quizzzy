@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/list_item_background"
     android:orientation="vertical"
     android:padding="18sp">
 
     <TextView
-        android:id="@+id/flashletListItemTitle"
+        android:id="@+id/fLITitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Flashlet Title"
@@ -16,7 +16,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/flashletListItemCount"
+        android:id="@+id/fLICount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="2 Keywords"
@@ -32,7 +32,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Last Updated:  "
@@ -41,7 +40,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/flashletListItemLUpdatedLabel"
+            android:id="@+id/fLILUpdatedLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

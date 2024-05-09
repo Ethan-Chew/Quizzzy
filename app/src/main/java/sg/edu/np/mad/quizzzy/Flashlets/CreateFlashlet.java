@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,7 @@ public class CreateFlashlet extends AppCompatActivity {
     Button createFlashletBtn;
     LinearLayout flashcardListView;
     View newFlashcardView;
+    EditText createFlashletTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,20 @@ public class CreateFlashlet extends AppCompatActivity {
                         20
                 );
                 flashcardListView.addView(spacerView, spacerParams);
+            }
+        });
+
+        // Handle Flashlet creation submission
+        createFlashletTitle = findViewById(R.id.cFNewTitle);
+        createFlashletBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Validate that all fields are filled in
+                String title = createFlashletTitle.getText().toString();
+                if (title.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Enter a title before continuing!", Toast.LENGTH_LONG).show();
+                    return;
+                }
             }
         });
     }

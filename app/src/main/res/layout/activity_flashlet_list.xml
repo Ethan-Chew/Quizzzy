@@ -8,7 +8,7 @@
     tools:context=".Flashlets.FlashletList">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/flashletListViewToolbar"
+        android:id="@+id/fLViewToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -20,7 +20,7 @@
         app:navigationIcon="?attr/homeAsUpIndicator" />
 
     <TextView
-        android:id="@+id/flashletListViewTitle"
+        android:id="@+id/fLViewTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
@@ -32,29 +32,68 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/flashletListViewToolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/fLViewToolbar" />
 
     <TextView
-        android:id="@+id/flashletCounterLabel"
+        android:id="@+id/fLCounterLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
         android:paddingTop="5sp"
         android:paddingBottom="5sp"
-        android:text="TextView"
+        android:text="You have x Total Flashlets"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/flashletListViewTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/fLViewTitle" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/flashletListRecyclerView"
+        android:id="@+id/fLRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="578dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/flashletCounterLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/fLCounterLabel" />
+
+    <LinearLayout
+        android:id="@+id/fLNoFlashlets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/list_item_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/fLRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fLCounterLabel"
+        tools:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="You have no Flashlets!"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="15dp" />
+
+        <Button
+            android:id="@+id/fLNoFlashletsCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Flashlet" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,8 +17,8 @@ public class FlashletListViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
 
         // Find item from View
-        titleLabel = itemView.findViewById(R.id.flashletListItemTitle);
-        flashcardCountLabel = itemView.findViewById(R.id.flashletCounterLabel);
-        lastUpdatedLabel = itemView.findViewById(R.id.flashletListItemLUpdatedLabel);
+        titleLabel = itemView.findViewById(R.id.fLITitle);
+        flashcardCountLabel = itemView.findViewById(R.id.fLICount);
+        lastUpdatedLabel = itemView.findViewById(R.id.fLILUpdatedLabel);
     }
 }

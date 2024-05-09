@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,11 +27,20 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        Button debug = findViewById(R.id.button2);
-        debug.setOnClickListener(new View.OnClickListener() {
+        Button createDebug = findViewById(R.id.debugCreate);
+        createDebug.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CreateFlashlet.class);
+                startActivity(intent);
+            }
+        });
+
+        Button listDebug = findViewById(R.id.listDebug);
+        listDebug.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, FlashletList.class);
                 startActivity(intent);
             }
         });
