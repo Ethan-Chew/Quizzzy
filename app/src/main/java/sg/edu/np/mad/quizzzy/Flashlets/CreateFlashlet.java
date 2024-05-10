@@ -31,11 +31,11 @@ public class CreateFlashlet extends AppCompatActivity {
     List<Flashcard> flashcards = new ArrayList<Flashcard>();
 
     // View Variables
-    Button addNewFlashcardBtn;
-    Button createFlashletBtn;
-    LinearLayout flashcardListView;
-    View newFlashcardView;
-    EditText createFlashletTitle;
+    private Button addNewFlashcardBtn;
+    private Button createFlashletBtn;
+    private LinearLayout flashcardListView;
+    private View newFlashcardView;
+    private EditText createFlashletTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +63,6 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Listen for updates in the Flashcard Info
                 EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
-                EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-
                 keywordEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -74,6 +72,7 @@ public class CreateFlashlet extends AppCompatActivity {
                         newFlashcard.setKeyword(keywordEditText.getText().toString());
                     }
                 });
+                EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
                 definitionEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}

@@ -12,5 +12,10 @@ public class User {
     Queue<String> recentlyViewedFlashlets; // Note: Max Queue Length (5)
     ArrayList<String> joinedClasses;
 
+    // Getter
+    public String getId() { return this.id; }
+
+    // Setter
+
     // TODO: @Darius add attributes for Statistics
 }

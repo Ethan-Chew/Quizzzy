@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,18 +19,28 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletList extends AppCompatActivity {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
+    User user;
 
     // Initialisation of Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -53,8 +65,40 @@ public class FlashletList extends AppCompatActivity {
 
         // Get Data from Firebase
         /// Get User Info
+        Gson gson = new Gson();
+        DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
+        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        String userJson = gson.toJson(document.getData());
+                        user = gson.fromJson(userJson, User.class);
+                    } else {
+                        Log.d("Firebase", "No such document");
+                    }
+                } else {
+                    Log.d("Firebase", "User get failed with ", task.getException());
+                }
+            }
+        });
 
         /// Get Flashlets related to User
+        CollectionReference flashletColRef = db.collection("flashlets");
+        flashletColRef.whereArrayContains("", user.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String flashletJson = gson.toJson(document.getData());
+                        userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                    }
+                } else {
+                    Log.d("Firebase", "Flashlet get failed with ", task.getException());
+                }
+            }
+        });
 
         // Update Flashlet Count
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
