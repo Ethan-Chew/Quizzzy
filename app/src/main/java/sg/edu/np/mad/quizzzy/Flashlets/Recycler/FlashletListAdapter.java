@@ -1,8 +1,13 @@
 package sg.edu.np.mad.quizzzy.Flashlets.Recycler;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.View;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,13 +17,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
+import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHolder> {
     private final ArrayList<Flashlet> userFlashlets;
     private FlashletList activity;
+    boolean flashletOptionsOnClick = false;
 
     public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity) {
         this.userFlashlets = userFlashlets;
@@ -34,6 +43,36 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
 
     public void onBindViewHolder(FlashletListViewHolder holder, int position) {
         Flashlet listItem = userFlashlets.get(position);
+
+        // Create Drop Down Options Menu
+        PopupMenu popup = new PopupMenu(activity, holder.optionsMenu);
+        popup.inflate(R.menu.flashlet_list_options);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.fLOUpdate) {
+                    Intent intent = new Intent(activity, UpdateFlashlet.class);
+                    activity.startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.fLODelete) {
+                    // TODO: Handle Delete
+                    // Display Alert to confirm before deletion of Flashlet
+
+                    return true;
+                }
+                return false;
+            }
+        });
+        holder.optionsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flashletOptionsOnClick = !flashletOptionsOnClick;
+                if (flashletOptionsOnClick) {
+                    popup.show();
+                }
+            }
+        });
 
         // Set Text of Elements on UI
         holder.titleLabel.setText(listItem.getTitle());

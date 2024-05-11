@@ -30,6 +30,11 @@ public class Flashlet {
     public ArrayList<Flashcard> getFlashcards() { return this.flashcards; }
     public long getLastUpdatedUnix() { return this.lastUpdatedUnix; }
 
+    // Methods
+    public boolean deleteFlashlet() {
+        return true;
+    }
+
     // Constructor
     public Flashlet(String id, String title, String description, ArrayList<String> creatorId, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix) {
         this.id = id;

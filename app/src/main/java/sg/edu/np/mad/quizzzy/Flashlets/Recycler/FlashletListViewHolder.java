@@ -12,6 +12,7 @@ public class FlashletListViewHolder extends RecyclerView.ViewHolder {
     TextView titleLabel;
     TextView flashcardCountLabel;
     TextView lastUpdatedLabel;
+    TextView optionsMenu;
 
     public FlashletListViewHolder(View itemView) {
         super(itemView);
@@ -20,5 +21,6 @@ public class FlashletListViewHolder extends RecyclerView.ViewHolder {
         titleLabel = itemView.findViewById(R.id.fLITitle);
         flashcardCountLabel = itemView.findViewById(R.id.fLICount);
         lastUpdatedLabel = itemView.findViewById(R.id.fLILUpdatedLabel);
+        optionsMenu = itemView.findViewById(R.id.fLIOptionsMenu);
     }
 }
