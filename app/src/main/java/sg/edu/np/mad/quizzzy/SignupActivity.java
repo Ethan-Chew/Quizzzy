@@ -1,6 +1,8 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.os.Bundle;
+import android.os.Debug;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -63,6 +65,8 @@ public class SignupActivity extends AppCompatActivity {
                                         userInfo.put("email", user.getEmail());
                                         db.collection("users").document(user.getUid())
                                                 .set(userInfo);
+                                    } else if (!task.getException().toString().isEmpty()) {
+                                        Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     } else {
                                         Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                                     }

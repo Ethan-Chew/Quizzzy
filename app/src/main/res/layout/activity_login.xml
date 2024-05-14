@@ -60,7 +60,7 @@
         android:layout_marginBottom="19dp"
         android:ems="10"
         android:inputType="text"
-        android:text="Username"
+        android:hint="Email"
         app:layout_constraintBottom_toTopOf="@+id/passwordField"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -74,6 +74,7 @@
         android:layout_marginBottom="62dp"
         android:ems="10"
         android:inputType="textPassword"
+        android:hint="Password"
         app:layout_constraintBottom_toTopOf="@+id/loginBtnLoginAct"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

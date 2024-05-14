@@ -57,6 +57,8 @@ public class LoginActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();
 
+                                    } else if (!task.getException().toString().isEmpty()) {
+                                        Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     } else {
                                         Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                                     }
@@ -65,5 +67,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 }
