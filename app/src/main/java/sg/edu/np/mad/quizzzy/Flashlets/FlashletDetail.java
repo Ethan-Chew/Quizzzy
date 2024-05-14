@@ -58,7 +58,7 @@ public class FlashletDetail extends AppCompatActivity {
 
         // Update UI based on Flashlet Info
         flashletTitleLbl.setText(flashlet.getTitle());
-        String flashcardCount = "You have " + flashcards.size() + "Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
+        String flashcardCount = "You have " + flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
 
         // Add Flashlets to Screen

@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +30,7 @@ import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHolder> {
+    Gson gson = new Gson();
     private final FlashletListRecyclerInterface flashletListRecyclerInterface;
     private final ArrayList<Flashlet> userFlashlets;
     private FlashletList activity;
@@ -57,7 +60,9 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.fLOUpdate) {
+                    String flashletJson = gson.toJson(listItem);
                     Intent intent = new Intent(activity, UpdateFlashlet.class);
+                    intent.putExtra("flashletJSON", flashletJson);
                     activity.startActivity(intent);
                     return true;
                 } else if (itemId == R.id.fLODelete) {
