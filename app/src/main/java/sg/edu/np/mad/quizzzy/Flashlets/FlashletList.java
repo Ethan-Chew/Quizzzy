@@ -32,17 +32,19 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
+import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 
-public class FlashletList extends AppCompatActivity {
+public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
     User user;
+    Gson gson = new Gson();
 
-    // Initialisation of Cloud Firestore
+    // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -65,41 +67,41 @@ public class FlashletList extends AppCompatActivity {
 
         // Get Data from Firebase
         /// Get User Info
-//        Gson gson = new Gson();
-//        DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
-//        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        String userJson = gson.toJson(document.getData());
-//                        user = gson.fromJson(userJson, User.class);
-//                    } else {
-//                        Log.d("Firebase", "No such document");
-//                    }
-//                } else {
-//                    Log.d("Firebase", "User get failed with ", task.getException());
-//                }
-//            }
-//        });
-//
-//        /// Get Flashlets related to User
-//        CollectionReference flashletColRef = db.collection("flashlets");
-//        flashletColRef.whereArrayContains("", user.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                        String flashletJson = gson.toJson(document.getData());
-//                        userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
-//                    }
-//                } else {
-//                    Log.d("Firebase", "Flashlet get failed with ", task.getException());
-//                }
-//            }
-//        });
+        DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
+        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    String userJson = gson.toJson(document.getData());
+                    user = gson.fromJson(userJson, User.class);
 
+                    /// Get Flashlets related to the User
+                    CollectionReference flashletColRef = db.collection("flashlets");
+                    flashletColRef.whereArrayContains("creatorId", user.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String flashletJson = gson.toJson(document.getData());
+                                    userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                                }
+
+                                // Update User Interface with Updated Data
+                                updateFlashletList();
+                            } else {
+                                Log.d("Firebase", "Flashlet get failed with ", task.getException());
+                            }
+                        }
+                    });
+                } else {
+                    Log.d("Firebase", "User get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    void updateFlashletList() {
         // Update Flashlet Count
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
         String flashletCountStr = "You have " + userFlashlets.size() + " Total Flashlet" + (userFlashlets.size() == 1 ? "" : "s");
@@ -124,11 +126,20 @@ public class FlashletList extends AppCompatActivity {
         /// Display Flashlet List on Screen
         if (!userFlashlets.isEmpty()) {
             noFlashletNotif.setVisibility(View.GONE);
-            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this);
+            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this);
             LinearLayoutManager userLayoutManager = new LinearLayoutManager(this);
             recyclerView.setLayoutManager(userLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(userAdapter);
         }
+
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        String flashletJson = gson.toJson(userFlashlets.get(position));
+        Intent sendToFlashletDetail = new Intent(FlashletList.this, FlashletDetail.class);
+        sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
+        startActivity(sendToFlashletDetail);
     }
 }

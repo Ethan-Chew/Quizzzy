@@ -8,8 +8,10 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
@@ -18,6 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.MainActivity;
@@ -25,20 +28,22 @@ import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHolder> {
+    private final FlashletListRecyclerInterface flashletListRecyclerInterface;
     private final ArrayList<Flashlet> userFlashlets;
     private FlashletList activity;
     boolean flashletOptionsOnClick = false;
 
-    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity) {
+    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, FlashletListRecyclerInterface flashletListRecyclerInterface) {
         this.userFlashlets = userFlashlets;
         this.activity = activity;
+        this.flashletListRecyclerInterface = flashletListRecyclerInterface;
     }
 
     @NonNull
     public FlashletListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.flashlet_list_item, parent, false);
 
-        return new FlashletListViewHolder(view);
+        return new FlashletListViewHolder(view, flashletListRecyclerInterface);
     }
 
     public void onBindViewHolder(FlashletListViewHolder holder, int position) {
@@ -58,7 +63,24 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                 } else if (itemId == R.id.fLODelete) {
                     // TODO: Handle Delete
                     // Display Alert to confirm before deletion of Flashlet
+                    String confirmationMessage = "Confirm you want to delete Flashlet: " + listItem.getTitle() + "? This process is irreversible.";
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("Are you sure?")
+                            .setMessage(confirmationMessage)
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                // Confirmed Delete
+                                boolean deleteItem = listItem.deleteFlashlet();
 
+                                if (deleteItem) {
+                                    Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .setNegativeButton("Cancel", ((dialog, which) -> {
+                                // Handle Cancel Delete
+                            }))
+                            .setCancelable(true);
+
+                    builder.create().show(); // Show Alert
                     return true;
                 }
                 return false;
