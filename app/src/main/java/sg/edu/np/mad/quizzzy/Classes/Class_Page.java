@@ -12,20 +12,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import sg.edu.np.mad.quizzzy.R;
 
-public class Class_Management extends AppCompatActivity {
+public class Class_Page extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.class_management);
+        setContentView(R.layout.class_page);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
     }
+
+
 
 
 }
