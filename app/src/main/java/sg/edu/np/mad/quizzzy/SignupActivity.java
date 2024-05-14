@@ -1,8 +1,6 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.os.Bundle;
-import android.os.Debug;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -41,15 +39,16 @@ public class SignupActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         View signupBtn = findViewById(R.id.signupBtnSignupAct);
-        EditText usernameView = findViewById(R.id.usernameFieldSignupAct);
+        EditText emailView = findViewById(R.id.emailFieldSignupAct);
         EditText passwordView = findViewById(R.id.passwordFieldSignupAct);
+        EditText usernameView = findViewById(R.id.usernameFieldSignupAct);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> userInfo = new HashMap<>();
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameView.getText().toString();
+                String username = emailView.getText().toString();
                 String password = passwordView.getText().toString();
 
                 if (username.isEmpty() || password.isEmpty()) {
@@ -63,6 +62,7 @@ public class SignupActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         userInfo.put("email", user.getEmail());
+                                        userInfo.put("username", usernameView.getText().toString());
                                         db.collection("users").document(user.getUid())
                                                 .set(userInfo);
                                     } else if (!task.getException().toString().isEmpty()) {
