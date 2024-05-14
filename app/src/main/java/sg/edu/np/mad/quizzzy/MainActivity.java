@@ -28,10 +28,19 @@ MainActivity extends AppCompatActivity {
         });
 
         View loginBtn = findViewById(R.id.loginBtn);
+        View signupBtn = findViewById(R.id.signupBtn);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = (new Intent(v.getContext(), LoginActivity.class));
+                startActivity(intent);
+            }
+        });
+
+        signupBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = (new Intent(v.getContext(), SignupActivity.class));
                 startActivity(intent);
             }
         });
