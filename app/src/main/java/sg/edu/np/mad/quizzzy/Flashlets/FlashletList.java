@@ -65,6 +65,10 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         tempFlashcards.add(new Flashcard("Keyword 3", "Defintion 3"));
         userFlashlets.add(new Flashlet("0", "Test Flashlet", null, new ArrayList<String>(), null, tempFlashcards, 1714883105));
 
+        // Get User ID using Intent
+        Intent receivingIntent = getIntent();
+        user = gson.fromJson(receivingIntent.getStringExtra("userJSON"), User.class);
+
         // Get Data from Firebase
         /// Get User Info
         DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
@@ -89,6 +93,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
 
                                 // Update User Interface with Updated Data
                                 updateFlashletList();
+                                findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
                             } else {
                                 Log.d("Firebase", "Flashlet get failed with ", task.getException());
                             }
@@ -126,7 +131,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         /// Display Flashlet List on Screen
         if (!userFlashlets.isEmpty()) {
             noFlashletNotif.setVisibility(View.GONE);
-            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this);
+            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this, user);
             LinearLayoutManager userLayoutManager = new LinearLayoutManager(this);
             recyclerView.setLayoutManager(userLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());

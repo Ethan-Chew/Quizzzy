@@ -98,4 +98,18 @@
             android:text="Create Flashlet" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/fLProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="156dp"
+        android:layout_marginTop="261dp"
+        android:layout_marginEnd="157dp"
+        android:layout_marginBottom="408dp"
+        app:layout_constraintBottom_toBottomOf="@+id/fLRecyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/fLRecyclerView"
+        app:layout_constraintStart_toStartOf="@+id/fLRecyclerView"
+        app:layout_constraintTop_toTopOf="@+id/fLRecyclerView" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

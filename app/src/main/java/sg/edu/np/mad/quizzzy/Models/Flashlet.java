@@ -33,8 +33,8 @@ public class Flashlet {
     public long getLastUpdatedUnix() { return this.lastUpdatedUnix; }
 
     // Methods
-    public boolean deleteFlashlet() {
-        return true;
+    public void addFlashcard(Flashcard flashcard) {
+        flashcards.add(flashcard);
     }
 
     // Constructor

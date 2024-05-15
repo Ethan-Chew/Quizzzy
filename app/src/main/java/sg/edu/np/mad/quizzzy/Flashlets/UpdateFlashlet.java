@@ -4,18 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
@@ -33,6 +38,7 @@ public class UpdateFlashlet extends AppCompatActivity {
 
     // Data Variables
     Flashlet flashlet;
+    String userJson;
 
     // View Variables
     LinearLayout flashcardListView;
@@ -54,6 +60,7 @@ public class UpdateFlashlet extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
+        userJson = receiveIntent.getStringExtra("userJSON");
 
         // Update UI Fields according to Loaded Flashlet
         updateFlashletTitle = findViewById(R.id.uFTitle);
@@ -109,6 +116,9 @@ public class UpdateFlashlet extends AppCompatActivity {
                         20
                 );
                 flashcardListView.addView(spacerView, spacerParams);
+
+                // Add Flashcard to Flashlet
+                flashlet.addFlashcard(flashcard);
             }
         });
 
@@ -117,7 +127,31 @@ public class UpdateFlashlet extends AppCompatActivity {
         updateFlashletBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Implement update database logic
+                /// Disable Button
+                updateFlashletBtn.setEnabled(false);
+                updateFlashletBtn.setText("Loading...");
+                db.collection("flashlets").document(flashlet.getId())
+                        .set(flashlet)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                updateFlashletBtn.setText("Update Flashlet");
+                                Toast.makeText(UpdateFlashlet.this, "Updated Successfully!", Toast.LENGTH_LONG).show();
+
+                                Intent flashletListIntent = new Intent(UpdateFlashlet.this, FlashletList.class);
+                                flashletListIntent.putExtra("userJson", userJson);
+                                startActivity(flashletListIntent);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                updateFlashletBtn.setEnabled(true);
+                                updateFlashletBtn.setText("Update Flashlet");
+                                Log.e("Update Flashlet", e.toString());
+                                Toast.makeText(getApplicationContext(), "Failed to Update Flashlet", Toast.LENGTH_LONG).show();
+                            }
+                        });
             }
         });
     }

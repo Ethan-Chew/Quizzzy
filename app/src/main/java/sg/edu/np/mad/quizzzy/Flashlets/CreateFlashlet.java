@@ -137,12 +137,18 @@ public class CreateFlashlet extends AppCompatActivity {
                     newFlashlet.setClassId(classId);
                 }
 
+                // Disable button to prevent double-adding
+                createFlashletBtn.setEnabled(false);
+                createFlashletBtn.setText("Loading...");
+
                 // Add Flashlet to Firebase
-                db.collection("Flashlets")
-                        .add(newFlashlet)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                db.collection("flashlets")
+                        .document(id)
+                        .set(newFlashlet)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
+                            public void onSuccess(Void aVoid) {
+                                createFlashletBtn.setText("Create Flashlet");
                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
                                 Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
                                 startActivity(flashletListIntent);
@@ -151,6 +157,9 @@ public class CreateFlashlet extends AppCompatActivity {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                createFlashletBtn.setText("Create Flashlet");
+                                createFlashletBtn.setEnabled(true);
+
                                 Log.e("Flashlet Creation", e.toString());
                                 Toast.makeText(getApplicationContext(), "Failed to Create Flashlet", Toast.LENGTH_LONG).show();
                             }
