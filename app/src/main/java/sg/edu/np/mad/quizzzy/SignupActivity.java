@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import sg.edu.np.mad.quizzzy.Models.User;
+
 public class SignupActivity extends AppCompatActivity {
 
     @Override
@@ -43,7 +45,6 @@ public class SignupActivity extends AppCompatActivity {
         EditText passwordView = findViewById(R.id.passwordFieldSignupAct);
         EditText usernameView = findViewById(R.id.usernameFieldSignupAct);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> userInfo = new HashMap<>();
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,10 +62,8 @@ public class SignupActivity extends AppCompatActivity {
 
                                     if (task.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();
-                                        userInfo.put("email", user.getEmail());
-                                        userInfo.put("username", usernameView.getText().toString());
-                                        db.collection("users").document(user.getUid())
-                                                .set(userInfo);
+                                        User userInfo = new User(user.getUid(), usernameView.getText().toString(), user.getEmail());
+                                        db.collection("users").document(user.getUid()).set(userInfo);
                                     } else if (!task.getException().toString().isEmpty()) {
                                         Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     } else {

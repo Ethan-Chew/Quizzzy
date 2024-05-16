@@ -14,10 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
-public class
-
-
-MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +35,9 @@ MainActivity extends AppCompatActivity {
         String username = sharedPref.getString(getString(R.string.username), null);
 
         if (email != null && username != null) {
-            Log.println(Log.DEBUG,"DEBUG", username + " " + email);
+            // User is Logged in, send to Home Screen
+            Intent homeScreenIntent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(homeScreenIntent);
         }
 
         loginBtn.setOnClickListener(new View.OnClickListener() {

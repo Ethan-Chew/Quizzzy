@@ -3,6 +3,7 @@ package sg.edu.np.mad.quizzzy;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -75,6 +76,9 @@ public class LoginActivity extends AppCompatActivity {
                                                         editor.putString(getString(R.string.username), document.getData().get("username").toString());
                                                         editor.apply();
 
+                                                        // Send User to Home Screen
+                                                        Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                        startActivity(homeScreenIntent);
                                                     } else {
                                                         Log.d(TAG, "No such document");
                                                     }
