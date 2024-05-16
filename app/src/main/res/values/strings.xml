@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Quizzzy</string>
+    <string name="username">username</string>
+    <string name="email">email</string>
 </resources>
