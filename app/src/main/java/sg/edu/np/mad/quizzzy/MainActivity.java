@@ -1,7 +1,10 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -29,6 +32,15 @@ MainActivity extends AppCompatActivity {
 
         View loginBtn = findViewById(R.id.loginBtn);
         View signupBtn = findViewById(R.id.signupBtn);
+
+        SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("userLogin", Context.MODE_PRIVATE);
+        String email = sharedPref.getString(getString(R.string.email), null);
+        String username = sharedPref.getString(getString(R.string.username), null);
+
+        if (email != null && username != null) {
+            Log.println(Log.DEBUG,"DEBUG", username + " " + email);
+        }
+
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
