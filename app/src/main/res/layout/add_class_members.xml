@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item_background"
+    android:orientation="vertical"
+    android:paddingLeft="15sp"
+    android:paddingTop="15sp"
+    android:paddingRight="15sp"
+    android:paddingBottom="15sp">
+
+    <TextView
+        android:id="@+id/acmmember"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Member Username"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/acmusername"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:hint="Username of Member" />
+</LinearLayout>

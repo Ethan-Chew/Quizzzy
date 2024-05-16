@@ -28,54 +28,91 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/acViewToolbar">
 
-        <TextView
-            android:id="@+id/cFTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="20dp"
-            android:text="Create Flashlet"
-            android:textColor="@color/black"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/cFNewTitleContainer"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <LinearLayout
-            android:id="@+id/cFNewTitleContainer"
             android:layout_width="match_parent"
-            android:layout_height="100sp"
-            android:layout_marginStart="25dp"
-            android:layout_marginEnd="25dp"
-            android:background="@drawable/list_item_background"
-            android:orientation="vertical"
-            android:paddingLeft="15sp"
-            android:paddingTop="15sp"
-            android:paddingRight="15sp"
-            android:paddingBottom="15sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cFTitle">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cfNewTitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Class Name"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/cFNewTitle"
+                android:id="@+id/cFTitle"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="Enter an Appropriate Class name..."
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginBottom="20dp"
+                android:text="Create Class"
                 android:textColor="@color/black"
-                android:textSize="16sp" />
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/cFNewTitleContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/cFNewTitleContainer"
+                android:layout_width="match_parent"
+                android:layout_height="100sp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/list_item_background"
+                android:orientation="vertical"
+                android:paddingLeft="15sp"
+                android:paddingTop="15sp"
+                android:paddingRight="15sp"
+                android:paddingBottom="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cFTitle">
+
+                <TextView
+                    android:id="@+id/cfNewTitleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Class Name"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/cFNewTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:hint="Enter An Appropriate Class name..."
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="15sp" />
+
+            <TextView
+                android:id="@+id/cFMember"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginBottom="20dp"
+                android:text="Add Members"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/cFNewTitleContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/cpadd_membersbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:text="+"
+                android:textSize="20dp"
+                tools:layout_editor_absoluteX="62dp"
+                tools:layout_editor_absoluteY="216dp" />
         </LinearLayout>
-    </ScrollView>>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
