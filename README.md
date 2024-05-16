@@ -29,3 +29,4 @@ However, we also acknowledge the issues of having it on a mobile device: users m
 4. Sign in With Google / 2 Factor Authentication
 5. Permissions and Sharing Chapters with Unique Code
 6. Text-to-Speech
+7. Widgets
