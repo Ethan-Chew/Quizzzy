@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.R;
 
@@ -27,7 +29,6 @@ public class Add_Class extends AppCompatActivity {
     private Button addMemberBtn;
     private View newMemberView;
     private ArrayList<String> newMemberList = new ArrayList<>();
-    Class newMember;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,28 +41,30 @@ public class Add_Class extends AppCompatActivity {
         });
 
         addMemberBtn = findViewById(R.id.cpadd_membersbtn);
+        LinearLayout addmem = findViewById(R.id.addmembers);
         addMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // this will run when your button is clicked
-
                 /// create the view
                 newMemberView = LayoutInflater.from(Add_Class.this).inflate(R.layout.add_class_members, null, false);
-                /// Listen for text-field change
-                EditText usernameEditText = newMemberView.findViewById(R.id.acmusername);
-                usernameEditText.addTextChangedListener(new TextWatcher() {
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
+                EditText member = newMemberView.findViewById(R.id.acmusername);
+                newMemberList.add(member.getText().toString());
 
-                    }
-                });
-                /// add the view to screen
+                addmem.addView(newMemberView);
 
+                View spacerView = new View(Add_Class.this);
+                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        20
+                );
+                addmem.addView(spacerView, spacerParams);
             }
         });
+
+        // when button click
+        ///Class class = new Class(UUID.randomUUID().toString(), '', '');
 
     }
 
