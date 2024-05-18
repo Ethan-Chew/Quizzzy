@@ -2,14 +2,11 @@ package sg.edu.np.mad.quizzzy;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -27,8 +24,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -40,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -52,8 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         View loginBtn = findViewById(R.id.loginBtnLoginAct);
         EditText usernameView = findViewById(R.id.usernameField);
         EditText passwordView = findViewById(R.id.passwordField);
-        SharedPreferences sharedPref = LoginActivity.this.getSharedPreferences("userLogin", Context.MODE_PRIVATE);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,15 +63,15 @@ public class LoginActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
-                                        DocumentReference docRef = db.collection("users").document(currentUser.getUid());
+                                        DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
-                                                    SQLiteManager db = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                    SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
                                                     User user = new User(currentUser.getUid(), document.getData().get("username").toString(), email);
-                                                    db.addUser(user);
+                                                    localDB.addUser(user);
                                                     // Send User to Home Screen
                                                     Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                     startActivity(homeScreenIntent);

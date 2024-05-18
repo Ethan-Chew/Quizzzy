@@ -2,8 +2,6 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +19,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
@@ -53,7 +49,7 @@ public class CreateFlashlet extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_flashlet);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -79,25 +75,9 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Listen for updates in the Flashcard Info
                 EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
-                keywordEditText.addTextChangedListener(new TextWatcher() {
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        newFlashcard.setKeyword(keywordEditText.getText().toString());
-                    }
-                });
+                newFlashcard.setKeyword(keywordEditText.getText().toString());
                 EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                definitionEditText.addTextChangedListener(new TextWatcher() {
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        newFlashcard.setDefinition(definitionEditText.getText().toString());
-                    }
-                });
+                newFlashcard.setDefinition(definitionEditText.getText().toString());
 
                 // Add Flashcard to List
                 flashcards.add(newFlashcard);

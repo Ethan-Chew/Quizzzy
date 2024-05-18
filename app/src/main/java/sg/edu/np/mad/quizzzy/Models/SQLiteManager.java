@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class SQLiteManager extends SQLiteOpenHelper {
 
@@ -47,18 +46,18 @@ public class SQLiteManager extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
-public void addUser(User user) {
-    SQLiteDatabase db = this.getWritableDatabase();
+    public void addUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
 
-    ContentValues contentValues = new ContentValues();
-    contentValues.put(ID, user.getId());
-    contentValues.put(USERNAME, user.getUsername());
-    contentValues.put(EMAIL, user.getEmail());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ID, user.getId());
+        contentValues.put(USERNAME, user.getUsername());
+        contentValues.put(EMAIL, user.getEmail());
 
-    db.insert(TABLE_NAME, null, contentValues);
+        db.insert(TABLE_NAME, null, contentValues);
     }
 
-    public User populateUser() {
+    public User getUser() {
         SQLiteDatabase db = this.getReadableDatabase();
 
         User user = null;
