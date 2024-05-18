@@ -66,7 +66,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/cFTitle">
 
                 <TextView
-                    android:id="@+id/cfNewTitleText"
+                    android:id="@+id/acNewTitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Class Name"
@@ -75,7 +75,7 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/cFNewTitle"
+                    android:id="@+id/acNewTitle"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:hint="Enter An Appropriate Class name..."
@@ -88,7 +88,7 @@
                 android:layout_height="15sp" />
 
             <TextView
-                android:id="@+id/cFMember"
+                android:id="@+id/acMember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -104,13 +104,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/addmembers"
+                android:id="@+id/acaddmembers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 
             <Button
-                android:id="@+id/cpadd_membersbtn"
+                android:id="@+id/acadd_membersbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -124,7 +124,7 @@
                 tools:layout_editor_absoluteY="216dp" />
 
             <Button
-                android:id="@+id/cpcreate_class"
+                android:id="@+id/accreate_class"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"

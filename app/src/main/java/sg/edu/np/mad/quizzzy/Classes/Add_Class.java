@@ -1,30 +1,39 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.Models.Class;
 import sg.edu.np.mad.quizzzy.R;
 
 public class Add_Class extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    Class newClass;
 
     private Button addMemberBtn;
     private View newMemberView;
@@ -40,8 +49,11 @@ public class Add_Class extends AppCompatActivity {
             return insets;
         });
 
-        addMemberBtn = findViewById(R.id.cpadd_membersbtn);
-        LinearLayout addmem = findViewById(R.id.addmembers);
+        addMemberBtn = findViewById(R.id.acadd_membersbtn);
+        Button createClassbtn = findViewById(R.id.accreate_class);
+        LinearLayout addmem = findViewById(R.id.acaddmembers);
+        Intent receivingIntent = getIntent();
+        String userId = receivingIntent.getStringExtra("userId");
         addMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,7 +76,48 @@ public class Add_Class extends AppCompatActivity {
         });
 
         // when button click
-        ///Class class = new Class(UUID.randomUUID().toString(), '', '');
+        EditText classTitle = findViewById(R.id.acNewTitle);
+        createClassbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = classTitle.getText().toString();
+                if (title.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Pleass give your class a name!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                String classId = UUID.randomUUID().toString();
+                ArrayList<String> creatorId = new ArrayList<>();
+                creatorId.add(userId);
+                ArrayList<String> memberId = new ArrayList<>();
+                memberId.add(userId);
+                newClass = new Class(classId, title, creatorId, memberId, System.currentTimeMillis() / 1000L);
+
+                createClassbtn.setEnabled(false);
+                createClassbtn.setText("Loading...");
+
+                db.collection("class")
+                        .document(classId)
+                        .set(newClass)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                createClassbtn.setText("Create Class");
+                                Toast.makeText(getApplicationContext(), "Class successfully created!", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                createClassbtn.setText("Create Class");
+                                createClassbtn.setEnabled(true);
+
+                                Log.e("Class Creation", e.toString());
+                                Toast.makeText(getApplicationContext(), "Failed to create Class!", Toast.LENGTH_LONG).show();
+                            }
+                        });
+            }
+        });
 
     }
 
