@@ -27,6 +27,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.User;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -52,36 +57,30 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameView.getText().toString();
+                String email = usernameView.getText().toString();
                 String password = passwordView.getText().toString();
 
-                if (username.isEmpty() || password.isEmpty()) {
+                if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Username or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mAuth.signInWithEmailAndPassword(username, password)
+                    mAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        FirebaseUser user = mAuth.getCurrentUser();
-                                        DocumentReference docRef = db.collection("users").document(user.getUid());
+                                        FirebaseUser currentUser = mAuth.getCurrentUser();
+                                        DocumentReference docRef = db.collection("users").document(currentUser.getUid());
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
-                                                    if (document.exists()) {
-                                                        SharedPreferences.Editor editor = sharedPref.edit();
-                                                        editor.putString(getString(R.string.email), document.getData().get("email").toString());
-                                                        editor.putString(getString(R.string.username), document.getData().get("username").toString());
-                                                        editor.apply();
-
-                                                        // Send User to Home Screen
-                                                        Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                        startActivity(homeScreenIntent);
-                                                    } else {
-                                                        Log.d(TAG, "No such document");
-                                                    }
+                                                    SQLiteManager db = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                    User user = new User(currentUser.getUid(), document.getData().get("username").toString(), email);
+                                                    db.addUser(user);
+                                                    // Send User to Home Screen
+                                                    Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                    startActivity(homeScreenIntent);
                                                 } else {
                                                     Log.d(TAG, "get failed with ", task.getException());
                                                 }

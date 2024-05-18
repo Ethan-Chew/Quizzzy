@@ -1,6 +1,8 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,5 +21,17 @@ public class HomeActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        TextView idView = findViewById(R.id.idView);
+        TextView usernameView = findViewById(R.id.usernameView);
+        TextView emailView = findViewById(R.id.emailView);
+
+        String id = getIntent().getStringExtra("id");
+        String email = getIntent().getStringExtra("email");
+        String username = getIntent().getStringExtra("username");
+
+        idView.setText(id);
+        usernameView.setText(email);
+        emailView.setText(username);
     }
 }

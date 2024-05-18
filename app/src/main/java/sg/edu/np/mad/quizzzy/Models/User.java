@@ -7,16 +7,17 @@ public class User {
     String id; // Unique UUID
     String username;
     String email;
-    ArrayList<String> createdFlashlets;
-    ArrayList<String> recentlyViewedFlashlets; // Note: Max Queue Length (5)
-    ArrayList<String> joinedClasses;
+    //ArrayList<String> createdFlashlets;
+    //ArrayList<String> recentlyViewedFlashlets; // Note: Max Queue Length (5)
+    //ArrayList<String> joinedClasses;
 
     // Getter
     public String getId() { return this.id; }
     public String getUsername() { return this.username; }
-    public ArrayList<String> getCreatedFlashlets() { return this.createdFlashlets; }
-    public ArrayList<String> getRecentlyViewedFlashlets() { return this.recentlyViewedFlashlets; }
-    public ArrayList<String> getJoinedClasses() { return this.joinedClasses; }
+    public String getEmail() {return this.email;}
+//    public ArrayList<String> getCreatedFlashlets() { return this.createdFlashlets; }
+//    public ArrayList<String> getRecentlyViewedFlashlets() { return this.recentlyViewedFlashlets; }
+//    public ArrayList<String> getJoinedClasses() { return this.joinedClasses; }
 
     // Setter
 
@@ -26,9 +27,9 @@ public class User {
         this.id = id;
         this.username = username;
         this.email = email;
-        createdFlashlets = new ArrayList<>();
-        recentlyViewedFlashlets = new ArrayList<>();
-        joinedClasses = new ArrayList<>();
+//        createdFlashlets = new ArrayList<>();
+//        recentlyViewedFlashlets = new ArrayList<>();
+//        joinedClasses = new ArrayList<>();
     }
 
     // TODO: @Darius add attributes for Statistics

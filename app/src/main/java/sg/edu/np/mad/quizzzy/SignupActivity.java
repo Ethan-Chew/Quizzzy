@@ -44,6 +44,7 @@ public class SignupActivity extends AppCompatActivity {
         EditText emailView = findViewById(R.id.emailFieldSignupAct);
         EditText passwordView = findViewById(R.id.passwordFieldSignupAct);
         EditText usernameView = findViewById(R.id.usernameFieldSignupAct);
+        EditText confirmPassword = findViewById(R.id.confirmPassword);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
@@ -54,6 +55,8 @@ public class SignupActivity extends AppCompatActivity {
 
                 if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(SignupActivity.this, "Username or Password is blank.", Toast.LENGTH_SHORT).show();
+                } else if (!confirmPassword.getText().toString().equals(password)) {
+                    Toast.makeText(SignupActivity.this, "Passwords does not match.", Toast.LENGTH_SHORT).show();
                 } else {
                     mAuth.createUserWithEmailAndPassword(username, password)
                             .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {

@@ -13,6 +13,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.User;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,16 +35,17 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        Log.println(Log.DEBUG, "DEBUG", loadDB().getId() + loadDB().getUsername() + loadDB().getEmail());
         View loginBtn = findViewById(R.id.loginBtn);
         View signupBtn = findViewById(R.id.signupBtn);
 
-        SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("userLogin", Context.MODE_PRIVATE);
-        String email = sharedPref.getString(getString(R.string.email), null);
-        String username = sharedPref.getString(getString(R.string.username), null);
 
-        if (email != null && username != null) {
+        if (!loadDB().getEmail().isEmpty() && !loadDB().getUsername().isEmpty()) {
             // User is Logged in, send to Home Screen
             Intent homeScreenIntent = new Intent(MainActivity.this, HomeActivity.class);
+            homeScreenIntent.putExtra("id", loadDB().getId());
+            homeScreenIntent.putExtra("email", loadDB().getEmail());
+            homeScreenIntent.putExtra("username", loadDB().getUsername());
             startActivity(homeScreenIntent);
         }
 
@@ -56,4 +65,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private User loadDB() {
+        SQLiteManager db = SQLiteManager.instanceOfDatabase(this);
+        return db.populateUser();
+    }
+
 }
+
