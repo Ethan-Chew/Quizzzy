@@ -26,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Check if the User is Signed in to Quizzy
+        // Check if the User is Signed in to Quizzzy
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(this);
 
         User user = localDB.getUser();

@@ -32,8 +32,10 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
+import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 
@@ -57,49 +59,31 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             return insets;
         });
 
-        // Temp Data
-        ArrayList<Flashcard> tempFlashcards = new ArrayList<Flashcard>();
-        tempFlashcards.add(new Flashcard("Keyword 1", "Defintion 1"));
-        tempFlashcards.add(new Flashcard("Keyword 2", "Defintion 2"));
-        tempFlashcards.add(new Flashcard("Keyword 3", "Defintion 3"));
-        userFlashlets.add(new Flashlet("0", "Test Flashlet", null, new ArrayList<String>(), null, tempFlashcards, 1714883105));
+        // Get User from SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
+        user = localDB.getUser();
+        /// If User is somehow null, return user back to login page
+        if (user == null) {
+            Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
+            startActivity(returnToLoginIntent);
+        }
 
-        // Get User ID using Intent
-        Intent receivingIntent = getIntent();
-        user = gson.fromJson(receivingIntent.getStringExtra("userJSON"), User.class);
-
-        // Get Data from Firebase
-        /// Get User Info
-        DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        // Get User's Flashlets from Firebase
+        CollectionReference flashletColRef = db.collection("flashlets");
+        flashletColRef.whereIn("id", user.getCreatedFlashlets()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    String userJson = gson.toJson(document.getData());
-                    user = gson.fromJson(userJson, User.class);
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String flashletJson = gson.toJson(document.getData());
+                        userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                    }
 
-                    /// Get Flashlets related to the User
-                    CollectionReference flashletColRef = db.collection("flashlets");
-                    flashletColRef.whereArrayContains("creatorId", user.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    String flashletJson = gson.toJson(document.getData());
-                                    userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
-                                }
-
-                                // Update User Interface with Updated Data
-                                updateFlashletList();
-                                findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
-                            } else {
-                                Log.d("Firebase", "Flashlet get failed with ", task.getException());
-                            }
-                        }
-                    });
+                    // Update User Interface with Updated Data
+                    updateFlashletList();
+                    findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
                 } else {
-                    Log.d("Firebase", "User get failed with ", task.getException());
+                    Log.d("Firebase", "Flashlet get failed with ", task.getException());
                 }
             }
         });

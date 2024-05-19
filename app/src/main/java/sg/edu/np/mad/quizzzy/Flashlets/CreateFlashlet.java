@@ -21,17 +21,19 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 
 public class CreateFlashlet extends AppCompatActivity {
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
 
     // Data Variables
     Flashlet newFlashlet;
@@ -128,8 +130,17 @@ public class CreateFlashlet extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                // Add Flashlet to SQLite DB
+                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
+                                User user = localDB.getUser();
+                                ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
+                                createdFlashlets.add(newFlashlet.getId());
+                                user.setCreatedFlashlets(createdFlashlets);
+                                localDB.updateUser(user);
+
                                 createFlashletBtn.setText("Create Flashlet");
                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
+                                // Send User back to List Page
                                 Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
                                 startActivity(flashletListIntent);
                             }
