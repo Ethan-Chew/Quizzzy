@@ -29,6 +29,7 @@ import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class CreateFlashlet extends AppCompatActivity {
@@ -132,11 +133,13 @@ public class CreateFlashlet extends AppCompatActivity {
                             public void onSuccess(Void aVoid) {
                                 // Add Flashlet to SQLite DB
                                 SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
-                                User user = localDB.getUser();
+                                UserWithRecents userWithRecents = localDB.getUser();
+                                User user = userWithRecents.getUser();
                                 ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
                                 createdFlashlets.add(newFlashlet.getId());
                                 user.setCreatedFlashlets(createdFlashlets);
-                                localDB.updateUser(user);
+                                userWithRecents.setUser(user);
+                                localDB.updateUser(userWithRecents);
 
                                 createFlashletBtn.setText("Create Flashlet");
                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();

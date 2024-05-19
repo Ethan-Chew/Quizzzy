@@ -37,12 +37,13 @@ import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
-    User user;
+    UserWithRecents userWithRecents;
     Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
@@ -61,16 +62,16 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
 
         // Get User from SQLite DB
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
-        user = localDB.getUser();
+        userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
-        if (user == null) {
+        if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
             startActivity(returnToLoginIntent);
         }
 
         // Get User's Flashlets from Firebase
         CollectionReference flashletColRef = db.collection("flashlets");
-        flashletColRef.whereIn("id", user.getCreatedFlashlets()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        flashletColRef.whereIn("id", userWithRecents.getUser().getCreatedFlashlets()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -114,7 +115,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         /// Display Flashlet List on Screen
         if (!userFlashlets.isEmpty()) {
             noFlashletNotif.setVisibility(View.GONE);
-            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this, user);
+            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this, userWithRecents.getUser());
             LinearLayoutManager userLayoutManager = new LinearLayoutManager(this);
             recyclerView.setLayoutManager(userLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());

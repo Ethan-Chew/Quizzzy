@@ -8,7 +8,6 @@ public class User {
     private String username;
     private String email;
     private ArrayList<String> createdFlashlets;
-    private ArrayList<String> recentlyViewedFlashlets; // Note: Max Queue Length (5)
     private ArrayList<String> joinedClasses;
 
     // Getter
@@ -16,7 +15,6 @@ public class User {
     public String getUsername() { return this.username; }
     public String getEmail() {return this.email;}
     public ArrayList<String> getCreatedFlashlets() { return this.createdFlashlets; }
-    public ArrayList<String> getRecentlyViewedFlashlets() { return this.recentlyViewedFlashlets; }
     public ArrayList<String> getJoinedClasses() { return this.joinedClasses; }
 
     // Setter
@@ -36,10 +34,6 @@ public class User {
         this.createdFlashlets = createdFlashlets;
     }
 
-    public void setRecentlyViewedFlashlets(ArrayList<String> recentlyViewedFlashlets) {
-        this.recentlyViewedFlashlets = recentlyViewedFlashlets;
-    }
-
     public void setJoinedClasses(ArrayList<String> joinedClasses) {
         this.joinedClasses = joinedClasses;
     }
@@ -50,18 +44,17 @@ public class User {
         this.username = username;
         this.email = email;
         createdFlashlets = new ArrayList<>();
-        recentlyViewedFlashlets = new ArrayList<>();
         joinedClasses = new ArrayList<>();
     }
 
-    public User (String id, String username, String email, ArrayList<String> createdFlashlets, ArrayList<String> recentlyViewedFlashlets, ArrayList<String> joinedClasses) {
+    public User (String id, String username, String email, ArrayList<String> createdFlashlets, ArrayList<String> joinedClasses) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.createdFlashlets = createdFlashlets;
-        this.recentlyViewedFlashlets = recentlyViewedFlashlets;
         this.joinedClasses = joinedClasses;
     }
 
     // TODO: @Darius add attributes for Statistics
 }
+

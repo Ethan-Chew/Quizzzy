@@ -44,27 +44,28 @@ public class SQLiteManager extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
-    public void addUser(User user) {
+    public void addUser(UserWithRecents user) {
         SQLiteDatabase db = this.getWritableDatabase();
 
+        User userWithoutRecents = user.getUser();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ID, user.getId());
-        contentValues.put(USERNAME, user.getUsername());
-        contentValues.put(EMAIL, user.getEmail());
+        contentValues.put(ID, userWithoutRecents.getId());
+        contentValues.put(USERNAME, userWithoutRecents.getUsername());
+        contentValues.put(EMAIL, userWithoutRecents.getEmail());
 
         // Covert ArrayList to String joined with ;
-        Log.d("AAA", user.getCreatedFlashlets().toString());
-        contentValues.put(CREATED_FLASHLETS, convertArrayToString(user.getCreatedFlashlets()));
-        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyViewedFlashlets()));
-        contentValues.put(JOINED_CLASSES, convertArrayToString(user.getJoinedClasses()));
+        contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
+        contentValues.put(JOINED_CLASSES, convertArrayToString(userWithoutRecents.getJoinedClasses()));
+        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.insert(TABLE_NAME, null, contentValues);
     }
 
-    public User getUser() {
+    public UserWithRecents getUser() {
         SQLiteDatabase db = this.getReadableDatabase();
 
         User user = null;
+        UserWithRecents userWithRecents = null;
         try (Cursor result = db.rawQuery("SELECT * FROM " + TABLE_NAME, null)) {
             if (result.getCount() != 0) {
                 while (result.moveToNext()) {
@@ -72,28 +73,31 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String username = result.getString(1);
                     String email = result.getString(2);
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
-                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
-                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(5));
-                    user = new User(id, username, email, createdFlashlets, recentlyViewedFlashlets, joinedClasses);
+                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(4));
+                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(5));
+                    user = new User(id, username, email, createdFlashlets, joinedClasses);
+                    userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
             }
         }
-        return user;
+        return userWithRecents;
     }
 
-    public void updateUser(User user) {
+    public void updateUser(UserWithRecents user) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        User userWithoutRecents = user.getUser();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ID, user.getId());
-        contentValues.put(USERNAME, user.getUsername());
-        contentValues.put(EMAIL, user.getEmail());
+        contentValues.put(ID, userWithoutRecents.getId());
+        contentValues.put(USERNAME, userWithoutRecents.getUsername());
+        contentValues.put(EMAIL, userWithoutRecents.getEmail());
 
         // Covert ArrayList to String joined with ;
-        contentValues.put(CREATED_FLASHLETS, convertArrayToString(user.getCreatedFlashlets()));
-        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyViewedFlashlets()));
-        contentValues.put(JOINED_CLASSES, convertArrayToString(user.getJoinedClasses()));
+        contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
+        contentValues.put(JOINED_CLASSES, convertArrayToString(userWithoutRecents.getJoinedClasses()));
+        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
-        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((user.getId()))});
+        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
     }
 
     // Convert ArrayListToString

@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -29,8 +30,9 @@ public class SplashActivity extends AppCompatActivity {
         // Check if the User is Signed in to Quizzzy
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(this);
 
-        User user = localDB.getUser();
-        if (user != null) {
+        UserWithRecents userWithRecents = localDB.getUser();
+        if (userWithRecents != null) {
+            User user = userWithRecents.getUser();
             if (!user.getEmail().isEmpty() && !user.getUsername().isEmpty()) {
                 // User is Logged in, send to Home Screen
                 Intent homeScreenIntent = new Intent(SplashActivity.this, HomeActivity.class);

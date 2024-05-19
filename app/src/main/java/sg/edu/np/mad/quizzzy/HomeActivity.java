@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -37,7 +38,8 @@ public class HomeActivity extends AppCompatActivity {
         emailView = findViewById(R.id.homeEmailView);
 
         // Get User from Database
-        User user = localDB.getUser();
+        UserWithRecents userWithRecents = localDB.getUser();
+        User user = userWithRecents.getUser();
 
         // Set User Info
         idView.setText(user.getId());

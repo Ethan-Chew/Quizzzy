@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -69,7 +70,7 @@ public class SignupActivity extends AppCompatActivity {
                                         User userInfo = new User(user.getUid(), usernameView.getText().toString(), user.getEmail());
                                         firebase.collection("users").document(user.getUid()).set(userInfo);
                                         // Save user into SQLite Local DB
-                                        localDB.addUser(userInfo);
+                                        localDB.addUser(new UserWithRecents(userInfo));
                                         // Send user to Home Screen
                                         Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
                                         startActivity(homeScreenIntent);
