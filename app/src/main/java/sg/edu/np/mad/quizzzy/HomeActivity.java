@@ -1,6 +1,8 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -9,6 +11,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -45,5 +48,13 @@ public class HomeActivity extends AppCompatActivity {
         idView.setText(user.getId());
         usernameView.setText(user.getUsername());
         emailView.setText(user.getEmail());
+
+        findViewById(R.id.homeShowFlashletList).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent showFlashletListIntent = new Intent(HomeActivity.this, FlashletList.class);
+                startActivity(showFlashletListIntent);
+            }
+        });
     }
 }

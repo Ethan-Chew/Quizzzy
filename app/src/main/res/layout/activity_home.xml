@@ -60,4 +60,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/homeShowFlashletList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="showFlashletList"
+        tools:layout_editor_absoluteX="188dp"
+        tools:layout_editor_absoluteY="424dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

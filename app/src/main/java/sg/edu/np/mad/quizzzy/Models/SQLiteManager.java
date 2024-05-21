@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -98,6 +99,30 @@ public class SQLiteManager extends SQLiteOpenHelper {
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
+    }
+
+    public void updateCreatedFlashcards(String id, ArrayList<String> createdFlashlets) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CREATED_FLASHLETS, convertArrayToString(createdFlashlets));
+
+        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
+    }
+
+    public void updateJoinedClasses(String id, ArrayList<String> joinedClasses) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(joinedClasses));
+
+        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
+    }
+
+    public void updateRecentlyViewed(String id, ArrayList<String> recentlyOpenedFlashcards) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(recentlyOpenedFlashcards));
+
+        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
     }
 
     // Convert ArrayListToString

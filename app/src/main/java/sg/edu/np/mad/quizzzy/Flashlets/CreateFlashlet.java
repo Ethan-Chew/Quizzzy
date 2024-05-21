@@ -2,6 +2,8 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -47,6 +50,15 @@ public class CreateFlashlet extends AppCompatActivity {
     private View newFlashcardView;
     private EditText createFlashletTitle;
 
+    // Handle Back Button Press
+    Toolbar toolbar = findViewById(R.id.cFToolbar);
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,10 +90,25 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Listen for updates in the Flashcard Info
                 EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
-                newFlashcard.setKeyword(keywordEditText.getText().toString());
-                EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                newFlashcard.setDefinition(definitionEditText.getText().toString());
+                keywordEditText.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        newFlashcard.setKeyword(keywordEditText.getText().toString());
+                    }
+                });
+                EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
+                keywordEditText.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        newFlashcard.setDefinition(definitionEditText.getText().toString());
+                    }
+                });
                 // Add Flashcard to List
                 flashcards.add(newFlashcard);
 
@@ -133,13 +160,10 @@ public class CreateFlashlet extends AppCompatActivity {
                             public void onSuccess(Void aVoid) {
                                 // Add Flashlet to SQLite DB
                                 SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
-                                UserWithRecents userWithRecents = localDB.getUser();
-                                User user = userWithRecents.getUser();
+                                User user = localDB.getUser().getUser();
                                 ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
                                 createdFlashlets.add(newFlashlet.getId());
-                                user.setCreatedFlashlets(createdFlashlets);
-                                userWithRecents.setUser(user);
-                                localDB.updateUser(userWithRecents);
+                                localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
 
                                 createFlashletBtn.setText("Create Flashlet");
                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
