@@ -10,6 +10,7 @@ public class User {
     String[] createdFlashlets;
     Queue<String> recentlyViewedFlashlets; // Note: Max Queue Length (5)
     String[] joinedClasses;
+    String[] createdClasses;
 
     // TODO: @Darius add attributes for Statistics
 }
