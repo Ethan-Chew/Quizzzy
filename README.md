@@ -7,7 +7,28 @@ Quizzzy can help users to study for their exams using flashcards. Flashcards are
 
 However, we also acknowledge the issues of having it on a mobile device: users may get distracted when studying. Hence, we are planning to implement a dedicated study mode in Stage 2.
 
+## Developers of Quizzzy (Team Members)
+1. Chew Ming Hong, Ethan (S10255990K)
+2. Charlotte Lee Sze Yee (S10258027K)
+3. Hervin Darmawan Sie (S10262115)
+4. Darius Koh Kai Keat (S10255626)
+5. Shin Thant Aung (S10261787)
+
+## Design Process
+
+As a team, we used Figma to design the Wireframe for Quizzzy.
+
+### Colours
+**Purple** was chosen as our Primary Colour as 
+
 ## Features
+For our Stage 1 Submission, every member on our team were assigned a particular 'section' to work on.  
+1. [Account Creation](./docs/features/AccountCreation.md) - Hervin Sie
+2. [Class Management](./docs/features/ClassManagement.md) - Charlotte Lee
+3. [Flashlet Management](./docs/features/FlashletManagement.md) - Ethan Chew
+4. [User Study Statistics](./docs/features/StudyStatistics.md) - Darius Koh
+5. [Flashcards](./docs/features/Flashcards.md) - Shin
+
 ### Stage 1
 1. Account Creation
     - Allowing users to create and login to their account
