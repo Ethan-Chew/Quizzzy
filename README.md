@@ -23,7 +23,7 @@ However, we also acknowledge the issues of having it on a mobile device: users m
 As a team, we used Figma to design the Wireframe for Quizzzy.
 
 ### Colours
-**Purple** was chosen as our Primary Colour as 
+**Purple** was chosen as our Primary Colour as purple communicates in a positive way. It is said to have the power to uplift, calm nerves and encourage creativity, making it an all-inclusive color. All ages, genders, and cultures can relate to purple.
 
 ## Features
 For our Stage 1 Submission, every member on our team were assigned a particular 'section' to work on.  
