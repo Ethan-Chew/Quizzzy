@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,9 +50,6 @@ public class CreateFlashlet extends AppCompatActivity {
     private View newFlashcardView;
     private EditText createFlashletTitle;
 
-    // Handle Back Button Press
-    Toolbar toolbar = findViewById(R.id.cFToolbar);
-
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -70,7 +67,16 @@ public class CreateFlashlet extends AppCompatActivity {
             return insets;
         });
 
-        // Check if Redirect from Class Page
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.cFToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CreateFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Get Data from Intents
         Intent receivingIntent = getIntent();
         String classId = receivingIntent.getStringExtra("classId");
         String userId = receivingIntent.getStringExtra("userId");
@@ -100,7 +106,7 @@ public class CreateFlashlet extends AppCompatActivity {
                     }
                 });
                 EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                keywordEditText.addTextChangedListener(new TextWatcher() {
+                definitionEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
@@ -142,6 +148,10 @@ public class CreateFlashlet extends AppCompatActivity {
                 ArrayList<String> creatorId = new ArrayList<>();
                 creatorId.add(userId);
                 newFlashlet = new Flashlet(id, title, "", creatorId, null, flashcards, System.currentTimeMillis() / 1000L); // Initialise Flashlet with Empty Description
+
+                for (int i = 0; i < flashcards.size(); i++) {
+                    Log.d("flashcard list", flashcards.get(i).getDefinition());
+                }
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);

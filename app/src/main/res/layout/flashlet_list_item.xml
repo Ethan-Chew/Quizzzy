@@ -3,6 +3,7 @@
     android:id="@+id/fLIContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="10sp"
     android:background="@drawable/list_item_background"
     android:orientation="vertical"
     android:padding="18sp">
@@ -11,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/fLITitle"
             android:layout_width="wrap_content"
