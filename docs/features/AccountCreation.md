@@ -4,4 +4,4 @@
 
 ## Landing Page
 
-<img height="100" alt="image" src="https://github.com/Ethan-Chew/MAD24_P01_Team2/blob/main/images/Landing%20Page.png">
+<img height="400" alt="image" src="https://github.com/Ethan-Chew/MAD24_P01_Team2/blob/main/images/Landing%20Page.png">
