@@ -2,6 +2,8 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,8 +77,7 @@ public class UpdateFlashlet extends AppCompatActivity {
             definitionInput.setHint(flashcards.get(i).getDefinition());
 
             // Set onChange Listener of Input
-            flashcards.get(i).setKeyword(keywordInput.getText().toString());
-            flashcards.get(i).setDefinition(definitionInput.getText().toString());
+            setTextEditWatcher(flashcards.get(i), keywordInput, definitionInput);
 
             // Add Flashcard View to Container
             flashcardListView.addView(updateFlashcardView);
@@ -101,8 +102,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                 Flashcard flashcard = new Flashcard("", "");
 
                 // Set onChange Listener of Input
-                flashcard.setKeyword(keywordInput.getText().toString());
-                flashcard.setDefinition(definitionInput.getText().toString());
+                setTextEditWatcher(flashcard, keywordInput, definitionInput);
 
                 // Add Flashcard View to Container
                 flashcardListView.addView(updateFlashcardView);
@@ -150,6 +150,27 @@ public class UpdateFlashlet extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to Update Flashlet", Toast.LENGTH_LONG).show();
                             }
                         });
+            }
+        });
+    }
+
+    private void setTextEditWatcher(Flashcard flashcard, EditText keywordEditText, EditText definitionEditText) {
+        keywordEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                flashcard.setKeyword(keywordEditText.getText().toString());
+            }
+        });
+        keywordEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                flashcard.setDefinition(definitionEditText.getText().toString());
             }
         });
     }

@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -71,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     DocumentSnapshot document = task.getResult();
                                                     SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
                                                     User user = new User(currentUser.getUid(), document.getData().get("username").toString(), email);
-                                                    localDB.addUser(user);
+                                                    localDB.addUser(new UserWithRecents(user));
                                                     // Send User to Home Screen
                                                     Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                     startActivity(homeScreenIntent);
