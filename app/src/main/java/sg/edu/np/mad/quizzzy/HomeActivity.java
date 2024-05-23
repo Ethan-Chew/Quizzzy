@@ -50,11 +50,6 @@ public class HomeActivity extends AppCompatActivity  {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
 
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
-
-        // Get User from Database
-        User user = localDB.getUser();
-
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
