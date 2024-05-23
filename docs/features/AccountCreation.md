@@ -1,6 +1,6 @@
 # Account Creation - Hervin Sie
 
-- This feauture allows new users to create their Quizzzy account, and for current users to login back into their already existing account.
+This feauture allows new users to create their Quizzzy account, and for current users to login back into their already existing account.
 
 ## Landing Page
 
