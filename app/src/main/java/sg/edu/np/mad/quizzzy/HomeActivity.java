@@ -1,6 +1,7 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -16,23 +17,14 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import sg.edu.np.mad.quizzzy.Fragments.CreateFragment;
-import sg.edu.np.mad.quizzzy.Fragments.FlashletsFragment;
-import sg.edu.np.mad.quizzzy.Fragments.HomeFragment;
-import sg.edu.np.mad.quizzzy.Fragments.StatsFragment;
-import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
-import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 
 public class HomeActivity extends AppCompatActivity  {
 
-    BottomNavigationView bottomNavigationView;
     TextView idView;
     TextView usernameView;
     TextView emailView;
-    HomeFragment homeFragment = new HomeFragment();
-    CreateFragment createFragment = new CreateFragment();
-    FlashletsFragment flashletsFragment = new FlashletsFragment();
-    StatsFragment statsFragment = new StatsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +37,7 @@ public class HomeActivity extends AppCompatActivity  {
             return insets;
         });
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, homeFragment).commit();
-
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -55,34 +45,24 @@ public class HomeActivity extends AppCompatActivity  {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.home) {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flFragment, homeFragment)
-                            .commit();
                     return true;
                 } else if (itemId == R.id.create) {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flFragment, createFragment)
-                            .commit();
+                    Intent createFlashletIntent = new Intent(HomeActivity.this, CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
                     return true;
                 } else if (itemId == R.id.flashlets) {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flFragment, flashletsFragment)
-                            .commit();
+                    startActivity(new Intent(HomeActivity.this, FlashletList.class));
                     return true;
                 } else if (itemId == R.id.stats) {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flFragment, statsFragment)
-                            .commit();
+//                    getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.flFragment, statsFragment)
+//                            .commit();
                     return true;
                 }
                 return false;
             }
         });
-
     }
-
 }
