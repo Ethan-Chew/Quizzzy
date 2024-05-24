@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import sg.edu.np.mad.quizzzy.Classes.Add_Class;
+import sg.edu.np.mad.quizzzy.Classes.Class_Page;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), Add_Class.class);
+                Intent intent = new Intent(getApplicationContext(), Class_Page.class);
                 startActivity(intent);
             }
         });

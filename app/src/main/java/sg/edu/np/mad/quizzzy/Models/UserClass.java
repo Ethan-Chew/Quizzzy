@@ -2,7 +2,7 @@ package sg.edu.np.mad.quizzzy.Models;
 
 import java.util.ArrayList;
 
-public class Class {
+public class UserClass {
     String classId;
     String classTitle;
     ArrayList<String> creatorId;
@@ -30,10 +30,10 @@ public class Class {
 
     // Getters
     public ArrayList<String> getMembers() { return this.memberId; }
-    public String getClassTitle() { return this.classTitle; }
+    public static String getClassTitle() { return this.classTitle; }
     public ArrayList<String> getCreators() { return this.creatorId; }
 
-    public Class(String classId, String classTitle, ArrayList<String> creatorId, ArrayList<String> memberId, long lastUpdatedUnix) {
+    public UserClass(String classId, String classTitle, ArrayList<String> creatorId, ArrayList<String> memberId, long lastUpdatedUnix) {
         this.classId = classId;
         this.classTitle = classTitle;
         this.creatorId = creatorId;

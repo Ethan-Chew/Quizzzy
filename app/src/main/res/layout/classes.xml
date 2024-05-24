@@ -34,4 +34,14 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/cpnummem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="x Members"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="20dp"/>
 </LinearLayout>

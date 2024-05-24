@@ -2,8 +2,6 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +24,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import sg.edu.np.mad.quizzzy.Models.Class;
+import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
 
 public class Add_Class extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    Class newClass;
+    UserClass newClass;
 
     private Button addMemberBtn;
     private View newMemberView;
@@ -91,7 +89,7 @@ public class Add_Class extends AppCompatActivity {
                 creatorId.add(userId);
                 ArrayList<String> memberId = new ArrayList<>();
                 memberId.add(userId);
-                newClass = new Class(classId, title, creatorId, memberId, System.currentTimeMillis() / 1000L);
+                newClass = new UserClass(classId, title, creatorId, memberId, System.currentTimeMillis() / 1000L);
 
                 createClassbtn.setEnabled(false);
                 createClassbtn.setText("Loading...");
@@ -104,6 +102,9 @@ public class Add_Class extends AppCompatActivity {
                             public void onSuccess(Void aVoid) {
                                 createClassbtn.setText("Create Class");
                                 Toast.makeText(getApplicationContext(), "Class successfully created!", Toast.LENGTH_LONG).show();
+
+                                Intent classPageIntent = new Intent (Add_Class.this, Class_Page.class);
+                                startActivity(classPageIntent);
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

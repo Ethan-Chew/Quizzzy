@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Quizzzy"
         tools:targetApi="31">
         <activity
+            android:name=".Classes.Class_Details"
+            android:exported="false" />
+        <activity
             android:name=".Classes.Add_Class"
             android:exported="false" />
         <activity

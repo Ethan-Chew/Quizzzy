@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Classes.Class_Management">
+    tools:context=".Classes.Class_Page">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/acViewToolbar"
@@ -122,6 +122,10 @@
                 android:textSize="20dp"
                 tools:layout_editor_absoluteX="62dp"
                 tools:layout_editor_absoluteY="216dp" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="15sp" />
 
             <Button
                 android:id="@+id/accreate_class"

@@ -12,11 +12,12 @@ import sg.edu.np.mad.quizzzy.R;
 public class ClassViewHolder extends RecyclerView.ViewHolder {
     TextView classname;
     TextView options;
+    TextView memberCount;
     public ClassViewHolder(View itemView, ClassRecyclerInterface classRecyclerInterface){
         super(itemView);
 
         classname = itemView.findViewById(R.id.cpViewTitle);
         options = itemView.findViewById(R.id.cpOptionsMenu);
-
+        memberCount = itemView.findViewById(R.id.cpnummem);
     }
 }
