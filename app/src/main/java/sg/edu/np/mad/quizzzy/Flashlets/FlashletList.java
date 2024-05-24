@@ -3,6 +3,7 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -58,6 +61,35 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Bottom Navigation View
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.home);
+
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    return true;
+                } else if (itemId == R.id.create) {
+                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    return true;
+                } else if (itemId == R.id.stats) {
+//                    getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.flFragment, statsFragment)
+//                            .commit();
+                    return true;
+                }
+                return false;
+            }
         });
 
         RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);

@@ -1,22 +1,26 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
-import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
-import sg.edu.np.mad.quizzzy.Models.User;
-import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
-public class HomeActivity extends AppCompatActivity {
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+
+public class HomeActivity extends AppCompatActivity  {
 
     TextView idView;
     TextView usernameView;
@@ -33,27 +37,31 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.home);
 
-        // Get Screen Elements
-        idView = findViewById(R.id.homeIdView);
-        usernameView = findViewById(R.id.homeUsernameView);
-        emailView = findViewById(R.id.homeEmailView);
-
-        // Get User from Database
-        UserWithRecents userWithRecents = localDB.getUser();
-        User user = userWithRecents.getUser();
-
-        // Set User Info
-        idView.setText(user.getId());
-        usernameView.setText(user.getUsername());
-        emailView.setText(user.getEmail());
-
-        findViewById(R.id.homeShowFlashletList).setOnClickListener(new View.OnClickListener() {
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                Intent showFlashletListIntent = new Intent(HomeActivity.this, FlashletList.class);
-                startActivity(showFlashletListIntent);
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    return true;
+                } else if (itemId == R.id.create) {
+                    Intent createFlashletIntent = new Intent(HomeActivity.this, CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(HomeActivity.this, FlashletList.class));
+                    return true;
+                } else if (itemId == R.id.stats) {
+//                    getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.flFragment, statsFragment)
+//                            .commit();
+                    return true;
+                }
+                return false;
             }
         });
     }
