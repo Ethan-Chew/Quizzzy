@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,6 +54,15 @@ public class UpdateFlashlet extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.uFToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UpdateFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
+            }
         });
 
         // Get Flashlet from Intent
@@ -164,7 +174,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                 flashcard.setKeyword(keywordEditText.getText().toString());
             }
         });
-        keywordEditText.addTextChangedListener(new TextWatcher() {
+        definitionEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 

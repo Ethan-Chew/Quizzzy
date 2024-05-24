@@ -12,8 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +55,12 @@ public class CreateFlashlet extends AppCompatActivity {
     private EditText createFlashletTitle;
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -65,6 +71,16 @@ public class CreateFlashlet extends AppCompatActivity {
             return insets;
         });
 
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.cFToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CreateFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Get Data from Intents
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -122,7 +138,7 @@ public class CreateFlashlet extends AppCompatActivity {
                     }
                 });
                 EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                keywordEditText.addTextChangedListener(new TextWatcher() {
+                definitionEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 

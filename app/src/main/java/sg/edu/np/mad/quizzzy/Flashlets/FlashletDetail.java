@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.OnBackPressedCallback;
 
 import androidx.activity.EdgeToEdge;
@@ -46,6 +46,15 @@ public class FlashletDetail extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.fDViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FlashletDetail.this.getOnBackPressedDispatcher().onBackPressed();
+            }
         });
 
         // Find View Components

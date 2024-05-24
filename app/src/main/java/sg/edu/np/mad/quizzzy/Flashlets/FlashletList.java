@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -95,6 +96,15 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
         LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
 
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.fLViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
         // Get User from SQLite DB
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
         userWithRecents = localDB.getUser();
@@ -103,6 +113,18 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
             startActivity(returnToLoginIntent);
         }
+
+        // Listen to Add Flashlet Button Click
+        TextView createFlashlet = findViewById(R.id.fLNewFlashlet);
+        createFlashlet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
+                Intent createFlashcardIntent = new Intent(FlashletList.this, CreateFlashlet.class);
+                createFlashcardIntent.putExtra("userId", userWithRecents.getUser().getId());
+                startActivity(createFlashcardIntent);
+            }
+        });
 
         // Update User Interface with Updated Data
         ArrayList<String> userFlashletIDs = userWithRecents.getUser().getCreatedFlashlets();
