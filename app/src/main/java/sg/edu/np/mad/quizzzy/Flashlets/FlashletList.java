@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -73,6 +74,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     return true;
                 } else if (itemId == R.id.create) {
                     Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
@@ -80,7 +82,6 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                     startActivity(createFlashletIntent);
                     return true;
                 } else if (itemId == R.id.flashlets) {
-                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
                     return true;
                 } else if (itemId == R.id.stats) {
 //                    getSupportFragmentManager()
