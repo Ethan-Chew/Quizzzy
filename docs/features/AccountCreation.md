@@ -23,7 +23,7 @@ This feauture allows new users to create their Quizzzy account, and for current 
 - This screen displays a hello message with the user's name at the top of the screen. below that are the flashlets that have been recently viewed by the user.
 - Then below that section is the search bar where users can search for Flashlet Sets and Classes. Right below that, there will be the Flashlets that the user has made, follwoing that will be the Classes that the user is part of.
 - At the very bottom at the footer will be the tab bar consiting of the Home, Create, Flashlets and Stats.
-- From the Home Page, the user can navigate to the Flashlets, Creating the Flashlets and the users Statistics.
+- From the Home Page, the user can navigate to the Flashlets, Creating the Flashlets and the users Statistics pages.
 <img height="400" alt="image" src="https://github.com/Ethan-Chew/MAD24_P01_Team2/blob/main/images/Home%20Page.png">
 
 ## 
