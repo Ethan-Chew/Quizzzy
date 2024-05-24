@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/splashTitle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/homeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="176dp"
@@ -24,7 +24,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/idView"
+        android:id="@+id/homeIdView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="166dp"
@@ -32,25 +32,25 @@
         android:layout_marginEnd="187dp"
         android:layout_marginBottom="47dp"
         android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/emailView"
+        app:layout_constraintBottom_toTopOf="@+id/homeEmailView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintTop_toBottomOf="@+id/homeTitle" />
 
     <TextView
-        android:id="@+id/emailView"
+        android:id="@+id/homeEmailView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="165dp"
         android:layout_marginEnd="188dp"
         android:layout_marginBottom="48dp"
         android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/usernameView"
+        app:layout_constraintBottom_toTopOf="@+id/homeUsernameView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/usernameView"
+        android:id="@+id/homeUsernameView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="163dp"
@@ -60,4 +60,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/homeShowFlashletList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="showFlashletList"
+        tools:layout_editor_absoluteX="188dp"
+        tools:layout_editor_absoluteY="424dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

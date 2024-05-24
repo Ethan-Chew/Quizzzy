@@ -21,11 +21,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
@@ -51,7 +49,7 @@ public class UpdateFlashlet extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_update_flashlet);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -79,7 +77,7 @@ public class UpdateFlashlet extends AppCompatActivity {
             definitionInput.setHint(flashcards.get(i).getDefinition());
 
             // Set onChange Listener of Input
-            implementTextChangedListener(flashcards.get(i), keywordInput, definitionInput);
+            setTextEditWatcher(flashcards.get(i), keywordInput, definitionInput);
 
             // Add Flashcard View to Container
             flashcardListView.addView(updateFlashcardView);
@@ -104,7 +102,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                 Flashcard flashcard = new Flashcard("", "");
 
                 // Set onChange Listener of Input
-                implementTextChangedListener(flashcard, keywordInput, definitionInput);
+                setTextEditWatcher(flashcard, keywordInput, definitionInput);
 
                 // Add Flashcard View to Container
                 flashcardListView.addView(updateFlashcardView);
@@ -156,26 +154,23 @@ public class UpdateFlashlet extends AppCompatActivity {
         });
     }
 
-    void implementTextChangedListener(Flashcard flashcard, EditText keywordInput, EditText definitionInput) {
-        keywordInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+    private void setTextEditWatcher(Flashcard flashcard, EditText keywordEditText, EditText definitionEditText) {
+        keywordEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                flashcard.setKeyword(keywordInput.getText().toString());
+                flashcard.setKeyword(keywordEditText.getText().toString());
             }
         });
-
-        definitionInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        keywordEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                flashcard.setDefinition(definitionInput.getText().toString());
+                flashcard.setDefinition(definitionEditText.getText().toString());
             }
         });
     }

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -21,21 +22,22 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class CreateFlashlet extends AppCompatActivity {
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
 
     // Data Variables
     Flashlet newFlashlet;
@@ -48,12 +50,21 @@ public class CreateFlashlet extends AppCompatActivity {
     private View newFlashcardView;
     private EditText createFlashletTitle;
 
+    // Handle Back Button Press
+    Toolbar toolbar = findViewById(R.id.cFToolbar);
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_flashlet);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -89,7 +100,7 @@ public class CreateFlashlet extends AppCompatActivity {
                     }
                 });
                 EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                definitionEditText.addTextChangedListener(new TextWatcher() {
+                keywordEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
@@ -98,7 +109,6 @@ public class CreateFlashlet extends AppCompatActivity {
                         newFlashcard.setDefinition(definitionEditText.getText().toString());
                     }
                 });
-
                 // Add Flashcard to List
                 flashcards.add(newFlashcard);
 
@@ -148,8 +158,16 @@ public class CreateFlashlet extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                // Add Flashlet to SQLite DB
+                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
+                                User user = localDB.getUser().getUser();
+                                ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
+                                createdFlashlets.add(newFlashlet.getId());
+                                localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
+
                                 createFlashletBtn.setText("Create Flashlet");
                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
+                                // Send User back to List Page
                                 Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
                                 startActivity(flashletListIntent);
                             }

@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 
@@ -75,7 +77,7 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                     activity.startActivity(intent);
                     return true;
                 } else if (itemId == R.id.fLODelete) {
-                    // TODO: Handle Delete
+                    SQLiteManager localDB = SQLiteManager.instanceOfDatabase(activity);
                     // Display Alert to confirm before deletion of Flashlet
                     String confirmationMessage = "Confirm you want to delete Flashlet: " + listItem.getTitle() + "? This process is irreversible.";
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -88,6 +90,11 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {
+                                                User user = localDB.getUser().getUser();
+                                                ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
+                                                createdFlashlets.remove(listItem.getId());
+                                                localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
+
                                                 Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
                                             }
                                         })

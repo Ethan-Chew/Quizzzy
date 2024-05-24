@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,15 +32,18 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
+import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
-    User user;
+    UserWithRecents userWithRecents;
     Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
@@ -52,92 +54,72 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_flashlet_list);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Temp Data
-        ArrayList<Flashcard> tempFlashcards = new ArrayList<Flashcard>();
-        tempFlashcards.add(new Flashcard("Keyword 1", "Defintion 1"));
-        tempFlashcards.add(new Flashcard("Keyword 2", "Defintion 2"));
-        tempFlashcards.add(new Flashcard("Keyword 3", "Defintion 3"));
-        userFlashlets.add(new Flashlet("0", "Test Flashlet", null, new ArrayList<String>(), null, tempFlashcards, 1714883105));
-
-        // Get User ID using Intent
-        Intent receivingIntent = getIntent();
-        user = gson.fromJson(receivingIntent.getStringExtra("userJSON"), User.class);
-
-        // Get Data from Firebase
-        /// Get User Info
-        DocumentReference userDocRef = db.collection("users").document("IdhWjBsjccPm6mecWk1q");
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    String userJson = gson.toJson(document.getData());
-                    user = gson.fromJson(userJson, User.class);
-
-                    /// Get Flashlets related to the User
-                    CollectionReference flashletColRef = db.collection("flashlets");
-                    flashletColRef.whereArrayContains("creatorId", user.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    String flashletJson = gson.toJson(document.getData());
-                                    userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
-                                }
-
-                                // Update User Interface with Updated Data
-                                updateFlashletList();
-                                findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
-                            } else {
-                                Log.d("Firebase", "Flashlet get failed with ", task.getException());
-                            }
-                        }
-                    });
-                } else {
-                    Log.d("Firebase", "User get failed with ", task.getException());
-                }
-            }
-        });
-    }
-
-    void updateFlashletList() {
-        // Update Flashlet Count
-        TextView flashletCount = findViewById(R.id.fLCounterLabel);
-        String flashletCountStr = "You have " + userFlashlets.size() + " Total Flashlet" + (userFlashlets.size() == 1 ? "" : "s");
-        flashletCount.setText(flashletCountStr);
-
-        // If user has no Flashlets, display a message to ask them to create one
         RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
         LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
-        if (userFlashlets.isEmpty()) {
+
+        // Get User from SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
+        userWithRecents = localDB.getUser();
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
+            startActivity(returnToLoginIntent);
+        }
+
+        // Update User Interface with Updated Data
+        ArrayList<String> userFlashletIDs = userWithRecents.getUser().getCreatedFlashlets();
+
+        TextView flashletCount = findViewById(R.id.fLCounterLabel);
+        String flashletCountStr = "You have " + userFlashletIDs.size() + " Total Flashlet" + (userFlashletIDs.size() == 1 ? "" : "s");
+        flashletCount.setText(flashletCountStr);
+
+        // Check if the User has any Flashlets; If not, ask them to create one
+        if (userFlashletIDs.isEmpty()) {
             Button nFNCreateFlashlet = findViewById(R.id.fLNoFlashletsCreate);
             nFNCreateFlashlet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent createFlashletIntent = new Intent(FlashletList.this, CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", userWithRecents.getUser().getId());
                     startActivity(createFlashletIntent);
                 }
             });
             recyclerView.setVisibility(View.GONE);
             noFlashletNotif.setVisibility(View.VISIBLE);
+            findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
+            return;
         }
 
-        /// Display Flashlet List on Screen
-        if (!userFlashlets.isEmpty()) {
-            noFlashletNotif.setVisibility(View.GONE);
-            FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, this, this, user);
-            LinearLayoutManager userLayoutManager = new LinearLayoutManager(this);
-            recyclerView.setLayoutManager(userLayoutManager);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-            recyclerView.setAdapter(userAdapter);
-        }
+        // Get User's Flashlets from Firebase
+        CollectionReference flashletColRef = db.collection("flashlets");
+        flashletColRef.whereIn("id", userFlashletIDs).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String flashletJson = gson.toJson(document.getData());
+                        userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                    }
 
+                    /// Display Flashlet List on Screen
+                    noFlashletNotif.setVisibility(View.GONE);
+                    FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, FlashletList.this, FlashletList.this, userWithRecents.getUser());
+                    LinearLayoutManager userLayoutManager = new LinearLayoutManager(FlashletList.this);
+                    recyclerView.setLayoutManager(userLayoutManager);
+                    recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    recyclerView.setAdapter(userAdapter);
+                    findViewById(R.id.fLProgressBar).setVisibility(View.GONE);
+                } else {
+                    Log.d("Firebase", "Flashlet get failed with ", task.getException());
+                }
+            }
+        });
     }
 
     @Override

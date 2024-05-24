@@ -3,10 +3,13 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toolbar;
+import androidx.activity.OnBackPressedCallback;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +42,7 @@ public class FlashletDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_flashlet_detail);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -58,7 +61,7 @@ public class FlashletDetail extends AppCompatActivity {
 
         // Update UI based on Flashlet Info
         flashletTitleLbl.setText(flashlet.getTitle());
-        String flashcardCount = "You have " + flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
+        String flashcardCount = flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
 
         // Add Flashlets to Screen
