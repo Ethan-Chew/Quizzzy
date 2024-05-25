@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Classes.Class_Page">
+    tools:context=".Classes.ClassList">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/acViewToolbar"
@@ -107,6 +107,8 @@
                 android:id="@+id/acaddmembers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
                 android:orientation="vertical"></LinearLayout>
 
             <Button

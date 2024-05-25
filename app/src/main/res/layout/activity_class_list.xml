@@ -5,10 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Classes.Class_Management">
+    tools:context=".Classes.ClassList">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/cpViewToolbar"
+        android:id="@+id/cLViewToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -20,22 +20,7 @@
         app:navigationIcon="?attr/homeAsUpIndicator"/>
 
     <TextView
-        android:id="@+id/cpclasstitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="25dp"
-        android:text="Your Classes"
-        android:textColor="@color/black"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cpViewToolbar" />
-
-    <TextView
-        android:id="@+id/cpnumofclass"
+        android:id="@+id/cLnumofclass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
@@ -45,10 +30,10 @@
         android:text="You have x Total Flashlets"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cpclasstitle" />
+        app:layout_constraintTop_toBottomOf="@+id/cLHeaderContainer" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cpRecyclerView"
+        android:id="@+id/cLRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="25dp"
@@ -59,10 +44,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cpnumofclass" />
+        app:layout_constraintTop_toBottomOf="@+id/cLnumofclass" />
 
     <LinearLayout
-        android:id="@+id/cpnoclass"
+        android:id="@+id/cLnoclass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
@@ -73,12 +58,12 @@
         android:orientation="vertical"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        app:layout_constraintTop_toBottomOf="@+id/cpRecyclerView">
+        app:layout_constraintTop_toBottomOf="@+id/cLRecyclerView">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="You have 0 Flashlets."
+            android:text="You have 0 Classes"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -89,7 +74,7 @@
             android:layout_height="15dp" />
 
         <Button
-            android:id="@+id/cpaddclass"
+            android:id="@+id/cLaddclass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
@@ -98,8 +83,36 @@
             android:textSize="20dp"
             tools:layout_editor_absoluteX="62dp"
             tools:layout_editor_absoluteY="216dp"
-            app:layout_constraintTop_toBottomOf="@+id/cpRecyclerView"/>
-    </LinearLayout>>
+            app:layout_constraintTop_toBottomOf="@+id/cLRecyclerView"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cLHeaderContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="25dp"
+        app:layout_constraintTop_toBottomOf="@+id/cLViewToolbar">
+
+        <TextView
+            android:id="@+id/cLclasstitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Classes"
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cLAddClass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:textSize="28sp"
+            android:textAlignment="textEnd" />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

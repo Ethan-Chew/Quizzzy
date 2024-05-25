@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
 
-public class Class_Details extends AppCompatActivity {
+public class ClassDetail extends AppCompatActivity {
     Gson gson = new Gson();
     
     UserClass userClass;
@@ -47,7 +47,7 @@ public class Class_Details extends AppCompatActivity {
         userClass = gson.fromJson(receiveintent.getStringExtra("classJSON"), UserClass.class);
         ArrayList<String> members = userClass.getMembers();
         
-        classtitle.setText(UserClass.getClassTitle());
+        classtitle.setText(userClass.getClassTitle());
         String membercount = members.size() + " Total Members" + (members.size() == 1 ? "" : "s");
         memberscount.setText(membercount);
     }

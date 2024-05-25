@@ -13,16 +13,16 @@
         android:theme="@style/Theme.Quizzzy"
         tools:targetApi="31">
         <activity
-            android:name=".Classes.Class_Details"
+            android:name=".Classes.ClassDetail"
             android:exported="false" />
         <activity
-            android:name=".Classes.Add_Class"
+            android:name=".Classes.AddClass"
             android:exported="false" />
         <activity
             android:name=".Classes.Class_Members"
             android:exported="false" />
         <activity
-            android:name=".Classes.Class_Page"
+            android:name=".Classes.ClassList"
             android:exported="false" />
         <activity
             android:name=".Classes.Class_Management"

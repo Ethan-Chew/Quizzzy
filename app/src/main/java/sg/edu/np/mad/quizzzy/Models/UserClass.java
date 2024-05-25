@@ -30,7 +30,7 @@ public class UserClass {
 
     // Getters
     public ArrayList<String> getMembers() { return this.memberId; }
-    public static String getClassTitle() { return this.classTitle; }
+    public String getClassTitle() { return this.classTitle; }
     public ArrayList<String> getCreators() { return this.creatorId; }
 
     public UserClass(String classId, String classTitle, ArrayList<String> creatorId, ArrayList<String> memberId, long lastUpdatedUnix) {
