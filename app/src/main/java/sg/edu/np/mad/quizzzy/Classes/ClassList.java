@@ -54,6 +54,29 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         ArrayList<String> classIds = new ArrayList<>();
         classIds.add("a61ad1fb-c8b5-46f8-879e-7055e1eda495");
 
+        // Set Screen Data
+        TextView classesCount = findViewById(R.id.cLnumofclass);
+        String classCountText = "You have " + classIds.size() + " Class" + (classIds.size() == 1 ? "" : "es");
+        classesCount.setText(classCountText);
+
+        // Handle Create Button Press
+        TextView createText = findViewById(R.id.cLAddClass);
+        createText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
+                createClassIntent.putExtra("userId", ""); // TODO: Implement this
+                startActivity(createClassIntent);
+            }
+        });
+
+        // If no IDs in List, show create alert
+        View noClassNotif = findViewById(R.id.cLnoclass);
+        if (classIds.size() == 0) {
+            noClassNotif.setVisibility(View.VISIBLE);
+            return;
+        }
+
         // Retrieve from Firebase
         CollectionReference classColRef = db.collection("class");
         classColRef.whereIn("id", classIds).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -73,17 +96,6 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 } else {
                     Log.d("Firebase", "Class get failed with ", task.getException());
                 }
-            }
-        });
-
-        // Handle Create Button Press
-        TextView createText = findViewById(R.id.cLAddClass);
-        createText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
-                createClassIntent.putExtra("userId", ""); // TODO: Implement this
-                startActivity(createClassIntent);
             }
         });
     }

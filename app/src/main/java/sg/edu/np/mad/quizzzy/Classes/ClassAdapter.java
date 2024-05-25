@@ -41,7 +41,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
         UserClass listItem = classes.get(position);
 
         holder.classname.setText(listItem.getClassTitle());
-        String memberCountText = listItem.getMembers().size() + "Members";
+        String memberCountText = listItem.getMembers().size() + " Member" + (listItem.getMembers().size() == 1 ? "" : "s");
         holder.memberCount.setText(memberCountText);
     }
 
