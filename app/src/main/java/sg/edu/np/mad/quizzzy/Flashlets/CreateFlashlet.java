@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,7 +28,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -36,7 +36,6 @@ import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
-import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class CreateFlashlet extends AppCompatActivity {
@@ -91,17 +90,16 @@ public class CreateFlashlet extends AppCompatActivity {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.create) {
                     return true;
                 } else if (itemId == R.id.flashlets) {
                     startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, statsFragment)
-//                            .commit();
+                    // TODO: Integrate Darius's Part
                     return true;
                 }
                 return false;

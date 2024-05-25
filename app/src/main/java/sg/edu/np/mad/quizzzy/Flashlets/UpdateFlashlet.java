@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,14 +20,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.List;
 
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
@@ -54,6 +59,33 @@ public class UpdateFlashlet extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.create) {
+                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.stats) {
+                    // TODO: Integrate Darius's Part
+                    return true;
+                }
+                return false;
+            }
         });
 
         // Handle Back Navigation Toolbar

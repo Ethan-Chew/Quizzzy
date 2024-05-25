@@ -159,6 +159,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconSize="30dp"
-        app:labelVisibilityMode="unlabeled"/>
+        app:itemIconSize="30dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

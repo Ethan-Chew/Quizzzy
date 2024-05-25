@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -75,18 +77,17 @@ public class HomeActivity extends AppCompatActivity  {
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(HomeActivity.this, CreateFlashlet.class);
+                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
                     createFlashletIntent.putExtra("userId", "");
                     startActivity(createFlashletIntent);
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
-                    startActivity(new Intent(HomeActivity.this, FlashletList.class));
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, statsFragment)
-//                            .commit();
+                    // TODO: Integrate Darius's Part
                     return true;
                 }
                 return false;

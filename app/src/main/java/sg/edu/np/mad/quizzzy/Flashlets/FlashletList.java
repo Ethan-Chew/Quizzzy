@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,8 +26,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -38,10 +37,8 @@ import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
-import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
-import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
@@ -75,19 +72,18 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.create) {
                     Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
                     createFlashletIntent.putExtra("userId", "");
                     startActivity(createFlashletIntent);
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
                     return true;
                 } else if (itemId == R.id.stats) {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, statsFragment)
-//                            .commit();
+                    // TODO: Integrate Darius's Part
                     return true;
                 }
                 return false;
