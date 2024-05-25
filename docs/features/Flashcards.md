@@ -1,6 +1,6 @@
 # Flashcards - Shin Thant
 
-This feature is user created. They make flashcards in the flashlet sets. The flashcards includes the keywords of the users choosing on the front, while the back of the flashcard will contain the description for said keyword. Or the flashcards may contain mini-quizzes with questions in the fron, and answers at the back. 
+**Flashcards** are for users to use to study. This feature is user created. They make flashcards in the flashlet sets. The flashcards includes the keywords of the users choosing on the front, while the back of the flashcard will contain the description for said keyword. Or the flashcards may contain mini-quizzes with questions in the fron, and answers at the back. 
 
 ## Flashcards Keyword/Question Page
 
