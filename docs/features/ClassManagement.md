@@ -1,6 +1,6 @@
 # Class Management - Charlotte Lee
 
-This feauture allows users to create and join classes. Users can create classes, adding members to the class. Users can also be added into classes created by other users.
+**Class Management** is for users to share flashlets with other users. This feauture allows users to create and join classes. Users can create classes, adding members to the class. Users can also be added into classes created by other users. They will be able to share flashlets in the classes.
 
 ## Class List Page
 
