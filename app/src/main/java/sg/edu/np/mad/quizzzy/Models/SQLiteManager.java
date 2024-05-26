@@ -84,6 +84,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
         return userWithRecents;
     }
 
+    public void dropUser(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, ID + " =? ", new String[]{String.valueOf((userId))});
+    }
+
     public void updateUser(UserWithRecents user) {
         SQLiteDatabase db = this.getWritableDatabase();
 

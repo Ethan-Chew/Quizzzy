@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,6 +42,7 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -55,6 +60,8 @@ public class HomeActivity extends AppCompatActivity  {
     TextView usernameView;
     LinearLayout horiRecentlyViewed;
     LinearLayout createdFlashletsContainer;
+
+    ImageView dropdownMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +114,32 @@ public class HomeActivity extends AppCompatActivity  {
         usernameView = findViewById(R.id.hPUsernameText);
         horiRecentlyViewed = findViewById(R.id.hPHoriRecentlyViewed);
         createdFlashletsContainer = findViewById(R.id.hPCFContainer);
+        dropdownMenu = findViewById(R.id.dropdownMenu);
+
+        //dropdown menu to logout
+        dropdownMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(HomeActivity.this, v);
+                popup.inflate(R.menu.home_dropdown_menu);
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
+                        if (itemId == R.id.logout) {
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                            localDB.dropUser(FirebaseAuth.getInstance().getUid());
+                            FirebaseAuth.getInstance().signOut();
+                            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                        return true;
+                    }
+                });
+                popup.show();
+            }
+        });
 
         usernameView.setText(userWithRecents.getUser().getUsername());
 
@@ -167,56 +200,59 @@ public class HomeActivity extends AppCompatActivity  {
         }
 
         /// Get User's Created Flashlets
-        flashletColRef.whereIn("id", userWithRecents.getUser().getCreatedFlashlets()).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String flashletJson = gson.toJson(document.getData());
-                                createdFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+        if (!userWithRecents.getUser().getCreatedFlashlets().isEmpty()) {
+            flashletColRef.whereIn("id", userWithRecents.getUser().getCreatedFlashlets()).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String flashletJson = gson.toJson(document.getData());
+                                    createdFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                                }
+
+                                // Display Created Flashets on the Screen
+                                for (int i = 0; i < createdFlashlets.size(); i++) {
+                                    View flashletView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.homescreen_class_flashlet_container, null, false);
+                                    Flashlet flashlet = createdFlashlets.get(i);
+                                    TextView fVTitle = flashletView.findViewById(R.id.hSCTitle);
+                                    TextView fVPill = flashletView.findViewById(R.id.hSCPill);
+                                    TextView fVDesc = flashletView.findViewById(R.id.hSCDesc);
+
+                                    // Bring user to Flashlet on Click
+                                    flashletView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent showFlashletDetail = new Intent(HomeActivity.this, FlashletDetail.class);
+                                            showFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
+                                            startActivity(showFlashletDetail);
+                                        }
+                                    });
+
+                                    // Set Text
+                                    fVTitle.setText(flashlet.getTitle());
+                                    String pillText = flashlet.getFlashcards().size() + " Keyword" + (flashlet.getFlashcards().size() == 0 ? "" : "s");
+                                    fVPill.setText(pillText);
+
+                                    createdFlashletsContainer.addView(flashletView);
+
+                                    // Add Spacer View
+                                    View spacerView = new View(HomeActivity.this);
+                                    LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                                            20,
+                                            LinearLayout.LayoutParams.MATCH_PARENT
+                                    );
+                                    createdFlashletsContainer.addView(spacerView, spacerParams);
+                                }
+
+                                ProgressBar loader = findViewById(R.id.hSSpinner);
+                                loader.setVisibility(View.GONE);
+                            } else {
+                                Log.e("Firebase", "Error getting User Created Flashlets");
                             }
-
-                            // Display Created Flashets on the Screen
-                            for (int i = 0; i < createdFlashlets.size(); i++) {
-                                View flashletView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.homescreen_class_flashlet_container, null, false);
-                                Flashlet flashlet = createdFlashlets.get(i);
-                                TextView fVTitle = flashletView.findViewById(R.id.hSCTitle);
-                                TextView fVPill = flashletView.findViewById(R.id.hSCPill);
-                                TextView fVDesc = flashletView.findViewById(R.id.hSCDesc);
-
-                                // Bring user to Flashlet on Click
-                                flashletView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent showFlashletDetail = new Intent(HomeActivity.this, FlashletDetail.class);
-                                        showFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
-                                        startActivity(showFlashletDetail);
-                                    }
-                                });
-
-                                // Set Text
-                                fVTitle.setText(flashlet.getTitle());
-                                String pillText = flashlet.getFlashcards().size() + " Keyword" + (flashlet.getFlashcards().size() == 0 ? "" : "s");
-                                fVPill.setText(pillText);
-
-                                createdFlashletsContainer.addView(flashletView);
-
-                                // Add Spacer View
-                                View spacerView = new View(HomeActivity.this);
-                                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                                        20,
-                                        LinearLayout.LayoutParams.MATCH_PARENT
-                                );
-                                createdFlashletsContainer.addView(spacerView, spacerParams);
-                            }
-
-                            ProgressBar loader = findViewById(R.id.hSSpinner);
-                            loader.setVisibility(View.GONE);
-                        } else {
-                            Log.e("Firebase", "Error getting User Created Flashlets");
                         }
-                    }
-                });
+                    });
+        }
     }
+
 }
