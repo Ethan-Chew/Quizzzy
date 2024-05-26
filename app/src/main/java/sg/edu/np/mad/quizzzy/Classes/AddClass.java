@@ -1,6 +1,7 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -72,8 +74,18 @@ public class AddClass extends AppCompatActivity {
                 newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
                 final String[] memberUN = {""};
 
+
                 EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
                 usernameInputs.add(memberUsernameInput);
+
+                ImageView deleteMember = newMemberView.findViewById(R.id.acmDelete);
+                deleteMember.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        addmem.removeView(newMemberView);
+                        usernameInputs.remove(memberUsernameInput);
+                    }
+                });
 
                 addmem.addView(newMemberView);
 
