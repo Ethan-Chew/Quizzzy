@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditFlashcard">
+
+    <TextView
+        android:id="@+id/tvFLName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="Flashlet Name"
+        android:textSize="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvBody"
+        android:layout_width="330dp"
+        android:layout_height="400dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/tvFLName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="#c2adeb"
+        />
+
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="330dp"
+        android:layout_height="75dp"
+        android:text="Editing Flashcard"
+        android:textSize="40dp"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="@id/tvBody"
+        app:layout_constraintStart_toStartOf="@id/tvBody"
+        app:layout_constraintEnd_toEndOf="@id/tvBody"
+        android:background="#845bd7"
+        />
+
+    <EditText
+        android:id="@+id/etKeyword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40dp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvBody"
+        app:layout_constraintBottom_toBottomOf="@id/etDefinition"
+        />
+
+    <EditText
+        android:id="@+id/etDefinition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30dp"
+        android:textColor="@color/white"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/etKeyword"
+        app:layout_constraintBottom_toBottomOf="@id/tvBody"
+        />
+
+    <Button
+        android:id="@+id/btnUndo"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:text="Undo Changes"
+        android:textSize="20dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvBody"
+        app:layout_constraintEnd_toStartOf="@+id/btnSave"
+        />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:text="Save and Exit"
+        android:textSize="20dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintStart_toEndOf="@id/btnUndo"
+        app:layout_constraintTop_toBottomOf="@id/tvBody"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
