@@ -35,15 +35,17 @@
             android:id="@+id/fLViewTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Your Flashlets"
             android:textColor="@color/black"
             android:textSize="28sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/fLNewFlashlet"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:text="+"
             android:textAlignment="textEnd"
             android:textSize="28sp" />

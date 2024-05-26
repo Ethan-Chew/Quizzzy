@@ -17,6 +17,7 @@
             android:id="@+id/fLITitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Flashlet Title"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -24,8 +25,9 @@
 
         <TextView
             android:id="@+id/fLIOptionsMenu"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:text="&#8942;"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
