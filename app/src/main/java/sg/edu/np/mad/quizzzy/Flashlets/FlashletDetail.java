@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -99,7 +100,17 @@ public class FlashletDetail extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
+        String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
+
+        // Update SQLite with Recently Opened
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+        ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
+        if (recentlyViewed.size() == 5) {
+            recentlyViewed.remove(4);
+        }
+        recentlyViewed.add(flashlet.getId());
+        localDB.updateRecentlyViewed(userId, recentlyViewed);
 
         // Update UI based on Flashlet Info
         flashletTitleLbl.setText(flashlet.getTitle());
