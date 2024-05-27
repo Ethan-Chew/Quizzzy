@@ -60,7 +60,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconSize="30dp"
-        app:itemRippleColor="@android:color/transparent"/>
+        app:itemRippleColor="@android:color/transparent"
+        app:labelVisibilityMode="unlabeled"/>
 
     <TextView
         android:id="@+id/hPRecentlyViewedTxt"
