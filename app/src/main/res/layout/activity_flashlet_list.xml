@@ -19,20 +19,37 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="?attr/homeAsUpIndicator" />
 
-    <TextView
-        android:id="@+id/fLViewTitle"
+    <LinearLayout
+        android:id="@+id/fLViewTitleContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="25dp"
-        android:text="Your Flashlets"
-        android:textColor="@color/black"
-        android:textSize="28sp"
-        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fLViewToolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/fLViewToolbar">
+
+        <TextView
+            android:id="@+id/fLViewTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Your Flashlets"
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fLNewFlashlet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="+"
+            android:textAlignment="textEnd"
+            android:textSize="28sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/fLCounterLabel"
@@ -45,7 +62,7 @@
         android:text="You have x Total Flashlets"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fLViewTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/fLViewTitleContainer" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fLRecyclerView"
@@ -55,7 +72,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="25dp"
         android:layout_marginBottom="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -108,4 +125,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-50dp"
+        app:itemIconSize="30dp"
+        app:labelVisibilityMode="unlabeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 </androidx.constraintlayout.widget.ConstraintLayout>

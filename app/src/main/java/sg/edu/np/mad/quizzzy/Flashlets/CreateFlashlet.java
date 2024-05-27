@@ -6,33 +6,36 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
-import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class CreateFlashlet extends AppCompatActivity {
@@ -50,9 +53,6 @@ public class CreateFlashlet extends AppCompatActivity {
     private View newFlashcardView;
     private EditText createFlashletTitle;
 
-    // Handle Back Button Press
-    Toolbar toolbar = findViewById(R.id.cFToolbar);
-
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -68,6 +68,42 @@ public class CreateFlashlet extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.cFToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CreateFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Get Data from Intents
+        // Bottom Navigation View
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.create);
+
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.create) {
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.stats) {
+                    // TODO: Integrate Darius's Part
+                    return true;
+                }
+                return false;
+            }
         });
 
         // Check if Redirect from Class Page
@@ -100,7 +136,7 @@ public class CreateFlashlet extends AppCompatActivity {
                     }
                 });
                 EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                keywordEditText.addTextChangedListener(new TextWatcher() {
+                definitionEditText.addTextChangedListener(new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
