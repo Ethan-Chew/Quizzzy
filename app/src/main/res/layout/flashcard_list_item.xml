@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item_background"
+    android:orientation="vertical"
+    android:padding="18sp">
+    <TextView
+        android:id="@+id/fCLIKeyword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="(Keyword) Lorum Ipsum"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="11sp" />
+
+    <TextView
+        android:id="@+id/fCLIDefinition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="(Definition) Lorum Ipsum"
+        android:textSize="18sp"
+        android:textColor="@color/black" />
+</LinearLayout>

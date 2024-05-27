@@ -57,3 +57,4 @@ public class User {
 
     // TODO: @Darius add attributes for Statistics
 }
+

@@ -26,6 +26,30 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.FlashletList"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.FlashletDetail"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.UpdateFlashlet"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.CreateFlashlet"
+            android:exported="false" />
+        <activity
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
