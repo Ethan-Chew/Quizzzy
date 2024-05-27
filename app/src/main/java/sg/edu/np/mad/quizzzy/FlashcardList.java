@@ -1,5 +1,7 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,19 +12,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 
@@ -30,6 +31,8 @@ public class FlashcardList extends AppCompatActivity {
 
     private int arrayIndex;
     private ArrayList<Flashcard> flashLet;
+    private CardView flashcard_front, flashcard_back;
+    private boolean isFront = true;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -44,41 +47,45 @@ public class FlashcardList extends AppCompatActivity {
         });
 
 
+        flashcard_front = findViewById(R.id.flashcard_front);
+        flashcard_back = findViewById(R.id.flashcard_back);
+
         Button btnFlipper = findViewById(R.id.btnFlipper);
-
-        ViewSwitcher fcViewSwitcher = findViewById(R.id.viewSwitcher);
-
-        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
-        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
-
-        fcViewSwitcher.setInAnimation(in);
-        fcViewSwitcher.setOutAnimation(out);
-
-        btnFlipper.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                fcViewSwitcher.showNext();
-            }
-        });
+        Button btnNext = findViewById(R.id.btnNext);
+        Button btnBack = findViewById(R.id.btnBack);
+        Button btnShuffle = findViewById(R.id.btnShuffle);
+        Button btnEdit = findViewById(R.id.btnEdit);
 
         TextView tvKeyword = findViewById(R.id.tvFCKeyword);
         TextView tvDefinition = findViewById(R.id.tvFCDefinition);
 
-        Flashcard fc1 = new Flashcard("House", "A place to stay");
+
+        Flashcard fc1 = new Flashcard("House", "a place to stay");
         Flashcard fc2 = new Flashcard("Orange", "a fruit");
+        Flashcard fc3 = new Flashcard("Cola","a black colored fizzy drink");
 
         flashLet = new ArrayList<>();
         flashLet.add(fc1);
         flashLet.add(fc2);
-
-        Button btnNext = findViewById(R.id.btnNext);
-        Button btnBack = findViewById(R.id.btnBack);
-        View vKeyword = findViewById(R.id.tvFCKeyword);
+        flashLet.add(fc3);
 
         tvKeyword.setText(flashLet.get(0).getKeyword());
         tvDefinition.setText(flashLet.get(0).getDefinition());
 
         arrayIndex = 0;
+
+        btnFlipper.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                flip_card_anim();
+            }
+        });
+
+        btnShuffle.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Collections.shuffle(flashLet);
+            }
+        });
 
 
         btnNext.setOnClickListener(new View.OnClickListener() {
@@ -87,9 +94,7 @@ public class FlashcardList extends AppCompatActivity {
 
                 arrayIndex++;
 
-                if (fcViewSwitcher.getNextView() == vKeyword) {
-                    fcViewSwitcher.showNext();
-                }
+                if (!isFront) {flip_card_anim();}
 
                 if (arrayIndex < flashLet.size()) {
                     tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
@@ -107,9 +112,7 @@ public class FlashcardList extends AppCompatActivity {
             public void onClick(View v) {
                 arrayIndex--;
 
-                if (fcViewSwitcher.getNextView() == vKeyword) {
-                    fcViewSwitcher.showPrevious();
-                }
+                if (!isFront) {flip_card_anim();}
 
                 if (arrayIndex >= 0) {
                     tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
@@ -146,8 +149,6 @@ public class FlashcardList extends AppCompatActivity {
                 });
 
 
-        Button btnEdit = findViewById(R.id.btnEdit);
-
         btnEdit.setOnClickListener(v -> {
             Intent intent = new Intent(FlashcardList.this, EditFlashcard.class);
             intent.putExtra("Array_Index", arrayIndex);
@@ -155,5 +156,18 @@ public class FlashcardList extends AppCompatActivity {
             intent.putExtra("Definition", flashLet.get(arrayIndex).getDefinition());
             editFlashcardLauncher.launch(intent);
         });
+    }
+
+    private void flip_card_anim(){
+        AnimatorSet setOut = (AnimatorSet) AnimatorInflater.loadAnimator(FlashcardList.this,R.animator.card_flip_out);
+        AnimatorSet setIn = (AnimatorSet) AnimatorInflater.loadAnimator(FlashcardList.this,R.animator.card_flip_in);
+
+        setOut.setTarget(isFront ? flashcard_front : flashcard_back);
+        setIn.setTarget((isFront ? flashcard_back : flashcard_front));
+
+        setOut.start();
+        setIn.start();
+
+        isFront = !isFront;
     }
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Flashcard">
+    tools:context=".FlashcardList">
 
     <TextView
         android:id="@+id/tvFLName"
@@ -14,83 +14,115 @@
         android:layout_marginTop="60dp"
         android:text="Flashlet Name"
         android:textSize="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_centerHorizontal="true"
+        />
 
 
-    <ViewSwitcher
-        android:id="@+id/viewSwitcher"
-        android:layout_width="330dp"
-        android:layout_height="450dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFLName"
-        android:background="#c2adeb"
+    <RelativeLayout
+        android:id="@+id/card_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         >
 
-        <TextView
-            android:id="@+id/tvFCKeyword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Keyword"
-            android:textSize="40dp"
-            android:layout_gravity="center"
-            />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_back"
+            android:layout_width="330dp"
+            android:layout_height="450dp"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="#e699ff"
+            >
 
-        <TextView
-            android:id="@+id/tvFCDefinition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Definition"
-            android:textSize="28dp"
-            android:layout_gravity="center"
-            />
-    </ViewSwitcher>
+            <TextView
+                android:id="@+id/tvFCDefinition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Definition"
+                android:textSize="40dp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_front"
+            android:layout_width="330dp"
+            android:layout_height="450dp"
+            app:cardBackgroundColor="#e699ff"
+            app:cardCornerRadius="16dp"
+            >
+
+            <TextView
+                android:id="@+id/tvFCKeyword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keyword"
+                android:textSize="40dp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+
+    </RelativeLayout>
+
+
 
     <Button
         android:id="@+id/btnEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Edit"
-        app:layout_constraintEnd_toEndOf="@id/viewSwitcher"
-        app:layout_constraintTop_toTopOf="@+id/viewSwitcher"
+        android:layout_alignRight="@id/card_main"
+        android:layout_alignBottom="@id/card_main"
         />
 
 
 
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="125dp"
-        android:layout_height="75dp"
-        android:text="Back"
-        android:textSize="20dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/card_main"
+        android:orientation="horizontal"
         android:layout_marginTop="40dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewSwitcher"
-        app:layout_constraintEnd_toStartOf="@+id/btnNext"
-        />
+        >
 
-    <Button
-        android:id="@+id/btnNext"
-        android:layout_width="125dp"
-        android:layout_height="75dp"
-        android:text="Next"
-        android:textSize="20dp"
-        android:layout_marginTop="40dp"
-        app:layout_constraintStart_toEndOf="@+id/btnBack"
-        app:layout_constraintTop_toBottomOf="@id/viewSwitcher"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="125dp"
+            android:layout_height="75dp"
+            android:text="Back"
+            android:textSize="20dp"
+            android:layout_marginRight="16dp"
+            />
+
+        <Button
+            android:id="@+id/btnShuffle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="shuffle"
+            />
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="125dp"
+            android:layout_height="75dp"
+            android:text="Next"
+            android:textSize="20dp"
+            android:layout_marginLeft="16dp"
+            />
+
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/btnFlipper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="flip"
-        app:layout_constraintBottom_toBottomOf="@id/viewSwitcher"
-        app:layout_constraintEnd_toEndOf="@id/viewSwitcher"
+        android:layout_alignRight="@id/card_main"
+        android:layout_alignTop="@id/card_main"
         />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
