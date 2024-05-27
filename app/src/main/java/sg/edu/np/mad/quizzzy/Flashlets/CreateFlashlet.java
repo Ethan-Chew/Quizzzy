@@ -201,11 +201,17 @@ public class CreateFlashlet extends AppCompatActivity {
                                 createdFlashlets.add(newFlashlet.getId());
                                 localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
 
-                                createFlashletBtn.setText("Create Flashlet");
-                                Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
-                                // Send User back to List Page
-                                Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
-                                startActivity(flashletListIntent);
+                                db.collection("users").document(user.getId()).update("createdFlashlets", createdFlashlets)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                createFlashletBtn.setText("Create Flashlet");
+                                                Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
+                                                // Send User back to List Page
+                                                Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
+                                                startActivity(flashletListIntent);
+                                            }
+                                        });
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

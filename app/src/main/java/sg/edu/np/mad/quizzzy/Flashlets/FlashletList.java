@@ -158,6 +158,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                         userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
                     }
 
+
                     /// Display Flashlet List on Screen
                     noFlashletNotif.setVisibility(View.GONE);
                     FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, FlashletList.this, FlashletList.this, userWithRecents.getUser());
