@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -26,6 +27,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -51,6 +53,15 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.cLViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClassList.this.getOnBackPressedDispatcher().onBackPressed();
+            }
         });
 
         RecyclerView recyclerView = findViewById(R.id.cLRecyclerView);
@@ -79,7 +90,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             @Override
             public void onClick(View v) {
                 Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
-                createClassIntent.putExtra("userId", ""); // TODO: Implement this
+                createClassIntent.putExtra("userId", user.getId()); // TODO: Implement this
                 startActivity(createClassIntent);
             }
         });

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -37,6 +38,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
@@ -61,6 +64,15 @@ public class AddClass extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.acViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddClass.this.getOnBackPressedDispatcher().onBackPressed();
+            }
         });
 
         addMemberBtn = findViewById(R.id.acadd_membersbtn);
@@ -142,8 +154,18 @@ public class AddClass extends AppCompatActivity {
                                 db.collection("class").document(classId).set(newClass).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-                                        Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
+                                        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(AddClass.this);
+                                        ArrayList<String> joinedClasses = localDB.getUser().getUser().getJoinedClasses();
+                                        joinedClasses.add(classId);
+                                        localDB.updateJoinedClasses(userId, joinedClasses);
+                                        db.collection("users").document(userId).update("joinedClasses", joinedClasses).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
 
+                                                startActivity(new Intent(getApplicationContext(), ClassList.class));
+                                            }
+                                        });
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override

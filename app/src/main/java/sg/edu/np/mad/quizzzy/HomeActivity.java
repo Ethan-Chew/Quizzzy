@@ -145,6 +145,15 @@ public class HomeActivity extends AppCompatActivity  {
 
         usernameView.setText(userWithRecents.getUser().getUsername());
 
+        TextView showClassList = findViewById(R.id.hSClassList);
+        showClassList.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 Intent showclassintent = new Intent(getApplicationContext(), ClassList.class);
+                 startActivity(showclassintent);
+             }
+        });
+
         // If there are no Recently Viewed, display text
         ArrayList<String> recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
         CollectionReference flashletColRef = db.collection("flashlets");
@@ -256,14 +265,6 @@ public class HomeActivity extends AppCompatActivity  {
                     });
         }
 
-        TextView yourclass = findViewById(R.id.hshowclass);
-         yourclass.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 Intent showclassintent = new Intent(getApplicationContext(), ClassList.class);
-                 startActivity(showclassintent);
-             }
-         });
     }
 
 }
