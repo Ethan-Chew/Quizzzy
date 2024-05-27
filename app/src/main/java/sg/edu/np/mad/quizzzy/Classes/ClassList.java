@@ -26,8 +26,12 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.MainActivity;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
 public class ClassList extends AppCompatActivity implements ClassRecyclerInterface {
@@ -36,6 +40,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
     ArrayList<UserClass> classes = new ArrayList<UserClass>();
     Gson gson = new Gson();
     User user;
+    UserWithRecents userWithRecents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +55,18 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
 
         RecyclerView recyclerView = findViewById(R.id.cLRecyclerView);
 
+        // Get User from SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
+        userWithRecents = localDB.getUser();
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(ClassList.this, MainActivity.class);
+            startActivity(returnToLoginIntent);
+        }
+        user = userWithRecents.getUser();
+
         // grab user id from database
-        ArrayList<String> classIds = new ArrayList<>();
-        classIds.add("a61ad1fb-c8b5-46f8-879e-7055e1eda495");
+        ArrayList<String> classIds = user.getJoinedClasses();
 
         // Set Screen Data
         TextView classesCount = findViewById(R.id.cLnumofclass);
@@ -67,6 +81,16 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
                 createClassIntent.putExtra("userId", ""); // TODO: Implement this
                 startActivity(createClassIntent);
+            }
+        });
+
+        TextView createclass = findViewById(R.id.cLaddclass);
+
+        createclass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent createclassintent = new Intent(ClassList.this, AddClass.class);
+                startActivity(createclassintent);
             }
         });
 
@@ -98,6 +122,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 }
             }
         });
+
     }
 
     @Override public void onItemClick(int position) {

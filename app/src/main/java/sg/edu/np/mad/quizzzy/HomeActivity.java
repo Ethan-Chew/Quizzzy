@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -39,6 +40,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Classes.ClassList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -253,6 +255,15 @@ public class HomeActivity extends AppCompatActivity  {
                         }
                     });
         }
+
+        TextView yourclass = findViewById(R.id.hshowclass);
+         yourclass.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 Intent showclassintent = new Intent(getApplicationContext(), ClassList.class);
+                 startActivity(showclassintent);
+             }
+         });
     }
 
 }
