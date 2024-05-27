@@ -18,6 +18,7 @@
             android:id="@+id/cpViewTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Class 1"
             android:textColor="@color/black"
             android:textSize="28sp"
@@ -25,8 +26,9 @@
 
         <TextView
             android:id="@+id/cpOptionsMenu"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:text="&#8942;"
             android:textAlignment="textEnd"
             android:textColor="@color/black"

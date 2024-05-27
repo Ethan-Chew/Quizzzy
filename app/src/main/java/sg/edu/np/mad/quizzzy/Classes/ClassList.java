@@ -88,7 +88,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                         classes.add(gson.fromJson(classJson, UserClass.class));
                     }
 
-                    ClassAdapter classAdapter = new ClassAdapter(ClassList.this, ClassList.this, classes);
+                    ClassAdapter classAdapter = new ClassAdapter(ClassList.this, ClassList.this, classes, user);
                     LinearLayoutManager classLayoutManager = new LinearLayoutManager(ClassList.this);
                     recyclerView.setLayoutManager(classLayoutManager);
                     recyclerView.setItemAnimator(new DefaultItemAnimator());
