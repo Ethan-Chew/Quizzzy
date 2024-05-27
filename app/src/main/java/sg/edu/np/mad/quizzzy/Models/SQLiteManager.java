@@ -74,14 +74,19 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String username = result.getString(1);
                     String email = result.getString(2);
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
-                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(4));
-                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(5));
+                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
+                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(5));
                     user = new User(id, username, email, createdFlashlets, joinedClasses);
                     userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
             }
         }
         return userWithRecents;
+    }
+
+    public void dropUser(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, ID + " =? ", new String[]{String.valueOf((userId))});
     }
 
     public void updateUser(UserWithRecents user) {

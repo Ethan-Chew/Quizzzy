@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item_background"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:paddingStart="13dp"
+    android:paddingEnd="13dp"
+    android:layout_marginEnd="10dp">
+
+    <TextView
+        android:id="@+id/fRVTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This is flashlet title wow"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="3dp" />
+
+    <TextView
+        android:id="@+id/fRVDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="this is description wow"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp" />
+</LinearLayout>

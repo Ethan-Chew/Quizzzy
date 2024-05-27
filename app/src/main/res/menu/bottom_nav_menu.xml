@@ -10,8 +10,8 @@
         android:icon="@drawable/create"/>
     <item
         android:id="@+id/flashlets"
-        android:title="Flashlets"
-        android:icon="@drawable/flashlets"/>
+        android:icon="@drawable/menucard"
+        android:title="Flashlets" />
     <item
         android:id="@+id/stats"
         android:title="Stats"

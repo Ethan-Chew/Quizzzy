@@ -58,7 +58,7 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     }
 
     public void onBindViewHolder(FlashletListViewHolder holder, int position) {
-        Flashlet listItem = userFlashlets.get(position);
+        Flashlet listItem = userFlashlets.get(holder.getAdapterPosition());
 
         // Create Drop Down Options Menu
         PopupMenu popup = new PopupMenu(activity, holder.optionsMenu);
@@ -94,6 +94,8 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                                                 ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
                                                 createdFlashlets.remove(listItem.getId());
                                                 localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
+                                                notifyItemRemoved(holder.getAdapterPosition());
+                                                notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
                                                 Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
                                             }
@@ -131,7 +133,7 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
         // Set Text of Elements on UI
         holder.titleLabel.setText(listItem.getTitle());
 
-        String flashcardCountTxt = userFlashlets.size() + " Keyword" + (userFlashlets.size() > 1 ? "s" : "");
+        String flashcardCountTxt = listItem.getFlashcards().size() + " Keyword" + (listItem.getFlashcards().size() > 1 ? "s" : "");
         holder.flashcardCountLabel.setText(flashcardCountTxt);
 
         Date lastUpdated = new Date(listItem.getLastUpdatedUnix() * 1000L);
