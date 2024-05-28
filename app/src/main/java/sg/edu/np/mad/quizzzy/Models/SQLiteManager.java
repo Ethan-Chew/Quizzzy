@@ -72,7 +72,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String email = result.getString(2);
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
                     ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
-                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(5));
                     user = new User(id, username, email, createdFlashlets);
                     userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
