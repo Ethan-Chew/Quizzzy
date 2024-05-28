@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -236,6 +237,7 @@ public class HomeActivity extends AppCompatActivity  {
                                         public void onClick(View v) {
                                             Intent showFlashletDetail = new Intent(HomeActivity.this, FlashletDetail.class);
                                             showFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
+                                            showFlashletDetail.putExtra("userId", userWithRecents.getUser().getId());
                                             startActivity(showFlashletDetail);
                                         }
                                     });
@@ -264,7 +266,19 @@ public class HomeActivity extends AppCompatActivity  {
                         }
                     });
         }
-
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Get User from SQLite
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
+        userWithRecents = localDB.getUser();
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(HomeActivity.this, MainActivity.class);
+            startActivity(returnToLoginIntent);
+        }
+    }
 }

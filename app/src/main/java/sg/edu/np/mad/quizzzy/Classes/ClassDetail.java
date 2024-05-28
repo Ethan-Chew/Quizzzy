@@ -30,7 +30,7 @@ import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
 
-public class  ClassDetail extends AppCompatActivity {
+public class ClassDetail extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Gson gson = new Gson();
     

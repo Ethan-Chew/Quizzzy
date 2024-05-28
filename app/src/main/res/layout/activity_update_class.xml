@@ -112,7 +112,7 @@
                 android:orientation="vertical"></LinearLayout>
 
             <Button
-                android:id="@+id/uCUpdateMemberBtn"
+                android:id="@+id/uCAddMember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -136,9 +136,7 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginEnd="25dp"
                 android:text="Update Class"
-                android:textSize="20dp"
-                tools:layout_editor_absoluteX="62dp"
-                tools:layout_editor_absoluteY="216dp" />
+                android:textSize="20dp"/>
         </LinearLayout>
     </ScrollView>
 

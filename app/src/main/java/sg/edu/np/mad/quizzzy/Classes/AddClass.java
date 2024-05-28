@@ -84,8 +84,6 @@ public class AddClass extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
-                final String[] memberUN = {""};
-
 
                 EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
                 usernameInputs.add(memberUsernameInput);
@@ -149,23 +147,15 @@ public class AddClass extends AppCompatActivity {
                                 String classId = UUID.randomUUID().toString();
                                 ArrayList<String> creatorId = new ArrayList<>();
                                 creatorId.add(userId);
+                                newMemberIds.add(userId);
                                 newClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
 
                                 db.collection("class").document(classId).set(newClass).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-                                        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(AddClass.this);
-                                        ArrayList<String> joinedClasses = localDB.getUser().getUser().getJoinedClasses();
-                                        joinedClasses.add(classId);
-                                        localDB.updateJoinedClasses(userId, joinedClasses);
-                                        db.collection("users").document(userId).update("joinedClasses", joinedClasses).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
 
-                                                startActivity(new Intent(getApplicationContext(), ClassList.class));
-                                            }
-                                        });
+                                        startActivity(new Intent(getApplicationContext(), ClassList.class));
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override

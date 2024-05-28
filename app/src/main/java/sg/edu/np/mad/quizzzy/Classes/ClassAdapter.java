@@ -7,10 +7,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
@@ -75,11 +78,15 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
                     builder.setTitle("Are you sure?")
                             .setMessage(confirmationMessage)
                             .setPositiveButton("Yes", (dialog, which) -> {
-                                // Confirmed Delete
-                                Intent sendToUpdate = new Intent(activity, UpdateClass.class);
-                                sendToUpdate.putExtra("classJson", gson.toJson(listItem));
-                                activity.startActivity(sendToUpdate);
-
+                                db.collection("class").document(listItem.getId()).delete()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Toast.makeText(activity, "Successfully Deleted Class!", Toast.LENGTH_LONG).show();
+                                                // Once Delete is Successful, send user back to ClassList
+                                                activity.startActivity(new Intent(activity, ClassList.class));
+                                            }
+                                        });
                             })
                             .setNegativeButton("Cancel", ((dialog, which) -> {
                                 // Handle Cancel Delete
