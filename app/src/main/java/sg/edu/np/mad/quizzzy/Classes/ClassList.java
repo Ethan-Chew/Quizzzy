@@ -134,7 +134,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         });
     }
 
-    @Override public void onItemClick(int position) {
+    @Override
+    public void onItemClick(int position) {
         String classJson = gson.toJson(classes.get(position));
         Intent sendToClassDetails = new Intent(ClassList.this, ClassDetail.class);
         sendToClassDetails.putExtra("classJson", classJson);
