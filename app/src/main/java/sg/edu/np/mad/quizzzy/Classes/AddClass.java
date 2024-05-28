@@ -48,8 +48,6 @@ public class AddClass extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Gson gson = new Gson();
-
-    UserClass newClass;
     int id = 0;
 
     private Button addMemberBtn;
@@ -115,17 +113,13 @@ public class AddClass extends AppCompatActivity {
             public void onClick(View v) {
                 String title = classTitle.getText().toString();
                 if (title.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Pleass give your class a name!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Please give your class a name!", Toast.LENGTH_LONG).show();
                     return;
                 }
                 ArrayList<String> newMemberUsernames = new ArrayList<>();
                 for (EditText editText : usernameInputs) {
                     newMemberUsernames.add(editText.getText().toString());
                 }
-
-                EditText titleEntry = findViewById(R.id.acNewTitle);
-                String className = titleEntry.getText().toString();
-                ArrayList<String> creatorIds = new ArrayList<>(Arrays.asList(userId));
 
                 // Check if All Members Exist in Firebase, and get their ID
                 CollectionReference usersColRef = db.collection("users");
@@ -148,9 +142,9 @@ public class AddClass extends AppCompatActivity {
                                 ArrayList<String> creatorId = new ArrayList<>();
                                 creatorId.add(userId);
                                 newMemberIds.add(userId);
-                                newClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
 
-                                db.collection("class").document(classId).set(newClass).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                UserClass userClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
+                                db.collection("class").document(classId).set(userClass).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
                                         Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();

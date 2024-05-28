@@ -88,7 +88,6 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                                 String classJson = gson.toJson(document.getData());
                                 classes.add(gson.fromJson(classJson, UserClass.class));
                             }
-
                             // Set Screen Data
                             TextView classesCount = findViewById(R.id.cLnumofclass);
                             String classCountText = "You have " + classes.size() + " Class" + (classes.size() == 1 ? "" : "es");
@@ -118,7 +117,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             @Override
             public void onClick(View v) {
                 Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
-                createClassIntent.putExtra("userId", user.getId()); // TODO: Implement this
+                createClassIntent.putExtra("userId", user.getId());
                 startActivity(createClassIntent);
             }
         });
@@ -129,6 +128,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             @Override
             public void onClick(View v) {
                 Intent createclassintent = new Intent(ClassList.this, AddClass.class);
+                createclassintent.putExtra("userId", user.getId());
                 startActivity(createclassintent);
             }
         });

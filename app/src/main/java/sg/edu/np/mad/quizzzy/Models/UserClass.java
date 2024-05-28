@@ -16,8 +16,11 @@ public class UserClass {
     public void setClassTitle(String classTitle) {
         this.classTitle = classTitle;
     }
-    public void setCreatorID(ArrayList<String> creatorId) {
+    public void setCreatorId(ArrayList<String> creatorId) {
         this.creatorId = creatorId;
+    }
+    public void setMemberId(ArrayList<String> memberId) {
+        this.memberId = memberId;
     }
     public void addMember(String userId) {
         this.memberId.add(id);
@@ -28,9 +31,9 @@ public class UserClass {
 
     // Getters
     public String getId() { return this.id; }
-    public ArrayList<String> getMembers() { return this.memberId; }
+    public ArrayList<String> getMemberId() { return this.memberId; }
     public String getClassTitle() { return this.classTitle; }
-    public ArrayList<String> getCreators() { return this.creatorId; }
+    public ArrayList<String> getCreatorId() { return this.creatorId; }
 
     public UserClass(String id, String classTitle, ArrayList<String> creatorId, ArrayList<String> memberId, long lastUpdatedUnix) {
         this.id = id;

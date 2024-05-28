@@ -68,7 +68,7 @@ public class ClassDetail extends AppCompatActivity {
 
         Intent receiveintent = getIntent();
         userClass = gson.fromJson(receiveintent.getStringExtra("classJSON"), UserClass.class);
-        ArrayList<String> members = userClass.getMembers();
+        ArrayList<String> members = userClass.getMemberId();
 
         classtitle.setText(userClass.getClassTitle());
         String membercount = members.size() + " Total Members" + (members.size() == 1 ? "" : "s");

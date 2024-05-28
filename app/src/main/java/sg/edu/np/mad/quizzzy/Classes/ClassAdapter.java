@@ -51,11 +51,11 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
         UserClass listItem = classes.get(position);
 
         holder.classname.setText(listItem.getClassTitle());
-        String memberCountText = listItem.getMembers().size() + " Member" + (listItem.getMembers().size() == 1 ? "" : "s");
+        String memberCountText = listItem.getMemberId().size() + " Member" + (listItem.getMemberId().size() == 1 ? "" : "s");
         holder.memberCount.setText(memberCountText);
 
         // Check if User is the Creator. If yes, allow for Update and Delete Operations
-        if (!listItem.getMembers().contains(user.getId())) {
+        if (!listItem.getMemberId().contains(user.getId())) {
             holder.options.setVisibility(View.GONE);
             return;
         }

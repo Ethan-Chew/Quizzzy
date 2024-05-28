@@ -67,7 +67,7 @@ public class UpdateClass extends AppCompatActivity {
         titleEditField.setHint(userClass.getClassTitle());
 
         LinearLayout memberList = findViewById(R.id.uCUpdateMembers);
-        for (String username : userClass.getMembers()) {
+        for (String username : userClass.getMemberId()) {
             View listItem = LayoutInflater.from(UpdateClass.this).inflate(R.layout.add_class_members, null, false);
             EditText listItemEdit = listItem.findViewById(R.id.acmusername);
             listItemEdit.setHint(username);
