@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -67,14 +68,14 @@ public class ClassDetail extends AppCompatActivity {
         memberscontainer = findViewById(R.id.cdmemberscontainer);
 
         Intent receiveintent = getIntent();
-        userClass = gson.fromJson(receiveintent.getStringExtra("classJSON"), UserClass.class);
+        userClass = gson.fromJson(receiveintent.getStringExtra("classJson"), UserClass.class);
         ArrayList<String> members = userClass.getMemberId();
 
         classtitle.setText(userClass.getClassTitle());
-        String membercount = members.size() + " Total Members" + (members.size() == 1 ? "" : "s");
+        String membercount = members.size() + " Total Member" + (members.size() == 1 ? "" : "s");
         memberscount.setText(membercount);
 
-        db.collection("class").whereIn("id", members).get()
+        db.collection("users").whereIn("id", members).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -83,20 +84,25 @@ public class ClassDetail extends AppCompatActivity {
                                 String classJson = gson.toJson(document.getData());
                                 users.add(gson.fromJson(classJson, User.class));
                             }
-
+                            Log.d("a", "hhhhhhh");
                             for (int i = 0; i < users.size(); i++) {
+                                Log.d("a", "hhhhhhh");
                                 User user = users.get(i);
+                                Log.d("r", "dddddddd");
                                 View memberView = LayoutInflater.from(ClassDetail.this).inflate(R.layout.member_list, null, false);
                                 TextView memberusername = memberView.findViewById(R.id.mlusername);
                                 memberusername.setText(user.getUsername());
+                                Log.d("e", "aaaaaaaa");
 
                                 memberscontainer.addView(memberView);
+                                Log.d("dd", "qqqqqqqq");
 
                                 View spacerView = new View(ClassDetail.this);
                                 LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
                                         LinearLayout.LayoutParams.MATCH_PARENT,
                                         20
                                 );
+                                Log.d("aaa", "aaaaaaaaaa");
                                 memberscontainer.addView(spacerView, spacerParams);
                             }
                         }
