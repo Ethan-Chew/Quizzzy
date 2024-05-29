@@ -23,8 +23,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String EMAIL = "email";
     private static final String CREATED_FLASHLETS = "createdflashlets";
     private static final String RECENTLY_VIEWED_FLASHLETS = "recentlyviewedflashlets";
-    private static final String JOINED_CLASSES = "joinedclases";
-
 
     public SQLiteManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,7 +35,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createQuery = "CREATE TABLE " + TABLE_NAME + "(" + ID + " TEXT, " + USERNAME + " TEXT, " + EMAIL + " TEXT, " + CREATED_FLASHLETS + " TEXT, " + RECENTLY_VIEWED_FLASHLETS + " TEXT, " + JOINED_CLASSES + " TEXT)";
+        String createQuery = "CREATE TABLE " + TABLE_NAME + "(" + ID + " TEXT, " + USERNAME + " TEXT, " + EMAIL + " TEXT, " + CREATED_FLASHLETS + " TEXT, " + RECENTLY_VIEWED_FLASHLETS + " TEXT)";
         db.execSQL(createQuery);
     }
 
@@ -56,7 +54,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         // Covert ArrayList to String joined with ;
         contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
-        contentValues.put(JOINED_CLASSES, convertArrayToString(userWithoutRecents.getJoinedClasses()));
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.insert(TABLE_NAME, null, contentValues);
@@ -74,14 +71,18 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String username = result.getString(1);
                     String email = result.getString(2);
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
-                    ArrayList<String> joinedClasses = convertStringToArray(result.getString(4));
-                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(5));
-                    user = new User(id, username, email, createdFlashlets, joinedClasses);
+                    ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
+                    user = new User(id, username, email, createdFlashlets);
                     userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
             }
         }
         return userWithRecents;
+    }
+
+    public void dropUser(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, ID + " =? ", new String[]{String.valueOf((userId))});
     }
 
     public void updateUser(UserWithRecents user) {
@@ -95,7 +96,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         // Covert ArrayList to String joined with ;
         contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
-        contentValues.put(JOINED_CLASSES, convertArrayToString(userWithoutRecents.getJoinedClasses()));
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
@@ -105,14 +105,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(CREATED_FLASHLETS, convertArrayToString(createdFlashlets));
-
-        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
-    }
-
-    public void updateJoinedClasses(String id, ArrayList<String> joinedClasses) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(joinedClasses));
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
     }

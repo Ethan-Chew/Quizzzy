@@ -18,13 +18,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class SignupActivity extends AppCompatActivity {
+
+    Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,18 +71,30 @@ public class SignupActivity extends AppCompatActivity {
 
                                     if (task.isSuccessful()) {
                                         // Create user in Firebase
-                                        FirebaseUser user = mAuth.getCurrentUser();
-                                        User userInfo = new User(user.getUid(), usernameView.getText().toString(), user.getEmail());
-                                        firebase.collection("users").document(user.getUid()).set(userInfo);
-                                        // Save user into SQLite Local DB
-                                        localDB.addUser(new UserWithRecents(userInfo));
-                                        // Send user to Home Screen
-                                        Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
-                                        startActivity(homeScreenIntent);
-                                    } else if (!task.getException().toString().isEmpty()) {
-                                        Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                        FirebaseUser currentUser = mAuth.getCurrentUser();
+                                        DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
+                                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    DocumentSnapshot document = task.getResult();
+                                                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                                                    String userJson = gson.toJson(document.getData());
+                                                    User user = gson.fromJson(userJson, User.class);
+                                                    firebase.collection("users").document(currentUser.getUid()).set(user);
+                                                    // Save user into SQLite Local DB
+                                                    localDB.addUser(new UserWithRecents(user));
+                                                    // Send user to Home Screen
+                                                    Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
+                                                    startActivity(homeScreenIntent);
+                                                } else if (!task.getException().toString().isEmpty()) {
+                                                    Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                                }
+
+                                            }
+                                        });
                                     }
                                 }
                             });

@@ -2,27 +2,34 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toolbar;
-import androidx.activity.OnBackPressedCallback;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -48,6 +55,46 @@ public class FlashletDetail extends AppCompatActivity {
             return insets;
         });
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.flashlets);
+        bottomNavigationView.setOnApplyWindowInsetsListener(null);
+        bottomNavigationView.setPadding(0,0,0,0);
+
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.create) {
+                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.stats) {
+                    // TODO: Integrate Darius's Part
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.fDViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FlashletDetail.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
         // Find View Components
         flashletTitleLbl = findViewById(R.id.fDFlashletTitle);
         flashletFlashcardCountLbl = findViewById(R.id.fDCounterLabel);
@@ -57,7 +104,19 @@ public class FlashletDetail extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
+        String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
+
+        // Update SQLite with Recently Opened
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+        ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
+        if (recentlyViewed.size() == 5) {
+            recentlyViewed.remove(4);
+        }
+        if (!recentlyViewed.contains(flashlet.getId())) {
+            recentlyViewed.add(flashlet.getId());
+            localDB.updateRecentlyViewed(userId, recentlyViewed);
+        }
 
         // Update UI based on Flashlet Info
         flashletTitleLbl.setText(flashlet.getTitle());
