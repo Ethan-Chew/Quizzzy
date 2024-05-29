@@ -180,7 +180,7 @@ public class ClassDetail extends AppCompatActivity {
                                                        if (jArray != null) {
                                                            for (int i = 0; i < jArray.size(); i++) {
                                                                createdFlashlets.add(String.valueOf(jArray.get(i)));
-                                                               Log.d("DFDFSFFSDFSDFSD", "cum");
+                                                               Log.d("DFDFSFFSDFSDFSD", String.valueOf(jArray));
                                                            }
                                                            CollectionReference docRef = db.collection("flashlets");
                                                            try{
@@ -189,7 +189,7 @@ public class ClassDetail extends AppCompatActivity {
                                                                            @Override
                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                                                if (task.isSuccessful()) {
-                                                                                   Log.d("DFDFSFFSDFSDFSD", "cum1");
+                                                                                   Log.d("DFDFSFFSDFSDFSD", String.valueOf(task.getResult().size()));
                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
                                                                                        Log.d("DFDFSFFSDFSDFSD", "FSDDDDDDDDDDDDDDDDDDDDDDD");
                                                                                        String flashletJson = gson.toJson(document.getData());
