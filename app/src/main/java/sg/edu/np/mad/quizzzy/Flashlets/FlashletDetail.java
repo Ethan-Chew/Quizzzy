@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 import android.widget.Toolbar;
 import androidx.activity.OnBackPressedCallback;
 
@@ -36,6 +37,7 @@ public class FlashletDetail extends AppCompatActivity {
     TextView flashletFlashcardCountLbl;
     Button studyFlashcardBtn;
     LinearLayout flashcardViewList;
+    ViewFlipper flashcardPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,7 @@ public class FlashletDetail extends AppCompatActivity {
         flashletFlashcardCountLbl = findViewById(R.id.fDCounterLabel);
         studyFlashcardBtn = findViewById(R.id.fDStudyFlashcards);
         flashcardViewList = findViewById(R.id.fDFlashcardsContainer);
+        flashcardPreview = findViewById(R.id.fDFlashcardPreview);
 
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
@@ -63,6 +66,18 @@ public class FlashletDetail extends AppCompatActivity {
         flashletTitleLbl.setText(flashlet.getTitle());
         String flashcardCount = flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
+
+        //Set flashcard preview
+        for (int i = 0; i < flashcards.size() && i < 8; i++) {
+            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, null);
+            TextView keyword = flashcardView.findViewById(R.id.flashcardKeyword);
+            keyword.setText(flashcards.get(i).getKeyword());
+            flashcardPreview.addView(flashcardView);
+
+        }
+
+        flashcardPreview.setFlipInterval(3000);
+        flashcardPreview.startFlipping();
 
         // Add Flashlets to Screen
         for (int i = 0; i < flashcards.size(); i++) {
