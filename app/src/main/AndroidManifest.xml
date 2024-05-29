@@ -28,7 +28,7 @@
             android:name=".EditFlashcard"
             android:exported="false" />
         <activity
-            android:name=".Flashcard"
+            android:name=".FlashcardList"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

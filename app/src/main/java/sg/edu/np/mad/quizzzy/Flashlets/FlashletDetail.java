@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.FlashcardList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -106,6 +107,17 @@ public class FlashletDetail extends AppCompatActivity {
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
         String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
+
+        // Configure Study Flashcards Button
+        Button studyFlashcards = findViewById(R.id.fDStudyFlashcards);
+        studyFlashcards.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendToStudyFlashcards = new Intent(FlashletDetail.this, FlashcardList.class);
+                sendToStudyFlashcards.putExtra("flashletJson", gson.toJson(flashlet));
+                startActivity(sendToStudyFlashcards);
+            }
+        });
 
         // Update SQLite with Recently Opened
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
