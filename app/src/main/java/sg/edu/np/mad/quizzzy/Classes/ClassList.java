@@ -3,6 +3,7 @@ package sg.edu.np.mad.quizzzy.Classes;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -55,6 +58,37 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.home);
+        bottomNavigationView.setOnApplyWindowInsetsListener(null);
+        bottomNavigationView.setPadding(0,0,0,0);
+
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.home) {
+                    return true;
+                } else if (itemId == R.id.create) {
+                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
+                    createFlashletIntent.putExtra("userId", "");
+                    startActivity(createFlashletIntent);
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.flashlets) {
+                    startActivity(new Intent(getApplicationContext(), FlashletList.class));
+                    overridePendingTransition(0,0);
+                    return true;
+                } else if (itemId == R.id.stats) {
+                    // TODO: Integrate Darius's Part
+                    return true;
+                }
+                return false;
+            }
+        });
+
 
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.cLViewToolbar);
