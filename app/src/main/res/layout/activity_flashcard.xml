@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FlashcardList">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/fCToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="?attr/homeAsUpIndicator" />
+
+    <TextView
+        android:id="@+id/tvFLName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="10dp"
+        android:text="Flashlet Name"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fCToolbar" />
+
+    <RelativeLayout
+        android:id="@+id/card_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFLName"
+        >
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_back"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="#e699ff"
+            >
+
+            <TextView
+                android:id="@+id/tvFCDefinition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Definition"
+                android:textSize="40dp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_front"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            app:cardBackgroundColor="#e699ff"
+            app:cardCornerRadius="16dp"
+            >
+
+            <TextView
+                android:id="@+id/tvFCKeyword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keyword"
+                android:textSize="40dp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_main"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:layout_marginBottom="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="125dp"
+            android:layout_height="75dp"
+            android:layout_marginRight="16dp"
+            android:text="Back"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/btnShuffle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shuffle"
+            app:icon="@drawable/shuffle" />
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="125dp"
+            android:layout_height="75dp"
+            android:layout_marginLeft="16dp"
+            android:text="Next"
+            android:textSize="20dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/card_main"
+        android:layout_alignBottom="@id/card_main"
+        android:text="Edit"
+        app:layout_constraintBottom_toBottomOf="@id/card_main"
+        app:layout_constraintEnd_toEndOf="@id/card_main"/>
+
+    <Button
+        android:id="@+id/btnFlipper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/card_main"
+        android:layout_alignRight="@id/card_main"
+        android:text="flip"
+        app:layout_constraintTop_toTopOf="@+id/card_main"
+        app:layout_constraintEnd_toEndOf="@id/card_main"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

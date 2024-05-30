@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
+import androidx.activity.OnBackPressedCallback;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -26,6 +28,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.FlashcardList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -43,6 +46,7 @@ public class FlashletDetail extends AppCompatActivity {
     TextView flashletFlashcardCountLbl;
     Button studyFlashcardBtn;
     LinearLayout flashcardViewList;
+    ViewFlipper flashcardPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,12 +104,24 @@ public class FlashletDetail extends AppCompatActivity {
         flashletFlashcardCountLbl = findViewById(R.id.fDCounterLabel);
         studyFlashcardBtn = findViewById(R.id.fDStudyFlashcards);
         flashcardViewList = findViewById(R.id.fDFlashcardsContainer);
+        flashcardPreview = findViewById(R.id.fDFlashcardPreview);
 
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
         String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
+
+        // Configure Study Flashcards Button
+        Button studyFlashcards = findViewById(R.id.fDStudyFlashcards);
+        studyFlashcards.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendToStudyFlashcards = new Intent(FlashletDetail.this, FlashcardList.class);
+                sendToStudyFlashcards.putExtra("flashletJson", gson.toJson(flashlet));
+                startActivity(sendToStudyFlashcards);
+            }
+        });
 
         // Update SQLite with Recently Opened
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
@@ -122,6 +138,18 @@ public class FlashletDetail extends AppCompatActivity {
         flashletTitleLbl.setText(flashlet.getTitle());
         String flashcardCount = flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
+
+        //Set flashcard preview
+        for (int i = 0; i < flashcards.size() && i < 8; i++) {
+            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, null);
+            TextView keyword = flashcardView.findViewById(R.id.flashcardKeyword);
+            keyword.setText(flashcards.get(i).getKeyword());
+            flashcardPreview.addView(flashcardView);
+
+        }
+
+        flashcardPreview.setFlipInterval(3000);
+        flashcardPreview.startFlipping();
 
         // Add Flashlets to Screen
         for (int i = 0; i < flashcards.size(); i++) {
