@@ -173,6 +173,7 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         String classJson = gson.toJson(classes.get(position));
         Intent sendToClassDetails = new Intent(ClassList.this, ClassDetail.class);
         sendToClassDetails.putExtra("classJson", classJson);
+        sendToClassDetails.putExtra("userId", user.getId());
         startActivity(sendToClassDetails);
     }
 }

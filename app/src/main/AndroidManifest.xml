@@ -55,6 +55,9 @@
             android:name=".Flashlets.CreateFlashlet"
             android:exported="false" />
         <activity
+            android:name=".Flashlets.CreateClassFlashlet"
+            android:exported="false" />
+        <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
