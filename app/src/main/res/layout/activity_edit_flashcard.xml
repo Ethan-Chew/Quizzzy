@@ -7,16 +7,34 @@
     android:layout_height="match_parent"
     tools:context=".EditFlashcard">
 
-    <TextView
-        android:id="@+id/tvFLName"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/eFToolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="Flashlet Name"
-        android:textSize="48dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="?attr/homeAsUpIndicator" />
+
+    <TextView
+        android:id="@+id/tvFLName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="10dp"
+        android:text="Flashlet Name"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eFToolbar" />
 
     <TextView
         android:id="@+id/tvBody"
@@ -33,7 +51,7 @@
         android:id="@+id/tvHeader"
         android:layout_width="330dp"
         android:layout_height="75dp"
-        android:text="Editing Flashcard"
+        android:text="Edit Flashcard"
         android:textSize="40dp"
         android:textAlignment="center"
         android:textColor="@color/white"
@@ -70,25 +88,25 @@
 
     <Button
         android:id="@+id/btnUndo"
-        android:layout_width="150dp"
+        android:layout_width="200dp"
         android:layout_height="75dp"
         android:text="Undo Changes"
         android:textSize="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvBody"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnSave"
         />
 
     <Button
         android:id="@+id/btnSave"
-        android:layout_width="150dp"
+        android:layout_width="200dp"
         android:layout_height="75dp"
         android:text="Save and Exit"
         android:textSize="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintStart_toEndOf="@id/btnUndo"
-        app:layout_constraintTop_toBottomOf="@id/tvBody"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
 

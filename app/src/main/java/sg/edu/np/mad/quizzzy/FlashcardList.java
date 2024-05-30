@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,15 +23,23 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
+import sg.edu.np.mad.quizzzy.Models.Flashlet;
 
 public class FlashcardList extends AppCompatActivity {
+    Gson gson = new Gson();
 
     private int arrayIndex;
-    private ArrayList<Flashcard> flashLet;
+    private ArrayList<Flashcard> flashcards;
     private CardView flashcard_front, flashcard_back;
     private boolean isFront = true;
 
@@ -46,6 +55,14 @@ public class FlashcardList extends AppCompatActivity {
             return insets;
         });
 
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.fCToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         flashcard_front = findViewById(R.id.flashcard_front);
         flashcard_back = findViewById(R.id.flashcard_back);
@@ -56,21 +73,18 @@ public class FlashcardList extends AppCompatActivity {
         Button btnShuffle = findViewById(R.id.btnShuffle);
         Button btnEdit = findViewById(R.id.btnEdit);
 
+        TextView tvFLName = findViewById(R.id.tvFLName);
         TextView tvKeyword = findViewById(R.id.tvFCKeyword);
         TextView tvDefinition = findViewById(R.id.tvFCDefinition);
 
+        // Get from Intent
+        Intent receiveIntent = getIntent();
+        Flashlet flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJson"), Flashlet.class);
+        flashcards = flashlet.getFlashcards();
 
-        Flashcard fc1 = new Flashcard("House", "a place to stay");
-        Flashcard fc2 = new Flashcard("Orange", "a fruit");
-        Flashcard fc3 = new Flashcard("Cola","a black colored fizzy drink");
-
-        flashLet = new ArrayList<>();
-        flashLet.add(fc1);
-        flashLet.add(fc2);
-        flashLet.add(fc3);
-
-        tvKeyword.setText(flashLet.get(0).getKeyword());
-        tvDefinition.setText(flashLet.get(0).getDefinition());
+        tvFLName.setText(flashlet.getTitle());
+        tvKeyword.setText(flashcards.get(0).getKeyword());
+        tvDefinition.setText(flashcards.get(0).getDefinition());
 
         arrayIndex = 0;
 
@@ -83,11 +97,11 @@ public class FlashcardList extends AppCompatActivity {
 
         btnShuffle.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                Collections.shuffle(flashLet);
+                Collections.shuffle(flashcards);
 
                 arrayIndex = 0;
-                tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
-                tvDefinition.setText(flashLet.get(arrayIndex).getDefinition());
+                tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
+                tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
             }
         });
 
@@ -100,9 +114,9 @@ public class FlashcardList extends AppCompatActivity {
 
                 if (!isFront) {flip_card_anim();}
 
-                if (arrayIndex < flashLet.size()) {
-                    tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
-                    tvDefinition.setText(flashLet.get(arrayIndex).getDefinition());
+                if (arrayIndex < flashcards.size()) {
+                    tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
+                    tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
                 } else {
                     Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
                     arrayIndex = 0;
@@ -119,8 +133,8 @@ public class FlashcardList extends AppCompatActivity {
                 if (!isFront) {flip_card_anim();}
 
                 if (arrayIndex >= 0) {
-                    tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
-                    tvDefinition.setText(flashLet.get(arrayIndex).getDefinition());
+                    tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
+                    tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
                 } else {
                     Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
                 }
@@ -137,8 +151,8 @@ public class FlashcardList extends AppCompatActivity {
                             String keyword = data.getStringExtra("Keyword");
                             String definition = data.getStringExtra("Definition");
                             if (index != -1) {
-                                flashLet.get(index).setKeyword(keyword);
-                                flashLet.get(index).setDefinition(definition);
+                                flashcards.get(index).setKeyword(keyword);
+                                flashcards.get(index).setDefinition(definition);
 
                                 // Update the displayed flashcard if it's the current one
                                 if (index == arrayIndex) {
@@ -156,8 +170,7 @@ public class FlashcardList extends AppCompatActivity {
         btnEdit.setOnClickListener(v -> {
             Intent intent = new Intent(FlashcardList.this, EditFlashcard.class);
             intent.putExtra("Array_Index", arrayIndex);
-            intent.putExtra("Keyword", flashLet.get(arrayIndex).getKeyword());
-            intent.putExtra("Definition", flashLet.get(arrayIndex).getDefinition());
+            intent.putExtra("flashletJson", gson.toJson(flashlet));
             editFlashcardLauncher.launch(intent);
         });
     }

@@ -24,12 +24,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class LoginActivity extends AppCompatActivity {
+
+    Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                    User user = new User(currentUser.getUid(), document.getData().get("username").toString(), email);
+                                                    String userJson = gson.toJson(document.getData());
+                                                    User user = gson.fromJson(userJson, User.class);
                                                     localDB.addUser(new UserWithRecents(user));
                                                     // Send User to Home Screen
                                                     Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
