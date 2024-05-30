@@ -98,11 +98,10 @@ public class FlashcardList extends AppCompatActivity {
         btnShuffle.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Collections.shuffle(flashcards);
-                Collections.shuffle(flashLet);
 
                 arrayIndex = 0;
-                tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
-                tvDefinition.setText(flashLet.get(arrayIndex).getDefinition());
+                tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
+                tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
             }
         });
 
