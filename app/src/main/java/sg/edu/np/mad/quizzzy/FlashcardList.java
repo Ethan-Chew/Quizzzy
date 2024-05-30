@@ -43,6 +43,7 @@ public class FlashcardList extends AppCompatActivity {
     private CardView flashcard_front, flashcard_back;
     private boolean isFront = true;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +98,11 @@ public class FlashcardList extends AppCompatActivity {
         btnShuffle.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Collections.shuffle(flashcards);
+                Collections.shuffle(flashLet);
+
+                arrayIndex = 0;
+                tvKeyword.setText(flashLet.get(arrayIndex).getKeyword());
+                tvDefinition.setText(flashLet.get(arrayIndex).getDefinition());
             }
         });
 
