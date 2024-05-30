@@ -112,7 +112,7 @@ public class ClassDetail extends AppCompatActivity {
 
         classtitle = findViewById(R.id.cdclasstitle);
         memberscount = findViewById(R.id.cdmembers);
-        Studyfleshlets = findViewById(R.id.cdStudyfleshlets);
+        Studyfleshlets = findViewById(R.id.cdStudyflashlets);
         createFlashlet = findViewById(R.id.createFlashlet);
         memberscontainer = findViewById(R.id.cdmemberscontainer);
         createdFlashletsContainer = findViewById(R.id.hPCFContainer);

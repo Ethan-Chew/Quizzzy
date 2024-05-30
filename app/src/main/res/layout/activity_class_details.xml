@@ -7,12 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".Classes.ClassDetail">
 
-    <LinearLayout
-        android:id="@+id/hPCFContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="horizontal" />
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/fDViewToolbar"
         android:layout_width="match_parent"
@@ -64,28 +58,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cdclasstitle" />
 
-            <!--TODO: add Flashlet Logic-->
-
-            <HorizontalScrollView
-                android:id="@+id/hPCFScroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintBottom_toTopOf="@+id/createFlashlet"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cdStudyfleshlets">
-
-                <LinearLayout
-                    android:id="@+id/hPCFContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal" />
-            </HorizontalScrollView>
 
             <Button
-                android:id="@+id/cdStudyfleshlets"
+                android:id="@+id/cdStudyflashlets"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -101,15 +76,59 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cdmembers" />
 
+            <!--TODO: add Flashlet Logic-->
+
+            <HorizontalScrollView
+                android:id="@+id/hPCFScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                app:layout_constraintBottom_toTopOf="@+id/createFlashlet"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cdStudyflashlets">
+
+                <LinearLayout
+                    android:id="@+id/hPCFContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <Button
+                android:id="@+id/createFlashlet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:text="Create Flashlets"
+                android:textAlignment="textStart"
+                android:textSize="18sp"
+                app:cornerRadius="15sp"
+                app:layout_constraintTop_toBottomOf="@+id/hPCFScroll"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:layout_editor_absoluteX="167dp" />
+
             <TextView
                 android:id="@+id/cdmemberslist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
                 android:text="Members"
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/createFlashlet"
                 tools:layout_editor_absoluteX="25dp" />
 
@@ -127,19 +146,6 @@
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/createFlashlet"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:paddingTop="15sp"
-                android:paddingBottom="15sp"
-                android:text="Create Flashlets"
-                android:textAlignment="textStart"
-                android:textSize="18sp"
-                app:cornerRadius="15sp"
-                app:layout_constraintTop_toBottomOf="@+id/cdStudyfleshlets"
-                tools:layout_editor_absoluteX="167dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
