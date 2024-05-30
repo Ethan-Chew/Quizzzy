@@ -184,7 +184,10 @@ public class ClassDetail extends AppCompatActivity {
                                                            }
                                                            CollectionReference docRef = db.collection("flashlets");
                                                            try{
-                                                               docRef.whereIn("id", createdFlashlets).get()
+                                                               docRef.whereEqualTo("id", "8c45a0c8-eece-4559-959d-ccf24e0714ed").get()
+
+
+
                                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                            @Override
                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -238,8 +241,8 @@ public class ClassDetail extends AppCompatActivity {
                                                                                            createdFlashletsContainer.addView(spacerView, spacerParams);
                                                                                        }
 
-                                                                                       ProgressBar loader = findViewById(R.id.hSSpinner);
-                                                                                       loader.setVisibility(View.GONE);
+//                                                                                       ProgressBar loader = findViewById(R.id.hSSpinner);
+//                                                                                       loader.setVisibility(View.GONE);
                                                                                    }
                                                                                } else {
                                                                                    Log.e("Firebase", "Error getting User Created Flashlets");
