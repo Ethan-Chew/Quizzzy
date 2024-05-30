@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,6 +35,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -47,6 +50,7 @@ public class FlashletDetail extends AppCompatActivity {
     Button studyFlashcardBtn;
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
+    GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,8 +152,6 @@ public class FlashletDetail extends AppCompatActivity {
 
         }
 
-        flashcardPreview.setFlipInterval(3000);
-        flashcardPreview.startFlipping();
 
         // Add Flashlets to Screen
         for (int i = 0; i < flashcards.size(); i++) {
@@ -172,5 +174,16 @@ public class FlashletDetail extends AppCompatActivity {
             );
             flashcardViewList.addView(spacerView, spacerParams);
         }
+
+        gestureDetector = new GestureDetector(this, new SwipeGestureDetector(flashcardPreview));
+
+        flashcardPreview.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
     }
+
 }
