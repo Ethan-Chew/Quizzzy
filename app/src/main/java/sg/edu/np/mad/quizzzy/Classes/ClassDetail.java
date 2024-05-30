@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -52,12 +53,10 @@ public class ClassDetail extends AppCompatActivity {
     TextView classtitle;
     TextView memberscount;
     Button createFlashlet;
-    Button Studyfleshlets;
+    ImageView editButton;
     LinearLayout memberscontainer;
     LinearLayout createdFlashletsContainer;
     ArrayList<String> createdFlashlets = new ArrayList<String>();
-
-
 
     ArrayList<User> users = new ArrayList<User>();
     @Override
@@ -112,19 +111,29 @@ public class ClassDetail extends AppCompatActivity {
 
         classtitle = findViewById(R.id.cdclasstitle);
         memberscount = findViewById(R.id.cdmembers);
-        Studyfleshlets = findViewById(R.id.cdStudyflashlets);
         createFlashlet = findViewById(R.id.createFlashlet);
         memberscontainer = findViewById(R.id.cdmemberscontainer);
         createdFlashletsContainer = findViewById(R.id.hPCFContainer);
+        editButton = findViewById(R.id.cDEditOption);
 
+        // Receive data from Intent
         Intent receiveintent = getIntent();
         userClass = gson.fromJson(receiveintent.getStringExtra("classJson"), UserClass.class);
         ArrayList<String> members = userClass.getMemberId();
         String classId = userClass.getId();
+        String userId = receiveintent.getStringExtra("userId");
 
-        Intent receivingIntent = getIntent();
-        String userId = receivingIntent.getStringExtra("userId");
+        // Handle onClick of Edit Class Button
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent updateClassIntent = new Intent(ClassDetail.this, UpdateClass.class);
+                updateClassIntent.putExtra("classJson", gson.toJson(userClass));
+                startActivity(updateClassIntent);
+            }
+        });
 
+        // Handle onClick of Create Flashlet Button
         createFlashlet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
