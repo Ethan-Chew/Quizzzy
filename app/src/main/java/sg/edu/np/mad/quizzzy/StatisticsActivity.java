@@ -73,6 +73,7 @@ public class StatisticsActivity extends AppCompatActivity {
         });
 
         SQLiteManager localDB = new SQLiteManager(this);
+        // Get data from DB and call function to calculate all statistics
         HashMap<String, Integer> statistics = localDB.calculateStatistics();
 
         // Get all statistics from statistics HashMap
@@ -89,8 +90,8 @@ public class StatisticsActivity extends AppCompatActivity {
         int totalClassUsage = statistics.get("totalClassUsage");
         int averageClassUsage = statistics.get("averageClassUsage");
 
+        // Update text details into relevant TextViews
         TextView todayTotal = findViewById(R.id.statsTodayTotal);
-
         todayTotal.setText(String.valueOf(todayFlashcardUsage + todayFlashletUsage + todayClassUsage));
 
         TextView todayFlashcard = findViewById(R.id.statsTodayFlashcard);
