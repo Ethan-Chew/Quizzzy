@@ -35,6 +35,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class UpdateFlashlet extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -82,7 +83,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;

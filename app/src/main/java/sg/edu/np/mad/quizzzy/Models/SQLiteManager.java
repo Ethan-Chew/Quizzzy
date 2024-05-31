@@ -5,16 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.stream.IntStream;
-
-import sg.edu.np.mad.quizzzy.Classes.UsageStatistic;
 
 public class SQLiteManager extends SQLiteOpenHelper {
 
@@ -115,18 +111,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
         try (Cursor result = db.rawQuery("SELECT * FROM " + TABLE_NAME, null)) {
             if (result.getCount() != 0) {
                 while (result.moveToNext()) {
-                    // TODO: Check if user is current user
-                    if (result.getString(0) == "0") {
-                        String flashcardUsageString = result.getString(1);
-                        String flashletUsageString = result.getString(2);
-                        String classUsageString = result.getString(3);
+                    String flashcardUsageString = result.getString(5);
+                    String flashletUsageString = result.getString(6);
+                    String classUsageString = result.getString(7);
 
-                        // Split each usage statistic into an array of ints for easier parsing
-                        for (int i = 0; i < 7; i++) {
-                            flashcardUsage[i] = Integer.parseInt(flashcardUsageString.split(";")[i]);
-                            flashletUsage[i] = Integer.parseInt(flashletUsageString.split(";")[i]);
-                            classUsage[i] = Integer.parseInt(classUsageString.split(";")[i]);
-                        }
+                    // Split each usage statistic into an array of ints for easier parsing
+                    for (int i = 0; i < 7; i++) {
+                        flashcardUsage[i] = Integer.parseInt(flashcardUsageString.split(";")[i]);
+                        flashletUsage[i] = Integer.parseInt(flashletUsageString.split(";")[i]);
+                        classUsage[i] = Integer.parseInt(classUsageString.split(";")[i]);
                     }
                 }
             }
@@ -162,7 +155,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
     }
 
-    public void updateStatistics(UsageStatistic data, int timeType) {
+    public void updateStatistics(UsageStatistic data, int timeType, String userId) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Get day as int value using Calander
@@ -206,8 +199,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         values.put(STATISTICS_FLASHLET, String.join(";", flashletUsageArrStr));
         values.put(STATISTICS_CLASSES, String.join(";", classUsageArrStr));
 
-        // TODO: Help me fix this too to update the correct user
-        db.update(TABLE_NAME, values, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
+        db.update(TABLE_NAME, values, ID + " =? ", new String[]{userId});
     }
 
     public void updateCreatedFlashcards(String id, ArrayList<String> createdFlashlets) {

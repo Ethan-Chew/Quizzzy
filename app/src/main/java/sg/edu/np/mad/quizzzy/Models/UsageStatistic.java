@@ -1,4 +1,4 @@
-package sg.edu.np.mad.quizzzy.Classes;
+package sg.edu.np.mad.quizzzy.Models;
 
 public class UsageStatistic {
     public long startTime;

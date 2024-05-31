@@ -35,6 +35,7 @@ import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class FlashletDetail extends AppCompatActivity {
     Gson gson = new Gson();
@@ -84,7 +85,7 @@ public class FlashletDetail extends AppCompatActivity {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;

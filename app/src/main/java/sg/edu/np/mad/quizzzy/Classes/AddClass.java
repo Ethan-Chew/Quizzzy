@@ -47,6 +47,7 @@ import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class AddClass extends AppCompatActivity {
 
@@ -68,7 +69,7 @@ public class AddClass extends AppCompatActivity {
             return insets;
         });
 
-
+        // Handle Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
@@ -91,13 +92,12 @@ public class AddClass extends AppCompatActivity {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
             }
         });
-
 
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.acViewToolbar);

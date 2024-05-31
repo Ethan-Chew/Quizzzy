@@ -41,6 +41,7 @@ import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
     // Data
@@ -85,7 +86,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 } else if (itemId == R.id.flashlets) {
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
