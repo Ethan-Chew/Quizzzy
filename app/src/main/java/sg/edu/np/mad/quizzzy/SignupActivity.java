@@ -23,6 +23,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -56,15 +58,15 @@ public class SignupActivity extends AppCompatActivity {
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = emailView.getText().toString();
+                String email = emailView.getText().toString();
                 String password = passwordView.getText().toString();
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(SignupActivity.this, "Username or Password is blank.", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(SignupActivity.this, "Email or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else if (!confirmPassword.getText().toString().equals(password)) {
                     Toast.makeText(SignupActivity.this, "Passwords does not match.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mAuth.createUserWithEmailAndPassword(username, password)
+                    mAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -72,6 +74,9 @@ public class SignupActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         // Create user in Firebase
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+                                        User userInfo = new User(currentUser.getUid(), usernameView.getText().toString(), email, new ArrayList<>());
+                                        firebase.collection("users").document(currentUser.getUid()).set(userInfo);
                                         DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
