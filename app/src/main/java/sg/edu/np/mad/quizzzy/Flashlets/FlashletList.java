@@ -39,6 +39,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -63,6 +64,14 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             return insets;
         });
 
+        // Get User from SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
+        userWithRecents = localDB.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, userWithRecents.getUser().getId());
+
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.flashlets);
@@ -73,6 +82,11 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
@@ -101,16 +115,22 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+
                 FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
 
-        // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
-        userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 1 because this is a Flashlet Activity
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+
             startActivity(returnToLoginIntent);
         }
 
@@ -122,6 +142,11 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
                 Intent createFlashcardIntent = new Intent(FlashletList.this, CreateFlashlet.class);
                 createFlashcardIntent.putExtra("userId", userWithRecents.getUser().getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+
                 startActivity(createFlashcardIntent);
             }
         });
@@ -141,6 +166,11 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 public void onClick(View v) {
                     Intent createFlashletIntent = new Intent(FlashletList.this, CreateFlashlet.class);
                     createFlashletIntent.putExtra("userId", userWithRecents.getUser().getId());
+
+                    // Save statistics to SQLite DB before changing Activity.
+                    // timeType of 1 because this is a Flashlet Activity
+                    localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+
                     startActivity(createFlashletIntent);
                 }
             });

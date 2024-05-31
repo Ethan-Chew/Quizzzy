@@ -34,6 +34,8 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
@@ -61,6 +63,20 @@ public class FlashletDetail extends AppCompatActivity {
             return insets;
         });
 
+        // Get Flashlet from Intent
+        Intent receiveIntent = getIntent();
+        flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
+        String userId = receiveIntent.getStringExtra("userId");
+        ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
+
+        // Update SQLite with Recently Opened
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+        ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, userId);
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.flashlets);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
@@ -70,6 +86,11 @@ public class FlashletDetail extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userId);
+
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
@@ -108,6 +129,11 @@ public class FlashletDetail extends AppCompatActivity {
             public void onClick(View v) {
                 Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
                 sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userId);
+
                 startActivity(sendToEdit);
             }
         });
@@ -119,12 +145,6 @@ public class FlashletDetail extends AppCompatActivity {
         flashcardViewList = findViewById(R.id.fDFlashcardsContainer);
         flashcardPreview = findViewById(R.id.fDFlashcardPreview);
 
-        // Get Flashlet from Intent
-        Intent receiveIntent = getIntent();
-        flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
-        String userId = receiveIntent.getStringExtra("userId");
-        ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
-
         // Configure Study Flashcards Button
         Button studyFlashcards = findViewById(R.id.fDStudyFlashcards);
         studyFlashcards.setOnClickListener(new View.OnClickListener() {
@@ -132,13 +152,15 @@ public class FlashletDetail extends AppCompatActivity {
             public void onClick(View v) {
                 Intent sendToStudyFlashcards = new Intent(FlashletDetail.this, FlashcardList.class);
                 sendToStudyFlashcards.putExtra("flashletJson", gson.toJson(flashlet));
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userId);
+
                 startActivity(sendToStudyFlashcards);
             }
         });
 
-        // Update SQLite with Recently Opened
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
-        ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
         if (recentlyViewed.size() == 5) {
             recentlyViewed.remove(4);
         }

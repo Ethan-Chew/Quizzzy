@@ -35,6 +35,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -71,6 +72,14 @@ public class CreateFlashlet extends AppCompatActivity {
             return insets;
         });
 
+        // Add Flashlet to SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, user.getId());
+
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.cFToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -91,6 +100,11 @@ public class CreateFlashlet extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
@@ -197,9 +211,6 @@ public class CreateFlashlet extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                // Add Flashlet to SQLite DB
-                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
-                                User user = localDB.getUser().getUser();
                                 ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
                                 createdFlashlets.add(newFlashlet.getId());
                                 localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
@@ -212,6 +223,11 @@ public class CreateFlashlet extends AppCompatActivity {
                                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
                                                 // Send User back to List Page
                                                 Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);
+
+                                                // Save statistics to SQLite DB before changing Activity.
+                                                // timeType of 1 because this is a Flashlet Activity
+                                                localDB.updateStatistics(usage, 1, user.getId());
+
                                                 startActivity(flashletListIntent);
                                             }
                                         });
