@@ -175,13 +175,13 @@ public class SQLiteManager extends SQLiteOpenHelper {
         // flashcards = 0, flashlets = 1, classes = 2
         switch (timeType) {
             case 0:
-                flashcardUsage[today] += data.timeElapsed;
+                flashcardUsage[today] += data.getTimeElapsed();
                 break;
             case 1:
-                flashletUsage[today] += data.timeElapsed;
+                flashletUsage[today] += data.getTimeElapsed();
                 break;
             case 2:
-                classUsage[today] += data.timeElapsed;
+                classUsage[today] += data.getTimeElapsed();
                 break;
         }
 
