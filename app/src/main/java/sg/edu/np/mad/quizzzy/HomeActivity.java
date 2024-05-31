@@ -226,6 +226,7 @@ public class HomeActivity extends AppCompatActivity  {
         }
 
         /// Get User's Created Flashlets
+        ProgressBar loader = findViewById(R.id.hSSpinner);
         if (!userWithRecents.getUser().getCreatedFlashlets().isEmpty()) {
             flashletColRef.whereIn("id", userWithRecents.getUser().getCreatedFlashlets()).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -274,13 +275,14 @@ public class HomeActivity extends AppCompatActivity  {
                                     createdFlashletsContainer.addView(spacerView, spacerParams);
                                 }
 
-                                ProgressBar loader = findViewById(R.id.hSSpinner);
                                 loader.setVisibility(View.GONE);
                             } else {
                                 Log.e("Firebase", "Error getting User Created Flashlets");
                             }
                         }
                     });
+        } else {
+            loader.setVisibility(View.GONE);
         }
     }
 
