@@ -16,7 +16,7 @@
         android:paddingBottom="2dp"
         android:text="Class Title"
         android:textColor="@color/black"
-        android:textSize="22dp"
+        android:textSize="22sp"
         android:textStyle="bold" />
 
     <TextView
@@ -38,5 +38,5 @@
         android:layout_height="wrap_content"
         android:text="Class Desc"
         android:textColor="@color/black"
-        android:textSize="16dp" />
+        android:textSize="14sp" />
 </LinearLayout>

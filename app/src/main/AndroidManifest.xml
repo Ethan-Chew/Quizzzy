@@ -25,6 +25,12 @@
             android:name=".Classes.ClassList"
             android:exported="false" />
         <activity
+            android:name=".EditFlashcard"
+            android:exported="false" />
+        <activity
+            android:name=".FlashcardList"
+            android:exported="false" />
+        <activity
             android:name=".StatisticsActivity"
             android:exported="false" />
         <activity

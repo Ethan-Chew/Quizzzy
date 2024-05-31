@@ -5,10 +5,10 @@
     android:id="@+id/splashTitle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Flashlets.UpdateFlashlet">
+    tools:context=".Flashlets.CreateClassFlashlet">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/uFToolbar"
+        android:id="@+id/cFToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -26,34 +26,33 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/uFToolbar">
+        app:layout_constraintTop_toBottomOf="@+id/cFToolbar">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/uFPageTitle"
+                android:id="@+id/cFTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
                 android:layout_marginEnd="25dp"
                 android:layout_marginBottom="20dp"
-                android:text="Update Flashlet"
+                android:text="Create Flashlet"
                 android:textColor="@color/black"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/uFNewTitleContainer"
+                app:layout_constraintBottom_toTopOf="@+id/cFNewTitleContainer"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/uFTitleContainer"
+                android:id="@+id/cFNewTitleContainer"
                 android:layout_width="match_parent"
                 android:layout_height="100sp"
                 android:layout_marginStart="25dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginEnd="25dp"
                 android:background="@drawable/list_item_background"
                 android:orientation="vertical"
@@ -63,10 +62,10 @@
                 android:paddingBottom="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/uFTitle">
+                app:layout_constraintTop_toBottomOf="@+id/cFTitle">
 
                 <TextView
-                    android:id="@+id/uFTitleText"
+                    android:id="@+id/cfNewTitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Title"
@@ -75,7 +74,7 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/uFTitle"
+                    android:id="@+id/cFNewTitle"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:hint="Enter an Appropriate Title..."
@@ -92,7 +91,7 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/uFTitleContainer">
+                app:layout_constraintTop_toBottomOf="@+id/cFNewTitleContainer">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -118,7 +117,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/uFFlashcardList"
+                android:id="@+id/cFCreateNewFlashcardList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -129,7 +128,7 @@
 
             </LinearLayout>
             <Button
-                android:id="@+id/uFAddNewFlashcardBtn"
+                android:id="@+id/cFAddNewFlashcardBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/listGray"
@@ -142,10 +141,10 @@
                 android:layout_marginEnd="25dp"/>
 
             <Button
-                android:id="@+id/uFUpdateFlashletButton"
+                android:id="@+id/cFCreateNewFlashletButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Update Flashlet"
+                android:text="Create Flashlet"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="25dp"/>
