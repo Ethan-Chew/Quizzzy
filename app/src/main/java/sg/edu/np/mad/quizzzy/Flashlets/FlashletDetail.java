@@ -1,5 +1,8 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -51,6 +55,8 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
+    private CardView flashcard_front, flashcard_back;
+    private boolean isFront = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,12 +151,21 @@ public class FlashletDetail extends AppCompatActivity {
 
         //Set flashcard preview
         for (int i = 0; i < flashcards.size() && i < 8; i++) {
-            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, null);
+            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, flashcardPreview, false);
             TextView keyword = flashcardView.findViewById(R.id.flashcardKeyword);
+            TextView definition = flashcardView.findViewById(R.id.flashcardDefinition);
             keyword.setText(flashcards.get(i).getKeyword());
-            flashcardPreview.addView(flashcardView);
+            definition.setText(flashcards.get(i).getDefinition());
 
+            flashcard_front = flashcardView.findViewById(R.id.flashcard_front);
+            flashcard_back = flashcardView.findViewById(R.id.flashcard_back);
+
+            flashcardPreview.addView(flashcardView);
         }
+
+        flashcardPreview.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){ flip_card_anim();}
+        });
 
 
         // Add Flashlets to Screen
@@ -184,6 +199,19 @@ public class FlashletDetail extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void flip_card_anim(){
+        AnimatorSet setOut = (AnimatorSet) AnimatorInflater.loadAnimator(FlashletDetail.this,R.animator.card_flip_out);
+        AnimatorSet setIn = (AnimatorSet) AnimatorInflater.loadAnimator(FlashletDetail.this,R.animator.card_flip_in);
+
+        setOut.setTarget(isFront ? flashcard_front : flashcard_back);
+        setIn.setTarget((isFront ? flashcard_back : flashcard_front));
+
+        setOut.start();
+        setIn.start();
+
+        isFront = !isFront;
     }
 
 }

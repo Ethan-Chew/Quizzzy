@@ -1,17 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/flashcardKeyword"
+    <RelativeLayout
+        android:id="@+id/card_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="keyword"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:background="#e699ff"
-        />
+        >
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_back"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="#e699ff"
+            >
+
+            <TextView
+                android:id="@+id/flashcardDefinition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Definition"
+                android:textSize="40sp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/flashcard_front"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardBackgroundColor="#e699ff"
+            app:cardCornerRadius="16dp"
+            >
+
+            <TextView
+                android:id="@+id/flashcardKeyword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keyword"
+                android:textSize="40sp"
+                android:layout_gravity="center"
+                />
+
+        </androidx.cardview.widget.CardView>
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
