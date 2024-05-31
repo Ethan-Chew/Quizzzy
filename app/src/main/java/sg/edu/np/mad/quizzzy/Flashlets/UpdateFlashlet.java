@@ -42,7 +42,6 @@ public class UpdateFlashlet extends AppCompatActivity {
 
     // Data Variables
     Flashlet flashlet;
-    String userJson;
 
     // View Variables
     LinearLayout flashcardListView;
@@ -102,11 +101,10 @@ public class UpdateFlashlet extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
-        userJson = receiveIntent.getStringExtra("userJSON");
 
         // Update UI Fields according to Loaded Flashlet
         updateFlashletTitle = findViewById(R.id.uFTitle);
-        updateFlashletTitle.setHint(flashlet.getTitle());
+        updateFlashletTitle.setText(flashlet.getTitle());
 
         /// Populate existing list of Flashcards in Flashlet
         flashcardListView = findViewById(R.id.uFFlashcardList);
@@ -116,9 +114,9 @@ public class UpdateFlashlet extends AppCompatActivity {
             EditText keywordInput = updateFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
             EditText definitionInput = updateFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
 
-            // Set Hint Text of Inputs
-            keywordInput.setHint(flashcards.get(i).getKeyword());
-            definitionInput.setHint(flashcards.get(i).getDefinition());
+            // Set Text of Inputs
+            keywordInput.setText(flashcards.get(i).getKeyword());
+            definitionInput.setText(flashcards.get(i).getDefinition());
 
             // Set onChange Listener of Input
             setTextEditWatcher(flashcards.get(i), keywordInput, definitionInput);
@@ -181,9 +179,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                                 updateFlashletBtn.setText("Update Flashlet");
                                 Toast.makeText(UpdateFlashlet.this, "Updated Successfully!", Toast.LENGTH_LONG).show();
 
-                                Intent flashletListIntent = new Intent(UpdateFlashlet.this, FlashletList.class);
-                                flashletListIntent.putExtra("userJson", userJson);
-                                startActivity(flashletListIntent);
+                                startActivity(new Intent(UpdateFlashlet.this, FlashletList.class));
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

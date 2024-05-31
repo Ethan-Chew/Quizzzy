@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -96,6 +97,17 @@ public class FlashletDetail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 FlashletDetail.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Handle Edit Button Pressed
+        ImageView editFlashletBtn = findViewById(R.id.fDEditOption);
+        editFlashletBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
+                sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
+                startActivity(sendToEdit);
             }
         });
 

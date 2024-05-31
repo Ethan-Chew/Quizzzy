@@ -18,14 +18,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="?attr/homeAsUpIndicator" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cFToolbar">
+        app:layout_constraintTop_toBottomOf="@+id/cFToolbar"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
