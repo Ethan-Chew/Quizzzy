@@ -39,7 +39,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.Classes.ClassList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
@@ -49,6 +51,14 @@ import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+
+/** <strong>Home Screen</strong> <br/>
+ * Once Logged In, the User will be able to view their Recently Viewed Flashlets, Created Flashlets, and access the list of Classes <br/>
+ * <strong>Recently Viewed Flashlets</strong> <br/>
+ * Recently Viewed Flashlets are stored locally, and will be reset if the user logs out of their account.
+ * If there are no Recently Viewed Flashlets, a 'No Recently Viewed' will be shown.
+ * Else, a list of Recently Viewed Flashlets would be displayed. Users can scroll horizontally to view the full list.
+ */
 
 public class HomeActivity extends AppCompatActivity  {
     // Initialisation of Firebase Cloud Firestore
@@ -77,11 +87,13 @@ public class HomeActivity extends AppCompatActivity  {
             return insets;
         });
 
+        // Customise Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 
+        // Handle Tabbing for Bottom Nav Bar
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -248,7 +260,9 @@ public class HomeActivity extends AppCompatActivity  {
                                     fVTitle.setText(flashlet.getTitle());
                                     String pillText = flashlet.getFlashcards().size() + " Keyword" + (flashlet.getFlashcards().size() == 0 ? "" : "s");
                                     fVPill.setText(pillText);
-
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
+                                    String formattedLastUpdate = "Last Updated: " + sdf.format(flashlet.getLastUpdatedUnix() * 1000L);
+                                    fVDesc.setText(formattedLastUpdate);
                                     createdFlashletsContainer.addView(flashletView);
 
                                     // Add Spacer View

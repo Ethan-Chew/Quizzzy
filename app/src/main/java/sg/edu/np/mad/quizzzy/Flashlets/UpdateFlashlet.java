@@ -172,6 +172,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                 /// Disable Button
                 updateFlashletBtn.setEnabled(false);
                 updateFlashletBtn.setText("Loading...");
+                flashlet.setLastUpdatedUnix(System.currentTimeMillis() / 1000L);
                 db.collection("flashlets").document(flashlet.getId())
                         .set(flashlet)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
