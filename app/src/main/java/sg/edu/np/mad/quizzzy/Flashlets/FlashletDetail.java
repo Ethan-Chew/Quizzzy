@@ -13,6 +13,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 import androidx.activity.OnBackPressedCallback;
@@ -55,6 +56,7 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
+    RelativeLayout card_main;
     private CardView flashcard_front, flashcard_back;
     private boolean isFront = true;
 
@@ -160,10 +162,12 @@ public class FlashletDetail extends AppCompatActivity {
             flashcard_front = flashcardView.findViewById(R.id.flashcard_front);
             flashcard_back = flashcardView.findViewById(R.id.flashcard_back);
 
+            card_main = flashcardView.findViewById(R.id.card_main);
+
             flashcardPreview.addView(flashcardView);
         }
 
-        flashcardPreview.setOnClickListener(new View.OnClickListener(){
+        card_main.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){ flip_card_anim();}
         });
 
