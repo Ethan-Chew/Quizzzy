@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.stream.IntStream;
 
 public class SQLiteManager extends SQLiteOpenHelper {
@@ -28,9 +31,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String STATISTICS_FLASHLET = "flashletUsageTime";
     private static final String STATISTICS_CLASSES = "classUsageTime";
 
-    public SQLiteManager(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
+    public SQLiteManager(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
     public static SQLiteManager instanceOfDatabase(Context context) {
         if(sqLiteManager == null){
             sqLiteManager = new SQLiteManager(context);
@@ -169,16 +170,18 @@ public class SQLiteManager extends SQLiteOpenHelper {
         int[] classUsage = statistics.get("classUsage");
 
         // Get screen usage data and update DB
-        data.updateTimeData(timeType);
+        data.updateTimeData();
+        // timeType is the time spent on each section that we are tracking the usage time of
+        // flashcards = 0, flashlets = 1, classes = 2
         switch (timeType) {
             case 0:
-                flashcardUsage[today] += data.flashcardTime;
+                flashcardUsage[today] += data.timeElapsed;
                 break;
             case 1:
-                flashletUsage[today] += data.flashletTime;
+                flashletUsage[today] += data.timeElapsed;
                 break;
             case 2:
-                classUsage[today] += data.classTime;
+                classUsage[today] += data.timeElapsed;
                 break;
         }
 
@@ -200,6 +203,20 @@ public class SQLiteManager extends SQLiteOpenHelper {
         values.put(STATISTICS_CLASSES, String.join(";", classUsageArrStr));
 
         db.update(TABLE_NAME, values, ID + " =? ", new String[]{userId});
+    }
+
+    public void updateStatisticsLoop(UsageStatistic data, int timeType, String userId) {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        updateStatistics(data, timeType, userId);
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) { Log.e("Interrupted", "Interrupted"); }
+                }
+            }
+        }).start();
     }
 
     public void updateCreatedFlashcards(String id, ArrayList<String> createdFlashlets) {

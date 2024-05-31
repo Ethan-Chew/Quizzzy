@@ -2,33 +2,18 @@ package sg.edu.np.mad.quizzzy.Models;
 
 public class UsageStatistic {
     public long startTime;
-    public int flashcardTime;
-    public int flashletTime;
-    public int classTime;
+    public long timeElapsed;
 
-    public UsageStatistic(int flashcardTime, int flashletTime, int classTime) {
-        this.flashcardTime = flashcardTime;
-        this.flashletTime = flashletTime;
-        this.classTime = classTime;
+    public UsageStatistic() {
         this.startTime = System.currentTimeMillis();
+        this.timeElapsed = 0;
     }
 
     // Stores total time spent on activity and updates SQLite DB
-    public void updateTimeData(int timeType) {
-        long totalTimeMins = (System.currentTimeMillis() - startTime) / 1000;
-
-        // timeType is the time spent on each section that we are tracking the usage time of
-        // flashcards = 0, flashlets = 1, classes = 2
-        switch (timeType) {
-            case 0:
-                flashcardTime += (int)totalTimeMins;
-                break;
-            case 1:
-                flashletTime += (int)totalTimeMins;
-                break;
-            case 2:
-                classTime += (int)totalTimeMins;
-                break;
-        }
+    public void updateTimeData() {
+        // Resets timeElapsed before updating
+        timeElapsed = 0;
+        timeElapsed = (System.currentTimeMillis() - startTime) / 1000;
+        startTime = System.currentTimeMillis();
     }
 }
