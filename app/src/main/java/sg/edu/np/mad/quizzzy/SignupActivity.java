@@ -60,8 +60,9 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = emailView.getText().toString();
                 String password = passwordView.getText().toString();
+                String username = passwordView.getText().toString();
 
-                if (email.isEmpty() || password.isEmpty()) {
+                if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
                     Toast.makeText(SignupActivity.this, "Email or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else if (!confirmPassword.getText().toString().equals(password)) {
                     Toast.makeText(SignupActivity.this, "Passwords does not match.", Toast.LENGTH_SHORT).show();

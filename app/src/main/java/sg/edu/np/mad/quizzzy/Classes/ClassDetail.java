@@ -188,12 +188,11 @@ public class ClassDetail extends AppCompatActivity {
                                                        JsonArray jArray = jsonObject.getAsJsonArray("createdFlashlets");
                                                        if (jArray != null) {
                                                            for (int i = 0; i < jArray.size(); i++) {
-                                                               createdFlashlets.add(String.valueOf(jArray.get(i)));
-                                                               Log.d("DFDFSFFSDFSDFSD", String.valueOf(jArray));
+                                                               createdFlashlets.add(String.valueOf(jArray.get(i)).replace("\"", ""));
                                                            }
                                                            CollectionReference docRef = db.collection("flashlets");
                                                            try{
-                                                               docRef.whereEqualTo("id", "8c45a0c8-eece-4559-959d-ccf24e0714ed").get()
+                                                               docRef.whereIn("id", createdFlashlets).get()
 
 
 
@@ -203,16 +202,12 @@ public class ClassDetail extends AppCompatActivity {
                                                                                if (task.isSuccessful()) {
                                                                                    Log.d("DFDFSFFSDFSDFSD", String.valueOf(task.getResult().size()));
                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                                       Log.d("DFDFSFFSDFSDFSD", "FSDDDDDDDDDDDDDDDDDDDDDDD");
+                                                                                       Log.d("CUM", "FSDDDDDDDDDDDDDDDDDDDDDDD");
                                                                                        String flashletJson = gson.toJson(document.getData());
                                                                                        JsonObject jArray = gson.fromJson( flashletJson, JsonObject.class);
                                                                                        ArrayList<JsonObject> createdFlashlets = new ArrayList<JsonObject>();
-                                                                                       if (jArray != null) {
-                                                                                           for (int i=0;i<jArray.size();i++){
-                                                                                               createdFlashlets.add(jArray);
-                                                                                               Log.d("DFDFSFFSDFSDFSD", "CUMMMMMMMMM");
-                                                                                           }
-                                                                                       }
+                                                                                       createdFlashlets.add(jArray);
+
                                                                                        Log.d("DFDFSFFSDFSDFSD", "FSDDDDDDDDDDDDDDDDDDDDDDD");
                                                                                        // Display Created Flashets on the Screen
                                                                                        for (int i = 0; i < createdFlashlets.size(); i++) {
@@ -235,7 +230,7 @@ public class ClassDetail extends AppCompatActivity {
                                                                                            });
 
                                                                                            // Set Text
-                                                                                           fVTitle.setText(String.valueOf(flashlet.get("title")));
+                                                                                           fVTitle.setText(String.valueOf(flashlet.get("title")).replace("\"", ""));
                                                                                            String pillText = flashlet.get("flashcards").getAsJsonArray().size() + " Keyword" + (flashlet.get("flashcards").getAsJsonArray().size() == 0 ? "" : "s");
                                                                                            fVPill.setText(pillText);
 
@@ -249,9 +244,6 @@ public class ClassDetail extends AppCompatActivity {
                                                                                            );
                                                                                            createdFlashletsContainer.addView(spacerView, spacerParams);
                                                                                        }
-
-//                                                                                       ProgressBar loader = findViewById(R.id.hSSpinner);
-//                                                                                       loader.setVisibility(View.GONE);
                                                                                    }
                                                                                } else {
                                                                                    Log.e("Firebase", "Error getting User Created Flashlets");
