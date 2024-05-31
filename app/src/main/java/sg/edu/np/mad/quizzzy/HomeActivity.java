@@ -18,6 +18,8 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -68,6 +70,7 @@ public class HomeActivity extends AppCompatActivity  {
     UserWithRecents userWithRecents;
     ArrayList<Flashlet> recentlyViewedFlashlets = new ArrayList<>();
     ArrayList<Flashlet> createdFlashlets = new ArrayList<>();
+    ArrayList<String> recentlyOpenedFlashletsIds = new ArrayList<>();
 
     // View Components
     TextView usernameView;
@@ -81,7 +84,7 @@ public class HomeActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashTitle), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.hSConstrainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
              v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -170,7 +173,7 @@ public class HomeActivity extends AppCompatActivity  {
         });
 
         // If there are no Recently Viewed, display text
-        ArrayList<String> recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
+        recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
         CollectionReference flashletColRef = db.collection("flashlets");
         if (recentlyOpenedFlashletsIds.isEmpty()) {
             View noRecentlyViewed = LayoutInflater.from(HomeActivity.this).inflate(R.layout.flashlet_recently_viewed, null, false);
@@ -190,6 +193,12 @@ public class HomeActivity extends AppCompatActivity  {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     String flashletJson = gson.toJson(document.getData());
                                     recentlyViewedFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
+                                }
+
+                                if (recentlyViewedFlashlets.isEmpty()) {
+                                    recentlyOpenedFlashletsIds.clear();
+                                    localDB.updateRecentlyViewed(userWithRecents.getUser().getId(), recentlyOpenedFlashletsIds);
+                                    onResume();
                                 }
 
                                 // Display Recently Viewed Flashlet and Display on Screen
@@ -226,6 +235,7 @@ public class HomeActivity extends AppCompatActivity  {
         }
 
         /// Get User's Created Flashlets
+        ProgressBar loader = findViewById(R.id.hSSpinner);
         if (!userWithRecents.getUser().getCreatedFlashlets().isEmpty()) {
             flashletColRef.whereIn("id", userWithRecents.getUser().getCreatedFlashlets()).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -274,27 +284,62 @@ public class HomeActivity extends AppCompatActivity  {
                                     createdFlashletsContainer.addView(spacerView, spacerParams);
                                 }
 
-                                ProgressBar loader = findViewById(R.id.hSSpinner);
                                 loader.setVisibility(View.GONE);
                             } else {
                                 Log.e("Firebase", "Error getting User Created Flashlets");
                             }
                         }
                     });
+        } else {
+            // Show No Flashlets Component
+            LinearLayout noFlashletsComponent = findViewById(R.id.hSNoFlashlets);
+            noFlashletsComponent.setVisibility(View.VISIBLE);
+
+            /// Use Intent to Navigate from Create Flashlet btnn
+            Button noFlashletCreate = findViewById(R.id.hSNoFlashletsCreate);
+            noFlashletCreate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sendToCreate = new Intent(getApplicationContext(), CreateFlashlet.class);
+                    sendToCreate.putExtra("userId", userWithRecents.getUser().getId());
+                    startActivity(sendToCreate);
+                }
+            });
+
+            /// Re-Constrain Class Title
+            ConstraintLayout constraintLayout = findViewById(R.id.hSConstrainLayout);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.hPClassesTitle, ConstraintSet.TOP, R.id.hSNoFlashlets, ConstraintSet.BOTTOM, 20);
+            constraintSet.applyTo(constraintLayout);
+
+            // Remove Loader
+            loader.setVisibility(View.GONE);
         }
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
 
-        // Get User from SQLite
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
         userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(HomeActivity.this, MainActivity.class);
             startActivity(returnToLoginIntent);
+        }
+
+        recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
+
+        if (recentlyOpenedFlashletsIds.isEmpty()) {
+            horiRecentlyViewed.removeAllViews();
+            View noRecentlyViewed = LayoutInflater.from(HomeActivity.this).inflate(R.layout.flashlet_recently_viewed, null, false);
+            TextView nRVTitle = noRecentlyViewed.findViewById(R.id.fRVTitle);
+            nRVTitle.setText("No Recently Viewed");
+            TextView nRVDesc = noRecentlyViewed.findViewById(R.id.fRVDescription);
+            nRVDesc.setText("");
+            horiRecentlyViewed.addView(noRecentlyViewed);
         }
     }
 }

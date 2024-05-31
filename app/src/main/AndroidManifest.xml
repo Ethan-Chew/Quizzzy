@@ -14,51 +14,71 @@
         tools:targetApi="31">
         <activity
             android:name=".Classes.UpdateClass"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Classes.ClassDetail"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Classes.AddClass"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Classes.ClassList"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".EditFlashcard"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".FlashcardList"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".StatisticsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".HomeActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".SignupActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Flashlets.FlashletList"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Flashlets.FlashletDetail"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Flashlets.UpdateFlashlet"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Flashlets.CreateFlashlet"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.CreateClassFlashlet"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -228,7 +228,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
                                                 ArrayList<String> createdFlashlets = new ArrayList<String>();
                                                 if (jArray != null) {
                                                     for (int i=0;i<jArray.size();i++){
-                                                        createdFlashlets.add(String.valueOf(jArray.get(i)));
+                                                        createdFlashlets.add(String.valueOf(jArray.get(i)).replace("\"", ""));
                                                         }
                                                     }
                                                 createdFlashlets.add(newFlashlet.getId());
