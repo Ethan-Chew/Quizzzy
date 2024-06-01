@@ -78,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="25dp"
                         android:layout_weight="4"
-                        android:text="Today's Total Usage"
+                        android:text="Today's Total Usage (Mins)"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold"
@@ -115,7 +115,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
                         android:layout_marginHorizontal="25dp"
-                        android:text="Today's Statistics"
+                        android:text="Today's Statistics (Mins)"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold"
@@ -273,103 +273,119 @@
                 <LinearLayout
                     android:id="@+id/statsWeekTotalContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="150sp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
                     android:layout_marginEnd="25dp"
                     android:layout_marginBottom="20dp"
-                    android:gravity="center"
                     android:background="@drawable/list_item_background"
-                    android:orientation="horizontal"
-                    android:paddingLeft="15sp"
-                    android:paddingTop="15sp"
-                    android:paddingRight="15sp"
-                    android:paddingBottom="15sp"
+                    android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/statsTitle">
+                    app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="25dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_weight="4"
-                        android:text="This Week's Usage"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="25dp"
+                        android:text="This Week's Usage (Hrs)"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        />
+                        android:textAlignment="center"
+                        app:layout_constraintBottom_toTopOf="@+id/statsTodayTotalContainer"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="3.75"
                         android:gravity="center"
+
                         android:orientation="horizontal"
-                        >
+                        android:paddingLeft="15sp"
+                        android:paddingRight="15sp"
+                        android:paddingBottom="15sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:layout_marginEnd="10dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-
-                                android:text="Total"
-                                android:layout_weight="2.1"
-                                android:textAlignment="center"
-                                android:textColor="@color/black"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
+                            android:orientation="vertical"
+                            android:paddingLeft="15sp"
+                            android:paddingRight="15sp"
+                            android:paddingBottom="15sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent">
 
                             <TextView
                                 android:id="@+id/statsWeekTotal"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="2.1"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
-                                android:textSize="36sp"
+                                android:textSize="48sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:text="Total"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
                             android:layout_weight="1"
-                            android:gravity="center">
+                            android:gravity="center"
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-
-                                android:text="Average"
-                                android:layout_weight="2.1"
-                                android:textAlignment="center"
-                                android:textColor="@color/black"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
+                            android:orientation="vertical"
+                            android:paddingLeft="15sp"
+                            android:paddingRight="15sp"
+                            android:paddingBottom="15sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent">
 
                             <TextView
                                 android:id="@+id/statsWeekAverage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="2.1"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
-                                android:textSize="36sp"
+                                android:textSize="48sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginTop="5dp"
+                                android:text="Average"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -388,13 +404,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
                         android:layout_marginHorizontal="25dp"
-                        android:text="This Week's Total"
+                        android:layout_marginTop="15dp"
+                        android:text="This Week's Total Usage (Hrs)"
+                        android:textAlignment="center"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:textAlignment="center"
                         app:layout_constraintBottom_toTopOf="@+id/statsTodayTotalContainer"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -556,7 +572,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
                         android:layout_marginHorizontal="25dp"
-                        android:text="This Week's Average"
+                        android:text="This Week's Average Usage (Mins)"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold"
