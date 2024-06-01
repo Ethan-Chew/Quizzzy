@@ -48,7 +48,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         // Configure Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.create);
+        bottomNavigationView.setSelectedItemId(R.id.stats);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 

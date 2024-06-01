@@ -75,7 +75,6 @@ public class EditFlashcard extends AppCompatActivity {
         //Save changes
         btnSave.setOnClickListener(v -> {
             Toast.makeText(EditFlashcard.this, "Updated!", Toast.LENGTH_LONG).show();
-            // TODO: Update in Firebase
             flashlet.getFlashcards().get(arrayIndex).setKeyword(etKeyword.getText().toString());
             flashlet.getFlashcards().get(arrayIndex).setDefinition(etDefinition.getText().toString());
 
