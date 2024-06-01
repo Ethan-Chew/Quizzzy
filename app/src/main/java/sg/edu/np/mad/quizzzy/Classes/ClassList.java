@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -89,6 +90,7 @@ public class ClassList extends AppCompatActivity implements RecyclerViewInterfac
                 usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     return true;
                 } else if (itemId == R.id.create) {
                     Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);

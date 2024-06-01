@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -157,16 +158,27 @@ public class UpdateFlashlet extends AppCompatActivity {
         flashcardListView = findViewById(R.id.uFFlashcardList);
         List<Flashcard> flashcards = flashlet.getFlashcards();
         for (int i = 0; i < flashcards.size(); i++) {
+            Flashcard flashcard = flashcards.get(i);
             View updateFlashcardView = LayoutInflater.from(UpdateFlashlet.this).inflate(R.layout.create_flashlet_newflashcard, null, false);
             EditText keywordInput = updateFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
             EditText definitionInput = updateFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
 
             // Set Text of Inputs
-            keywordInput.setText(flashcards.get(i).getKeyword());
-            definitionInput.setText(flashcards.get(i).getDefinition());
+            keywordInput.setText(flashcard.getKeyword());
+            definitionInput.setText(flashcard.getDefinition());
 
             // Set onChange Listener of Input
-            setTextEditWatcher(flashcards.get(i), keywordInput, definitionInput);
+            setTextEditWatcher(flashcard, keywordInput, definitionInput);
+
+            // Handle Delete Flashcard Item
+            ImageView deleteFlashcardItem = updateFlashcardView.findViewById(R.id.newFlashcardDelete);
+            deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    flashcards.remove(flashcard);
+                    flashcardListView.removeView(updateFlashcardView);
+                }
+            });
 
             // Add Flashcard View to Container
             flashcardListView.addView(updateFlashcardView);
@@ -195,6 +207,16 @@ public class UpdateFlashlet extends AppCompatActivity {
 
                 // Add Flashcard View to Container
                 flashcardListView.addView(updateFlashcardView);
+
+                // Handle Delete Flashcard Item
+                ImageView deleteFlashcardItem = updateFlashcardView.findViewById(R.id.newFlashcardDelete);
+                deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        flashcards.remove(flashcard);
+                        flashcardListView.removeView(updateFlashcardView);
+                    }
+                });
 
                 // Add Empty Padding
                 View spacerView = new View(UpdateFlashlet.this);
