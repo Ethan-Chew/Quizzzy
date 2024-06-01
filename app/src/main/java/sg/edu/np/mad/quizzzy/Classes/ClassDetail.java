@@ -202,7 +202,7 @@ public class ClassDetail extends AppCompatActivity {
                                                                                if (task.isSuccessful()) {
                                                                                    Log.d("DFDFSFFSDFSDFSD", String.valueOf(task.getResult().size()));
                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-\                                                                                       String flashletJson = gson.toJson(document.getData());
+                                                                                       String flashletJson = gson.toJson(document.getData());
                                                                                        JsonObject jArray = gson.fromJson( flashletJson, JsonObject.class);
                                                                                        ArrayList<JsonObject> createdFlashlets = new ArrayList<JsonObject>();
                                                                                        createdFlashlets.add(jArray);

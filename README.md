@@ -19,8 +19,9 @@ However, we also acknowledge the issues of having it on a mobile device: users m
 5. Shin Thant Aung (S10261787)
 
 ## Design Process
-
-As a team, we used Figma to design the Wireframe for Quizzzy.
+![Figma High-Fidelity Wireframe](./images/FigmaHighFid.png)  
+As a team, we used Figma to design the Wireframe for Quizzzy.  
+_Important Note: This Wireframe is not a full reflection of the final design of Quizzzy. Minor User Interface design changes has been applied_
 
 ### Colours
 **Purple** was chosen as our Primary Colour as purple communicates in a positive way. It is said to have the power to uplift, calm nerves and encourage creativity, making it an all-inclusive color. All ages, genders, and cultures can relate to purple.
@@ -32,6 +33,7 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
 3. [Flashlet Management](./docs/features/FlashletManagement.md) - Ethan Chew
 4. [User Study Statistics](./docs/features/StudyStatistics.md) - Darius Koh
 5. [Flashcards](./docs/features/Flashcards.md) - Shin
+6. [Home Page](./docs/features/HomePage.md) - Ethan Chew
 
 ## App Categories Stage 1
 
