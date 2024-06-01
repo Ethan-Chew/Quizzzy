@@ -85,7 +85,6 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                Log.d("qq", "bjb");
                                                 Toast.makeText(activity, "Successfully Deleted Class!", Toast.LENGTH_LONG).show();
                                                 // Once Delete is Successful, send user back to ClassList
                                                 activity.startActivity(new Intent(activity, ClassList.class));
