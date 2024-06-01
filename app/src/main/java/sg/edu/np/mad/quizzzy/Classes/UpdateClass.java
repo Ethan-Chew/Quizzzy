@@ -76,6 +76,8 @@ public class UpdateClass extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 UpdateClass.this.getOnBackPressedDispatcher().onBackPressed();
             }
@@ -95,6 +97,8 @@ public class UpdateClass extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
                     return true;
@@ -226,6 +230,8 @@ public class UpdateClass extends AppCompatActivity {
                                                                 // Save statistics to SQLite DB before changing Activity.
                                                                 // timeType of 2 because this is a Class Activity
                                                                 localDB.updateStatistics(usage, 2, user.getId());
+                                                                // Kills updateStatisticsLoop as we are switching to another activity.
+                                                                usage.setActivityChanged(true);
 
                                                                 // Once Delete is Successful, send user back to ClassList
                                                                 startActivity(new Intent(UpdateClass.this, ClassList.class));

@@ -15,7 +15,7 @@ public class ClassViewHolder extends RecyclerView.ViewHolder {
     TextView options;
     TextView memberCount;
     LinearLayout container;
-    public ClassViewHolder(View itemView, ClassRecyclerInterface classRecyclerInterface){
+    public ClassViewHolder(View itemView, ClassRecyclerInterface classRecyclerInterface) {
         super(itemView);
 
         classname = itemView.findViewById(R.id.cpViewTitle);

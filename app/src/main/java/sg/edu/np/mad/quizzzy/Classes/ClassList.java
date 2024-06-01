@@ -82,6 +82,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
                     return true;
@@ -112,6 +114,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 ClassList.this.getOnBackPressedDispatcher().onBackPressed();
             }
@@ -126,6 +130,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             // Save statistics to SQLite DB before changing Activity.
             // timeType of 2 because this is a Class Activity
             localDB.updateStatistics(usage, 2, user.getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
 
             startActivity(returnToLoginIntent);
         }
@@ -176,6 +182,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 startActivity(createClassIntent);
             }
@@ -192,6 +200,8 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 startActivity(createclassintent);
             }

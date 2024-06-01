@@ -93,6 +93,8 @@ public class AddClass extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
                     return true;
@@ -122,6 +124,8 @@ public class AddClass extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 2 because this is a Class Activity
                 localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 AddClass.this.getOnBackPressedDispatcher().onBackPressed();
             }
@@ -206,6 +210,8 @@ public class AddClass extends AppCompatActivity {
                                         // Save statistics to SQLite DB before changing Activity.
                                         // timeType of 2 because this is a Class Activity
                                         localDB.updateStatistics(usage, 2, user.getId());
+                                        // Kills updateStatisticsLoop as we are switching to another activity.
+                                        usage.setActivityChanged(true);
 
                                         startActivity(new Intent(getApplicationContext(), ClassList.class));
                                     }
