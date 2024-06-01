@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -94,6 +95,26 @@ public class CreateFlashlet extends AppCompatActivity {
                 CreateFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
+
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         // Get Data from Intents
         // Bottom Navigation View

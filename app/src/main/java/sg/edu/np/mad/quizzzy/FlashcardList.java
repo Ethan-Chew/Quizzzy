@@ -84,7 +84,7 @@ public class FlashcardList extends AppCompatActivity {
         });
 
         // Handle Back Button Click
-        // Enabled is true so that the code within handleOnBackPressed will be execured
+        // Enabled is true so that the code within handleOnBackPressed will be executed
         // This also disables the back button press from going to the previous screen
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
