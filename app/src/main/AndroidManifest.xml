@@ -29,11 +29,11 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".EditFlashcard"
+            android:name=".Flashlets.EditFlashcard"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".FlashcardList"
+            android:name=".Flashlets.FlashcardList"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity

@@ -1,6 +1,5 @@
-package sg.edu.np.mad.quizzzy;
+package sg.edu.np.mad.quizzzy.Flashlets;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -22,6 +21,7 @@ import com.google.gson.Gson;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.R;
 
 public class EditFlashcard extends AppCompatActivity {
     // Initialisation of Firebase Cloud Firestore

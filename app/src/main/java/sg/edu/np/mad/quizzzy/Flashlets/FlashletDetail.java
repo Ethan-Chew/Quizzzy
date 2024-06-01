@@ -1,11 +1,7 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-import androidx.activity.OnBackPressedCallback;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -26,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -34,7 +28,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import sg.edu.np.mad.quizzzy.FlashcardList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;

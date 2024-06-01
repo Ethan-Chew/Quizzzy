@@ -60,6 +60,7 @@ public class UpdateFlashlet extends AppCompatActivity {
             return insets;
         });
 
+        // Configure Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);

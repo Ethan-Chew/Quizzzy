@@ -3,7 +3,7 @@ package sg.edu.np.mad.quizzzy.Models;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-
+// Handles Swipe Animations for Flashcards
 public abstract class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;

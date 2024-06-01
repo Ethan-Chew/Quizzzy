@@ -39,7 +39,5 @@ public class User {
         this.email = email;
         this.createdFlashlets = createdFlashlets;
     }
-
-    // TODO: @Darius add attributes for Statistics
 }
 

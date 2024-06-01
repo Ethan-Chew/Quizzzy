@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,15 +33,15 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
-import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
-public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
+public class FlashletList extends AppCompatActivity implements RecyclerViewInterface {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
     UserWithRecents userWithRecents;

@@ -11,6 +11,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * The <b>SQLiteManager</b> handles the SQLite database in Quizzzy.
+ * Due to how Quizzzy is structured, only one row in the database would be used to store user information.
+ * */
 public class SQLiteManager extends SQLiteOpenHelper {
 
     private static SQLiteManager sqLiteManager;

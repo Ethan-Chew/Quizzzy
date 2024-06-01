@@ -1,4 +1,4 @@
-package sg.edu.np.mad.quizzzy;
+package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
@@ -24,16 +24,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.R;
 
 public class FlashcardList extends AppCompatActivity {
     Gson gson = new Gson();

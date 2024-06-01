@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
@@ -37,16 +37,16 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private final FlashletListRecyclerInterface flashletListRecyclerInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
     private final ArrayList<Flashlet> userFlashlets;
     private final User user;
     private FlashletList activity;
     boolean flashletOptionsOnClick = false;
 
-    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, FlashletListRecyclerInterface flashletListRecyclerInterface, User user) {
+    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, RecyclerViewInterface recyclerViewInterface, User user) {
         this.userFlashlets = userFlashlets;
         this.activity = activity;
-        this.flashletListRecyclerInterface = flashletListRecyclerInterface;
+        this.recyclerViewInterface = recyclerViewInterface;
         this.user = user;
     }
 
@@ -54,7 +54,7 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     public FlashletListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.flashlet_list_item, parent, false);
 
-        return new FlashletListViewHolder(view, flashletListRecyclerInterface);
+        return new FlashletListViewHolder(view, recyclerViewInterface);
     }
 
     public void onBindViewHolder(FlashletListViewHolder holder, int position) {

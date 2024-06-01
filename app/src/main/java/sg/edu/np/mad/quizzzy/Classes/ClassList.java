@@ -2,7 +2,6 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -34,13 +32,14 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.MainActivity;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 
-public class ClassList extends AppCompatActivity implements ClassRecyclerInterface {
+public class ClassList extends AppCompatActivity implements RecyclerViewInterface {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ArrayList<UserClass> classes = new ArrayList<UserClass>();

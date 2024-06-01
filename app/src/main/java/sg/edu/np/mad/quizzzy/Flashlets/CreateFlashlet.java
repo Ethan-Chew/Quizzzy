@@ -54,12 +54,6 @@ public class CreateFlashlet extends AppCompatActivity {
     private EditText createFlashletTitle;
 
     @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -79,7 +73,6 @@ public class CreateFlashlet extends AppCompatActivity {
             }
         });
 
-        // Get Data from Intents
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.create);
@@ -175,6 +168,19 @@ public class CreateFlashlet extends AppCompatActivity {
                     return;
                 }
 
+                /// Ensure that there is at least one Flashcard
+                if (flashcards.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "You need to create at least one flashcard!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                for (Flashcard flashcard : flashcards) {
+                    if (flashcard.getDefinition().isEmpty() || flashcard.getKeyword().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Flashcard Keyword or Definition cannot be empty!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
                 ArrayList<String> creatorId = new ArrayList<>();
@@ -203,11 +209,12 @@ public class CreateFlashlet extends AppCompatActivity {
                                 createdFlashlets.add(newFlashlet.getId());
                                 localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
 
+                                // Save Flashlet ID to User's Firebase
                                 db.collection("users").document(user.getId()).update("createdFlashlets", createdFlashlets)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {
-                                                createFlashletBtn.setText("Create Flashlet");
+                                                createFlashletBtn.setText("Create Flashlet"); // Change Flashcard Create button back
                                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
                                                 // Send User back to List Page
                                                 Intent flashletListIntent = new Intent(CreateFlashlet.this, FlashletList.class);

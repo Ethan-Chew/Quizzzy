@@ -6,8 +6,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.BreakIterator;
-
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.R;
 
 public class ClassViewHolder extends RecyclerView.ViewHolder {
@@ -15,7 +14,7 @@ public class ClassViewHolder extends RecyclerView.ViewHolder {
     TextView options;
     TextView memberCount;
     LinearLayout container;
-    public ClassViewHolder(View itemView, ClassRecyclerInterface classRecyclerInterface){
+    public ClassViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface){
         super(itemView);
 
         classname = itemView.findViewById(R.id.cpViewTitle);
@@ -26,11 +25,11 @@ public class ClassViewHolder extends RecyclerView.ViewHolder {
         // Set onClick of Class List Container
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                if (classRecyclerInterface != null) {
+                if (recyclerViewInterface != null) {
                     int pos = getAdapterPosition();
 
                     if (pos != RecyclerView.NO_POSITION) {
-                        classRecyclerInterface.onItemClick(pos);
+                        recyclerViewInterface.onItemClick(pos);
                     }
                 }
             }
