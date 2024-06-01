@@ -99,6 +99,7 @@ public class ClassDetail extends AppCompatActivity {
                 usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     return true;
                 } else if (itemId == R.id.create) {
                     Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);

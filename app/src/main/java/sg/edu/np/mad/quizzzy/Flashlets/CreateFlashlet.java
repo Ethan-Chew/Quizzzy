@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -185,6 +186,17 @@ public class CreateFlashlet extends AppCompatActivity {
                         newFlashcard.setDefinition(definitionEditText.getText().toString());
                     }
                 });
+
+                // Handle Delete Flashcard Item
+                ImageView deleteFlashcardItem = newFlashcardView.findViewById(R.id.newFlashcardDelete);
+                deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        flashcards.remove(newFlashcard);
+                        flashcardListView.removeView(newFlashcardView);
+                    }
+                });
+
                 // Add Flashcard to List
                 flashcards.add(newFlashcard);
 
