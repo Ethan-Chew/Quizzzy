@@ -128,11 +128,15 @@ public class FlashcardList extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                arrayIndex--;
-
+                if (arrayIndex > 0) {
+                    arrayIndex--;
+                } else {
+                    Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
+                }
                 if (!isFront) {flip_card_anim();}
 
                 if (arrayIndex >= 0) {
+
                     tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
                     tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
                 } else {
