@@ -13,7 +13,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 import androidx.activity.OnBackPressedCallback;
@@ -23,7 +22,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -56,9 +54,7 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
-    RelativeLayout card_main;
-    private CardView flashcard_front, flashcard_back;
-    private boolean isFront = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +147,25 @@ public class FlashletDetail extends AppCompatActivity {
         String flashcardCount = flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
 
+        //Set gesture detector
+        gestureDetector = new GestureDetector(this, new SwipeGestureDetector() {
+            @Override
+            public boolean onSwipeRight() {
+                flashcardPreview.setInAnimation(FlashletDetail.this, R.anim.slide_in_left);
+                flashcardPreview.setOutAnimation(FlashletDetail.this, R.anim.slide_out_right);
+                flashcardPreview.showPrevious();
+                return true;
+            }
+
+            @Override
+            public boolean onSwipeLeft() {
+                flashcardPreview.setInAnimation(FlashletDetail.this, R.anim.slide_in_right);
+                flashcardPreview.setOutAnimation(FlashletDetail.this, R.anim.slide_out_left);
+                flashcardPreview.showNext();
+                return true;
+            }
+        });
+
         //Set flashcard preview
         for (int i = 0; i < flashcards.size() && i < 8; i++) {
             View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, flashcardPreview, false);
@@ -159,18 +174,9 @@ public class FlashletDetail extends AppCompatActivity {
             keyword.setText(flashcards.get(i).getKeyword());
             definition.setText(flashcards.get(i).getDefinition());
 
-            flashcard_front = flashcardView.findViewById(R.id.flashcard_front);
-            flashcard_back = flashcardView.findViewById(R.id.flashcard_back);
-
-            card_main = flashcardView.findViewById(R.id.card_main);
-
+            //Add flashcard to ViewFlipper
             flashcardPreview.addView(flashcardView);
         }
-
-        card_main.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){ flip_card_anim();}
-        });
-
 
         // Add Flashlets to Screen
         for (int i = 0; i < flashcards.size(); i++) {
@@ -194,9 +200,8 @@ public class FlashletDetail extends AppCompatActivity {
             flashcardViewList.addView(spacerView, spacerParams);
         }
 
-        gestureDetector = new GestureDetector(this, new SwipeGestureDetector(flashcardPreview));
-
-        flashcardPreview.setOnTouchListener(new View.OnTouchListener(){
+        //On touch listener for gesture
+        flashcardPreview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
@@ -204,18 +209,4 @@ public class FlashletDetail extends AppCompatActivity {
             }
         });
     }
-
-    private void flip_card_anim(){
-        AnimatorSet setOut = (AnimatorSet) AnimatorInflater.loadAnimator(FlashletDetail.this,R.animator.card_flip_out);
-        AnimatorSet setIn = (AnimatorSet) AnimatorInflater.loadAnimator(FlashletDetail.this,R.animator.card_flip_in);
-
-        setOut.setTarget(isFront ? flashcard_front : flashcard_back);
-        setIn.setTarget((isFront ? flashcard_back : flashcard_front));
-
-        setOut.start();
-        setIn.start();
-
-        isFront = !isFront;
-    }
-
 }

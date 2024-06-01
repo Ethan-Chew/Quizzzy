@@ -51,9 +51,11 @@ public class EditFlashcard extends AppCompatActivity {
             }
         });
 
+        //Find Button
         Button btnUndo = findViewById(R.id.btnUndo);
         Button btnSave = findViewById(R.id.btnSave);
 
+        //Find View
         TextView tvFLName = findViewById(R.id.tvFLName);
         EditText etKeyword = findViewById(R.id.etKeyword);
         EditText etDefinition = findViewById(R.id.etDefinition);
@@ -70,6 +72,7 @@ public class EditFlashcard extends AppCompatActivity {
             etDefinition.setText(currFlashcard.getDefinition());
         }
 
+        //Save changes
         btnSave.setOnClickListener(v -> {
             Toast.makeText(EditFlashcard.this, "Updated!", Toast.LENGTH_LONG).show();
             // TODO: Update in Firebase
@@ -86,9 +89,8 @@ public class EditFlashcard extends AppCompatActivity {
 
         });
 
+        //Undo changes
         btnUndo.setOnClickListener(v -> {
-            // If you have specific undo logic, add it here
-            // For now, we'll just finish the activity without saving changes
             setResult(RESULT_CANCELED);
             finish();
         });
