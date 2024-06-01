@@ -102,6 +102,10 @@ public class CreateClassFlashlet extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+
                 CreateClassFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
