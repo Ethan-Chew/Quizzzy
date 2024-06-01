@@ -21,6 +21,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -43,6 +44,7 @@ public class UpdateClass extends AppCompatActivity {
     Gson gson = new Gson();
     UserClass userClass;
     ArrayList<EditText> newUNList = new ArrayList<>();
+    ArrayList<User> users = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,25 +102,41 @@ public class UpdateClass extends AppCompatActivity {
 
         // Populate View Components with Data
         EditText titleEditField = findViewById(R.id.uCNewTitle);
-        titleEditField.setHint(userClass.getClassTitle());
+        titleEditField.setText(userClass.getClassTitle());
 
         LinearLayout memberList = findViewById(R.id.uCUpdateMembers);
-        for (String username : userClass.getMemberId()) {
-            View listItem = LayoutInflater.from(UpdateClass.this).inflate(R.layout.add_class_members, null, false);
-            EditText listItemEdit = listItem.findViewById(R.id.acmusername);
-            listItemEdit.setHint(username);
-            listItemEdit.setInputType(0); // Disable Text Editing
+        db.collection("users").whereIn("id", userClass.getMemberId()).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String userJson = gson.toJson(document.getData());
+                                User user = gson.fromJson(userJson, User.class);
+                                users.add(user);
+                            }
 
-            ImageView deleteMember = listItem.findViewById(R.id.acmDelete);
-            deleteMember.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    memberList.removeView(listItem);
-                }
-            });
+                            for (User user : users) {
+                                View listItem = LayoutInflater.from(UpdateClass.this).inflate(R.layout.add_class_members, null, false);
+                                EditText listItemEdit = listItem.findViewById(R.id.acmusername);
+                                listItemEdit.setText(user.getUsername());
+                                listItemEdit.setInputType(0); // Disable Text Editing
+                                newUNList.add(listItemEdit);
 
-            memberList.addView(listItem);
-        }
+                                ImageView deleteMember = listItem.findViewById(R.id.acmDelete);
+                                deleteMember.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        memberList.removeView(listItem);
+                                        newUNList.remove(listItemEdit);
+                                    }
+                                });
+
+                                memberList.addView(listItem);
+                            }
+                        }
+                    }
+                });
 
         // Add a new TextField onAdd Clicked
         Button addMemberBtn = findViewById(R.id.uCAddMember);
@@ -177,6 +195,7 @@ public class UpdateClass extends AppCompatActivity {
                                                 Toast.makeText(UpdateClass.this, "One or More Usernames do not exist!", Toast.LENGTH_LONG).show();
                                                 return;
                                             } else {
+                                                userClass.setMemberId(usernameIds);
                                                 // Update Class
                                                 db.collection("class").document(userClass.getId()).set(userClass)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {

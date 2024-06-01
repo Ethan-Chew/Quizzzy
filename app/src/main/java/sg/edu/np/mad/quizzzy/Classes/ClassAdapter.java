@@ -2,11 +2,13 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,6 +33,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
     private ArrayList<UserClass> classes;
     private ClassList activity;
     private User user;
+    boolean classOptionsclicked = false;
 
     public ClassAdapter(ClassRecyclerInterface classRecyclerInterface, ClassList activity, ArrayList<UserClass> classes, User user) {
         this.classRecyclerInterface = classRecyclerInterface;
@@ -72,7 +75,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
                     sendToUpdate.putExtra("classJson", gson.toJson(listItem));
                     activity.startActivity(sendToUpdate);
                 } else if (itemId == R.id.cLODelete) {
-                    // Display Alert to confirm before deletion of Flashlet
+                    // Display Alert to confirm before deletion of Class
                     String confirmationMessage = "Confirm you want to delete Class: " + listItem.getClassTitle() + "? This process is irreversible.";
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Are you sure?")
@@ -92,8 +95,20 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
                                 // Handle Cancel Delete
                             }))
                             .setCancelable(true);
+
+                    builder.create().show(); // Show Alert
+                    return true;
                 }
                 return false;
+            }
+        });
+        holder.options.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                classOptionsclicked = !classOptionsclicked;
+                if (classOptionsclicked) {
+                    popup.show();
+                }
             }
         });
     }

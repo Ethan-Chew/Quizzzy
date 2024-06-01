@@ -19,7 +19,7 @@ public class ClassViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
 
         classname = itemView.findViewById(R.id.cpViewTitle);
-        options = itemView.findViewById(R.id.cpOptionsMenu);
+        options = itemView.findViewById(R.id.clOptionsMenu);
         memberCount = itemView.findViewById(R.id.cpnummem);
         container = itemView.findViewById(R.id.cLIContainer);
 
