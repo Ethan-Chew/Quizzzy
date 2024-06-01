@@ -49,6 +49,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
     UserWithRecents userWithRecents;
+    SQLiteManager localDB;
+    UsageStatistic usage;
     Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
@@ -66,11 +68,11 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         });
 
         // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
+        localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
         userWithRecents = localDB.getUser();
 
         // Create new UsageStatistic class and start the update loop
-        UsageStatistic usage = new UsageStatistic();
+        usage = new UsageStatistic();
         localDB.updateStatisticsLoop(usage, 1, userWithRecents.getUser().getId());
 
         // Bottom Navigation View
@@ -242,6 +244,13 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         String flashletJson = gson.toJson(userFlashlets.get(position));
         Intent sendToFlashletDetail = new Intent(FlashletList.this, FlashletDetail.class);
         sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
+
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 1 because this is a Flashlet Activity
+        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
         startActivity(sendToFlashletDetail);
     }
 }
