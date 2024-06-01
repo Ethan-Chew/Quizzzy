@@ -1,11 +1,16 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +39,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -48,6 +54,8 @@ public class FlashletDetail extends AppCompatActivity {
     Button studyFlashcardBtn;
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
+    GestureDetector gestureDetector;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,17 +159,36 @@ public class FlashletDetail extends AppCompatActivity {
         String flashcardCount = flashcards.size() + " Total Flashcard" + (flashcards.size() == 1 ? "" : "s");
         flashletFlashcardCountLbl.setText(flashcardCount);
 
+        //Set gesture detector
+        gestureDetector = new GestureDetector(this, new SwipeGestureDetector() {
+            @Override
+            public boolean onSwipeRight() {
+                flashcardPreview.setInAnimation(FlashletDetail.this, R.anim.slide_in_left);
+                flashcardPreview.setOutAnimation(FlashletDetail.this, R.anim.slide_out_right);
+                flashcardPreview.showPrevious();
+                return true;
+            }
+
+            @Override
+            public boolean onSwipeLeft() {
+                flashcardPreview.setInAnimation(FlashletDetail.this, R.anim.slide_in_right);
+                flashcardPreview.setOutAnimation(FlashletDetail.this, R.anim.slide_out_left);
+                flashcardPreview.showNext();
+                return true;
+            }
+        });
+
         //Set flashcard preview
         for (int i = 0; i < flashcards.size() && i < 8; i++) {
-            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, null);
+            View flashcardView = LayoutInflater.from(this).inflate(R.layout.flashcard_view_item, flashcardPreview, false);
             TextView keyword = flashcardView.findViewById(R.id.flashcardKeyword);
+            TextView definition = flashcardView.findViewById(R.id.flashcardDefinition);
             keyword.setText(flashcards.get(i).getKeyword());
+            definition.setText(flashcards.get(i).getDefinition());
+
+            //Add flashcard to ViewFlipper
             flashcardPreview.addView(flashcardView);
-
         }
-
-        flashcardPreview.setFlipInterval(3000);
-        flashcardPreview.startFlipping();
 
         // Add Flashlets to Screen
         for (int i = 0; i < flashcards.size(); i++) {
@@ -184,5 +211,14 @@ public class FlashletDetail extends AppCompatActivity {
             );
             flashcardViewList.addView(spacerView, spacerParams);
         }
+
+        //On touch listener for gesture
+        flashcardPreview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
     }
 }

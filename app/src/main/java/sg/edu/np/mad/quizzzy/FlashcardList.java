@@ -64,18 +64,23 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
+        //Find CardView
         flashcard_front = findViewById(R.id.flashcard_front);
         flashcard_back = findViewById(R.id.flashcard_back);
 
+        //Find Button
         Button btnFlipper = findViewById(R.id.btnFlipper);
         Button btnNext = findViewById(R.id.btnNext);
         Button btnBack = findViewById(R.id.btnBack);
         Button btnShuffle = findViewById(R.id.btnShuffle);
         Button btnEdit = findViewById(R.id.btnEdit);
 
+
+        //Find TextView
         TextView tvFLName = findViewById(R.id.tvFLName);
         TextView tvKeyword = findViewById(R.id.tvFCKeyword);
         TextView tvDefinition = findViewById(R.id.tvFCDefinition);
+
 
         // Get from Intent
         Intent receiveIntent = getIntent();
@@ -88,6 +93,7 @@ public class FlashcardList extends AppCompatActivity {
 
         arrayIndex = 0;
 
+        //Flip the flashcard
         btnFlipper.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
@@ -95,6 +101,7 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
+        //Shuffle flashcards in a flashlet
         btnShuffle.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Collections.shuffle(flashcards);
@@ -105,7 +112,7 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
-
+        //Switch to next flashcard
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,6 +132,7 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
+        //Switch to previous flashcard
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,15 +153,19 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
+        //Set ActivityResultLauncher for starting an activiyt to edit flashcard
         ActivityResultLauncher<Intent> editFlashcardLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
+                        //Check if result is Ok and not null
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            //Retrieve data from intent
                             Intent data = result.getData();
                             int index = data.getIntExtra("Array_Index", -1);
                             String keyword = data.getStringExtra("Keyword");
                             String definition = data.getStringExtra("Definition");
+
                             if (index != -1) {
                                 flashcards.get(index).setKeyword(keyword);
                                 flashcards.get(index).setDefinition(definition);
@@ -171,6 +183,7 @@ public class FlashcardList extends AppCompatActivity {
                 });
 
 
+        //Launch edit flashcard page
         btnEdit.setOnClickListener(v -> {
             Intent intent = new Intent(FlashcardList.this, EditFlashcard.class);
             intent.putExtra("Array_Index", arrayIndex);
@@ -179,6 +192,7 @@ public class FlashcardList extends AppCompatActivity {
         });
     }
 
+    //Flip card animation
     private void flip_card_anim(){
         AnimatorSet setOut = (AnimatorSet) AnimatorInflater.loadAnimator(FlashcardList.this,R.animator.card_flip_out);
         AnimatorSet setIn = (AnimatorSet) AnimatorInflater.loadAnimator(FlashcardList.this,R.animator.card_flip_in);
