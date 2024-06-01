@@ -202,16 +202,13 @@ public class ClassDetail extends AppCompatActivity {
                                                                                if (task.isSuccessful()) {
                                                                                    Log.d("DFDFSFFSDFSDFSD", String.valueOf(task.getResult().size()));
                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                                       Log.d("CUM", "FSDDDDDDDDDDDDDDDDDDDDDDD");
-                                                                                       String flashletJson = gson.toJson(document.getData());
+\                                                                                       String flashletJson = gson.toJson(document.getData());
                                                                                        JsonObject jArray = gson.fromJson( flashletJson, JsonObject.class);
                                                                                        ArrayList<JsonObject> createdFlashlets = new ArrayList<JsonObject>();
                                                                                        createdFlashlets.add(jArray);
 
-                                                                                       Log.d("DFDFSFFSDFSDFSD", "FSDDDDDDDDDDDDDDDDDDDDDDD");
                                                                                        // Display Created Flashets on the Screen
                                                                                        for (int i = 0; i < createdFlashlets.size(); i++) {
-                                                                                           Log.d("DEFDHSFJKSDHSDKFJSHLFSJKLDFS", "qqqqqqqq");
                                                                                            View flashletView = LayoutInflater.from(ClassDetail.this).inflate(R.layout.homescreen_class_flashlet_container, null, false);
                                                                                            JsonObject flashlet = createdFlashlets.get(i);
                                                                                            TextView fVTitle = flashletView.findViewById(R.id.hSCTitle);
