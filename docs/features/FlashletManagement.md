@@ -13,6 +13,17 @@
 - From the Flashlet List Page, the user can navigate to the Home, Creating the Flashlets and the users Statistics pages.
 <img height="400" alt="image" src="https://github.com/Ethan-Chew/MAD24_P01_Team2/blob/main/images/Flashlet%20List%20Page.png">
 
+### Flashlet Options
+Expanding the 'three dots' at the side of each Flashet list will display 2 options. Update Flashlet and Delete Flashlet.
+
+### Update Flashlet
+Upon clicking the Update Flashlet option, the user would be brought to another page, where they can edit various features of the Flashlet. This includes the Flashlet's title and it's various flashcards (keywords and definitions).
+<img height="400" alt="image" src="https://github.com/Ethan-Chew/MAD24_P01_Team2/blob/main/images/UpdateFlashlet.png">
+
+
+### Delete Flashlet
+Upon clicking the Delete Flashlet option, an alert would be displayed, confirming if the user really wants to delete the Flashlet.
+
 ## Flashlet Create Page
 
 - Users are brought to this screen after they click on the plus button in the flashlet list page.

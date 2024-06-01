@@ -35,6 +35,8 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -67,7 +69,6 @@ public class UpdateClass extends AppCompatActivity {
         // Create new UsageStatistic class and start the update loop
         UsageStatistic usage = new UsageStatistic();
         localDB.updateStatisticsLoop(usage, 2, user.getId());
-
 
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.uCViewToolbar);
@@ -106,7 +107,6 @@ public class UpdateClass extends AppCompatActivity {
 
         // Handle Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 
@@ -247,13 +247,6 @@ public class UpdateClass extends AppCompatActivity {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 Toast.makeText(UpdateClass.this, "Successfully Updated Class!", Toast.LENGTH_LONG).show();
-
-                                                                // Save statistics to SQLite DB before changing Activity.
-                                                                // timeType of 2 because this is a Class Activity
-                                                                localDB.updateStatistics(usage, 2, user.getId());
-                                                                // Kills updateStatisticsLoop as we are switching to another activity.
-                                                                usage.setActivityChanged(true);
-
                                                                 // Once Delete is Successful, send user back to ClassList
                                                                 startActivity(new Intent(UpdateClass.this, ClassList.class));
                                                             }
