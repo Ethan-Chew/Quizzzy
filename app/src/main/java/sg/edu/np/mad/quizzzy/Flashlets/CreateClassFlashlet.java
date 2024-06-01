@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.Classes.ClassDetail;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.LoginActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
@@ -237,8 +238,8 @@ public class CreateClassFlashlet extends AppCompatActivity {
                                                             public void onSuccess(Void unused) {
                                                                 createFlashletBtn.setText("Create Flashlet");
                                                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
-                                                                // Send User back to List Page
-                                                                Intent flashletListIntent = new Intent(CreateClassFlashlet.this, FlashletList.class);
+                                                                // Send User back to class Page
+                                                                Intent flashletListIntent = new Intent(CreateClassFlashlet.this, ClassDetail.class);
                                                                 startActivity(flashletListIntent);
                                                             }
                                                         });
