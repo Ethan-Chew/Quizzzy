@@ -30,6 +30,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String STATISTICS_FLASHCARD = "flashcardUsageTime";
     private static final String STATISTICS_FLASHLET = "flashletUsageTime";
     private static final String STATISTICS_CLASSES = "classUsageTime";
+    private static final String STATISTICS_FLASHCARD_ACCESSED = "numberFlashcardAccessed";
 
     public SQLiteManager(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
     public static SQLiteManager instanceOfDatabase(Context context) {
@@ -48,7 +49,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 + RECENTLY_VIEWED_FLASHLETS + " TEXT, "
                 + STATISTICS_FLASHCARD + " TEXT, "
                 + STATISTICS_FLASHLET + " TEXT, "
-                + STATISTICS_CLASSES + " TEXT)";
+                + STATISTICS_CLASSES + " TEXT, "
+                + STATISTICS_FLASHCARD_ACCESSED + " TEXT)";
         db.execSQL(createQuery);
     }
 
@@ -73,6 +75,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         contentValues.put(STATISTICS_FLASHCARD, "0;0;0;0;0;0;0");
         contentValues.put(STATISTICS_FLASHLET, "0;0;0;0;0;0;0");
         contentValues.put(STATISTICS_CLASSES, "0;0;0;0;0;0;0");
+        contentValues.put(STATISTICS_FLASHCARD_ACCESSED, "0;0;0;0;0;0;0");
 
         db.insert(TABLE_NAME, null, contentValues);
     }
@@ -108,6 +111,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         int[] flashcardUsage = new int[]{0,0,0,0,0,0,0};
         int[] flashletUsage = new int[]{0,0,0,0,0,0,0};
         int[] classUsage = new int[]{0,0,0,0,0,0,0};
+        int[] flashcardAccessed = new int[]{0,0,0,0,0,0,0};
 
         try (Cursor result = db.rawQuery("SELECT * FROM " + TABLE_NAME, null)) {
             if (result.getCount() != 0) {
@@ -115,12 +119,14 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String flashcardUsageString = result.getString(5);
                     String flashletUsageString = result.getString(6);
                     String classUsageString = result.getString(7);
+                    String flashcardAccessedString = result.getString(8);
 
                     // Split each usage statistic into an array of ints for easier parsing
                     for (int i = 0; i < 7; i++) {
                         flashcardUsage[i] = Integer.parseInt(flashcardUsageString.split(";")[i]);
                         flashletUsage[i] = Integer.parseInt(flashletUsageString.split(";")[i]);
                         classUsage[i] = Integer.parseInt(classUsageString.split(";")[i]);
+                        flashcardAccessed[i] = Integer.parseInt(flashcardAccessedString.split(";")[i]);
                     }
                 }
             }
@@ -131,6 +137,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         statistics.put("flashcardUsage", flashcardUsage);
         statistics.put("flashletUsage", flashletUsage);
         statistics.put("classUsage", classUsage);
+        statistics.put("flashcardAccessed", flashcardAccessed);
 
         return statistics;
     }
@@ -154,6 +161,30 @@ public class SQLiteManager extends SQLiteOpenHelper {
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
+    }
+
+    public void updateFlashcardsAccessed(UsageStatistic data, String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.d("TAG", "updateFlashcardsAccessed: "+data.getFlashcardsAccessed());
+
+        // Get day as int value using Calander
+        Calendar calendar = Calendar.getInstance();
+        int today = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+
+        // Get data converted into int[] from getStatistics()
+        HashMap<String, int[]> statistics = new HashMap<>(getStatistics());
+        int[] flashcardAccessed = statistics.get("flashcardAccessed");
+
+        flashcardAccessed[today] = data.getFlashcardsAccessed();
+        String[] flashcardAccessedArrStr = new String[flashcardAccessed.length];
+
+        for (int i = 0; i < 7; i++) {
+            flashcardAccessedArrStr[i] = String.valueOf(flashcardAccessedArrStr[i]);
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(STATISTICS_FLASHCARD_ACCESSED, String.join(";", flashcardAccessedArrStr));
+        db.update(TABLE_NAME, values, ID + " =? ", new String[]{userId});
     }
 
     public void updateStatistics(UsageStatistic data, int timeType, String userId) {
@@ -213,10 +244,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 while (!data.getActivityChanged()) {
                     try {
                         updateStatistics(data, timeType, userId);
-                        Log.d("Update DB Loop", "Update DB wheeeeeeeeee "+timeType);
+                        Log.d("Update Usage Statistics Using Loop", "DB updated statistics column " + timeType);
                         Thread.sleep(5000);
                     } catch (InterruptedException e) { Log.e("Interrupted", "Interrupted"); }
                 }
+                Log.d("Update Usage Statistics Loop Stopped", "DB Auto Update Stopped for statistics column " + timeType);
             }
         }).start();
     }
