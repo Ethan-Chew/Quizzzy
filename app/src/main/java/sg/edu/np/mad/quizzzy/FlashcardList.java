@@ -84,20 +84,20 @@ public class FlashcardList extends AppCompatActivity {
         });
 
         // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be execured
+        // This also disables the back button press from going to the previous screen
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Log.d("Backbutton", "handleOnBackPressed: pee");
-
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 0 because this is a Flashcard Activity
                 localDB.updateStatistics(usage, 0, user.getId());
                 // Kills updateStatisticsLoop as we are switching to another activity.
                 usage.setActivityChanged(true);
 
-                // Enable the back button to be able to be used to go to the previous page
+                // Enable the back button to be able to be used to go to the previous screen
                 setEnabled(false);
-                // Call the default back press behavior again to return to previous page
+                // Call the default back press behavior again to return to previous screen
                 getOnBackPressedDispatcher().onBackPressed();
             }
         };
