@@ -165,7 +165,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
     public void updateFlashcardsAccessed(UsageStatistic data, String userId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Log.d("TAG", "updateFlashcardsAccessed: "+data.getFlashcardsAccessed());
 
         // Get day as int value using Calander
         Calendar calendar = Calendar.getInstance();
@@ -175,13 +174,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
         HashMap<String, int[]> statistics = new HashMap<>(getStatistics());
         int[] flashcardAccessed = statistics.get("flashcardAccessed");
 
-        flashcardAccessed[today] = data.getFlashcardsAccessed();
+        // Update and reset number of flashcards accessed
+        flashcardAccessed[today] += data.getFlashcardsAccessed();
+        data.resetFlashcardsAccessed();
+
+        // Convert int[] to String[] and convert every value of flashcardAccessed to a String
         String[] flashcardAccessedArrStr = new String[flashcardAccessed.length];
+        for (int i = 0; i < 7; i++) { flashcardAccessedArrStr[i] = String.valueOf(flashcardAccessed[i]); }
 
-        for (int i = 0; i < 7; i++) {
-            flashcardAccessedArrStr[i] = String.valueOf(flashcardAccessedArrStr[i]);
-        }
-
+        // Update DB with updated flashcardAccessed values
         ContentValues values = new ContentValues();
         values.put(STATISTICS_FLASHCARD_ACCESSED, String.join(";", flashcardAccessedArrStr));
         db.update(TABLE_NAME, values, ID + " =? ", new String[]{userId});
@@ -244,11 +245,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 while (!data.getActivityChanged()) {
                     try {
                         updateStatistics(data, timeType, userId);
-                        Log.d("Update Usage Statistics Using Loop", "DB updated statistics column " + timeType);
+                        if (timeType == 0) { updateFlashcardsAccessed(data, userId); }
+
                         Thread.sleep(5000);
                     } catch (InterruptedException e) { Log.e("Interrupted", "Interrupted"); }
                 }
-                Log.d("Update Usage Statistics Loop Stopped", "DB Auto Update Stopped for statistics column " + timeType);
             }
         }).start();
     }
@@ -278,7 +279,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         int today = calendar.get(Calendar.DAY_OF_WEEK) - 1;
 
         // Create HashMap to store data to be passed to Activity
-        HashMap<String, Integer> usageStats = new HashMap<String, Integer>();
+        HashMap<String, Integer> usageStats = new HashMap<>();
 
         // Get daily statistics using calander
         usageStats.put("todayFlashcardUsage", statistics.get("flashcardUsage")[today]);
@@ -295,6 +296,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
         usageStats.put("totalClassUsage", IntStream.of(statistics.get("classUsage")).sum());
         usageStats.put("averageClassUsage", Math.floorDiv(IntStream.of(statistics.get("classUsage")).sum(), 7));
 
+        usageStats.put("flashcardsViewedToday", statistics.get("flashcardAccessed")[today]);
+        usageStats.put("flashcardsViewedTotal", IntStream.of(statistics.get("flashcardAccessed")).sum());
+        usageStats.put("flashcardsViewedAverage", Math.floorDiv(IntStream.of(statistics.get("flashcardAccessed")).sum(), 7));
         return usageStats;
     }
 
