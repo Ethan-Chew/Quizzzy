@@ -231,6 +231,14 @@ public class FlashcardList extends AppCompatActivity {
         });
     }
 
+    // To re-initialize the DB update loop when returning to the screen
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Recreate the activity so that the DB update loop will be called again and be able to be terminated
+        recreate();
+    }
+
     //Flip card animation
     private void flip_card_anim(){
         AnimatorSet setOut = (AnimatorSet) AnimatorInflater.loadAnimator(FlashcardList.this,R.animator.card_flip_out);

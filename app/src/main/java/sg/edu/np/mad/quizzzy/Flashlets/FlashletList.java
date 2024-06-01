@@ -238,6 +238,14 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         });
     }
 
+    // To re-initialize the DB update loop when returning to the screen
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Recreate the activity so that the DB update loop will be called again and be able to be terminated
+        recreate();
+    }
+
     @Override
     public void onItemClick(int position) {
         String flashletJson = gson.toJson(userFlashlets.get(position));

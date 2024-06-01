@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -269,5 +270,13 @@ public class FlashletDetail extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    // To re-initialize the DB update loop when returning to the screen
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Recreate the activity so that the DB update loop will be called again and be able to be terminated
+        recreate();
     }
 }

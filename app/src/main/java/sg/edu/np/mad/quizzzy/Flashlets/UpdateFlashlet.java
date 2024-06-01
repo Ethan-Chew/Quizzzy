@@ -248,6 +248,14 @@ public class UpdateFlashlet extends AppCompatActivity {
         });
     }
 
+    // To re-initialize the DB update loop when returning to the screen
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Recreate the activity so that the DB update loop will be called again and be able to be terminated
+        recreate();
+    }
+
     private void setTextEditWatcher(Flashcard flashcard, EditText keywordEditText, EditText definitionEditText) {
         keywordEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

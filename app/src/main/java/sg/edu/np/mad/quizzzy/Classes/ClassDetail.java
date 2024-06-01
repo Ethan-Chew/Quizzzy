@@ -321,4 +321,11 @@ public class ClassDetail extends AppCompatActivity {
                 });
     }
 
+    // To re-initialize the DB update loop when returning to the screen
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Recreate the activity so that the DB update loop will be called again and be able to be terminated
+        recreate();
+    }
 }
