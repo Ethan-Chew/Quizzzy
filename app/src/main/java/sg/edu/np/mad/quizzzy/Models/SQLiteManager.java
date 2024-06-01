@@ -251,7 +251,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                         updateStatistics(data, timeType, userId);
                         if (timeType == 0) { updateFlashcardsAccessed(data, userId); }
 
-                        Thread.sleep(5000);
+                        // Updates DB every 1 min
+                        Thread.sleep(60000);
                     } catch (InterruptedException e) { Log.e("Interrupted", "Interrupted"); }
                 }
             }
