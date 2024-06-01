@@ -209,9 +209,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                while (true) {
+                // If getActivityChanged() == true, startActivity was called and the loop should be terminated
+                while (!data.getActivityChanged()) {
                     try {
                         updateStatistics(data, timeType, userId);
+                        Log.d("Update DB Loop", "Update DB wheeeeeeeeee "+timeType);
                         Thread.sleep(5000);
                     } catch (InterruptedException e) { Log.e("Interrupted", "Interrupted"); }
                 }
