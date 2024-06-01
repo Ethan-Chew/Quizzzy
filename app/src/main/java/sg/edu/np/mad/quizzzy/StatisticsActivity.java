@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -72,7 +73,7 @@ public class StatisticsActivity extends AppCompatActivity {
             }
         });
 
-        SQLiteManager localDB = new SQLiteManager(this);
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(StatisticsActivity.this);
         // Get data from DB and call function to calculate all statistics
         HashMap<String, Integer> statistics = localDB.calculateStatistics();
 
@@ -102,9 +103,9 @@ public class StatisticsActivity extends AppCompatActivity {
         TextView flashcardViewTotal = findViewById(R.id.statsFlashcardWeekTotal);
         TextView flashcardViewAverage = findViewById(R.id.statsFlashcardWeekAverage);
 
-        todayFlashcardView.setText(flashcardsViewedToday);
-        flashcardViewTotal.setText(flashcardsViewedTotal);
-        flashcardViewAverage.setText(flashcardsViewedAverage);
+        todayFlashcardView.setText(String.valueOf(flashcardsViewedToday));
+        flashcardViewTotal.setText(String.valueOf(flashcardsViewedTotal));
+        flashcardViewAverage.setText(String.valueOf(flashcardsViewedAverage));
 
         TextView todayFlashcard = findViewById(R.id.statsTodayFlashcard);
         TextView todayFlashlet = findViewById(R.id.statsTodayFlashlet);

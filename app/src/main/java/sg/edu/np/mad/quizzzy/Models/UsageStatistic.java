@@ -21,12 +21,15 @@ public class UsageStatistic {
     public boolean getActivityChanged() { return activityChanged; };
 
     // Methods
-    // Resets and updates total time spent on activity
+    // Updates total time spent on activity
     public void updateTimeData() {
-        // Resets timeElapsed before updating
-        timeElapsed = 0;
         timeElapsed = (System.currentTimeMillis() - startTime) / 1000;
         startTime = System.currentTimeMillis();
+    }
+
+    // Reset number of flashcards accessed
+    public void resetFlashcardsAccessed() {
+        flashcardsAccessed = 0;
     }
 
     // Constructor
