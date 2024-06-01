@@ -19,7 +19,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -150,9 +149,9 @@ public class FlashcardList extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 arrayIndex++;
                 usage.nextFlashcardAccessed();
-                Log.d("idk", "onClick: "+usage.getFlashcardsAccessed());
 
                 if (!isFront) {flip_card_anim();}
 
@@ -163,17 +162,21 @@ public class FlashcardList extends AppCompatActivity {
                     Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
                     arrayIndex = 0;
                 }
+
             }
         });
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                arrayIndex--;
-                usage.nextFlashcardAccessed();
-                Log.d("idk1", "onClick: "+usage.getFlashcardsAccessed());
+                if (arrayIndex > 0) {
+                    arrayIndex--;
+                    usage.nextFlashcardAccessed();
+                } else {
+                    Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
+                }
 
-                if (!isFront) {flip_card_anim();}
+                if (!isFront) { flip_card_anim(); }
 
                 if (arrayIndex >= 0) {
                     tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
