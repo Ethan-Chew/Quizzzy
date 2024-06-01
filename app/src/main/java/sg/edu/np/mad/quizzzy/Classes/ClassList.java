@@ -48,8 +48,10 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ArrayList<UserClass> classes = new ArrayList<UserClass>();
     Gson gson = new Gson();
+    SQLiteManager localDB;
     User user;
     UserWithRecents userWithRecents;
+    UsageStatistic usage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,11 +65,12 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         });
 
         // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
+        localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
         userWithRecents = localDB.getUser();
+        user = userWithRecents.getUser();
 
         // Create new UsageStatistic class and start the update loop
-        UsageStatistic usage = new UsageStatistic();
+        usage = new UsageStatistic();
         localDB.updateStatisticsLoop(usage, 2, user.getId());
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -155,7 +158,6 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
 
             startActivity(returnToLoginIntent);
         }
-        user = userWithRecents.getUser();
 
         // Get all the Classes the User is in from Firebase
         CollectionReference classColRef = db.collection("class");
@@ -234,6 +236,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         Intent sendToClassDetails = new Intent(ClassList.this, ClassDetail.class);
         sendToClassDetails.putExtra("classJson", classJson);
         sendToClassDetails.putExtra("userId", user.getId());
+
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 2 because this is a Class Activity
+        localDB.updateStatistics(usage, 2, user.getId());
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
         startActivity(sendToClassDetails);
     }
 }

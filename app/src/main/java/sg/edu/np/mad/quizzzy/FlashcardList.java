@@ -76,6 +76,7 @@ public class FlashcardList extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 0 because this is a Flashcard Activity
                 localDB.updateStatistics(usage, 0, user.getId());
+                localDB.updateFlashcardsAccessed(usage, user.getId());
                 // Kills updateStatisticsLoop as we are switching to another activity.
                 usage.setActivityChanged(true);
 
@@ -92,6 +93,7 @@ public class FlashcardList extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 0 because this is a Flashcard Activity
                 localDB.updateStatistics(usage, 0, user.getId());
+                localDB.updateFlashcardsAccessed(usage, user.getId());
                 // Kills updateStatisticsLoop as we are switching to another activity.
                 usage.setActivityChanged(true);
 
@@ -148,8 +150,9 @@ public class FlashcardList extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 arrayIndex++;
+                usage.nextFlashcardAccessed();
+                Log.d("idk", "onClick: "+usage.getFlashcardsAccessed());
 
                 if (!isFront) {flip_card_anim();}
 
@@ -160,7 +163,6 @@ public class FlashcardList extends AppCompatActivity {
                     Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
                     arrayIndex = 0;
                 }
-
             }
         });
 
@@ -168,6 +170,8 @@ public class FlashcardList extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 arrayIndex--;
+                usage.nextFlashcardAccessed();
+                Log.d("idk1", "onClick: "+usage.getFlashcardsAccessed());
 
                 if (!isFront) {flip_card_anim();}
 
