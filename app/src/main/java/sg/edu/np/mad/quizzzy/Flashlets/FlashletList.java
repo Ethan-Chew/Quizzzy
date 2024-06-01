@@ -86,6 +86,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
@@ -118,6 +120,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
             }
@@ -130,6 +134,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             // Save statistics to SQLite DB before changing Activity.
             // timeType of 1 because this is a Flashlet Activity
             localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
 
             startActivity(returnToLoginIntent);
         }
@@ -146,6 +152,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 startActivity(createFlashcardIntent);
             }
@@ -170,6 +178,8 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                     // Save statistics to SQLite DB before changing Activity.
                     // timeType of 1 because this is a Flashlet Activity
                     localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                    // Kills updateStatisticsLoop as we are switching to another activity.
+                    usage.setActivityChanged(true);
 
                     startActivity(createFlashletIntent);
                 }

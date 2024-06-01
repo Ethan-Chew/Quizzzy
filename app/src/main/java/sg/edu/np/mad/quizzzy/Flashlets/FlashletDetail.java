@@ -90,6 +90,8 @@ public class FlashletDetail extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userId);
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
@@ -121,6 +123,8 @@ public class FlashletDetail extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userId);
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 FlashletDetail.this.getOnBackPressedDispatcher().onBackPressed();
             }
@@ -137,6 +141,8 @@ public class FlashletDetail extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userId);
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 startActivity(sendToEdit);
             }
@@ -160,6 +166,8 @@ public class FlashletDetail extends AppCompatActivity {
                 // Save statistics to SQLite DB before changing Activity.
                 // timeType of 1 because this is a Flashlet Activity
                 localDB.updateStatistics(usage, 1, userId);
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
 
                 startActivity(sendToStudyFlashcards);
             }
