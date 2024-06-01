@@ -41,6 +41,8 @@ import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
@@ -71,6 +73,14 @@ public class ClassDetail extends AppCompatActivity {
             return insets;
         });
 
+        // Add usage statistics to local SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassDetail.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 2, user.getId());
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
@@ -80,6 +90,11 @@ public class ClassDetail extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
@@ -130,6 +145,11 @@ public class ClassDetail extends AppCompatActivity {
             public void onClick(View v) {
                 Intent updateClassIntent = new Intent(ClassDetail.this, UpdateClass.class);
                 updateClassIntent.putExtra("classJson", gson.toJson(userClass));
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 startActivity(updateClassIntent);
             }
         });
@@ -141,6 +161,11 @@ public class ClassDetail extends AppCompatActivity {
                 Intent createFlashletIntent = new Intent(getApplicationContext(), CreateClassFlashlet.class);
                 createFlashletIntent.putExtra("classId", classId);
                 createFlashletIntent.putExtra("userId",userId);
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 startActivity(createFlashletIntent);
             }
         });
@@ -222,6 +247,11 @@ public class ClassDetail extends AppCompatActivity {
                                                                                                    Intent showFlashletDetail = new Intent(ClassDetail.this, FlashletDetail.class);
                                                                                                    showFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
                                                                                                    showFlashletDetail.putExtra("userId", userId);
+
+                                                                                                   // Save statistics to SQLite DB before changing Activity.
+                                                                                                   // timeType of 2 because this is a Class Activity
+                                                                                                   localDB.updateStatistics(usage, 2, user.getId());
+
                                                                                                    startActivity(showFlashletDetail);
                                                                                                }
                                                                                            });

@@ -41,9 +41,11 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
@@ -69,6 +71,14 @@ public class AddClass extends AppCompatActivity {
             return insets;
         });
 
+        // Add usage statistics to local SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(AddClass.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 2, user.getId());
+
         // Handle Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -79,6 +89,11 @@ public class AddClass extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
@@ -183,6 +198,10 @@ public class AddClass extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Void unused) {
                                         Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
+
+                                        // Save statistics to SQLite DB before changing Activity.
+                                        // timeType of 2 because this is a Class Activity
+                                        localDB.updateStatistics(usage, 2, user.getId());
 
                                         startActivity(new Intent(getApplicationContext(), ClassList.class));
                                     }

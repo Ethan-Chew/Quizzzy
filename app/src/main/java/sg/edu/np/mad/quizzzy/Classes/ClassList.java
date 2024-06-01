@@ -35,6 +35,7 @@ import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -60,6 +61,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             return insets;
         });
 
+        // Get User from SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
+        userWithRecents = localDB.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 2, user.getId());
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -70,6 +78,11 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
@@ -102,12 +115,14 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
 
         RecyclerView recyclerView = findViewById(R.id.cLRecyclerView);
 
-        // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
-        userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(ClassList.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 2 because this is a Class Activity
+            localDB.updateStatistics(usage, 2, user.getId());
+
             startActivity(returnToLoginIntent);
         }
         user = userWithRecents.getUser();
@@ -153,6 +168,11 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             public void onClick(View v) {
                 Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
                 createClassIntent.putExtra("userId", user.getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 startActivity(createClassIntent);
             }
         });
@@ -164,6 +184,11 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             public void onClick(View v) {
                 Intent createclassintent = new Intent(ClassList.this, AddClass.class);
                 createclassintent.putExtra("userId", user.getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 startActivity(createclassintent);
             }
         });

@@ -34,6 +34,8 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
@@ -57,6 +59,15 @@ public class UpdateClass extends AppCompatActivity {
             return insets;
         });
 
+        // Add usage statistics to local SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(UpdateClass.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 2, user.getId());
+
+
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.uCViewToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -76,6 +87,11 @@ public class UpdateClass extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
@@ -202,6 +218,11 @@ public class UpdateClass extends AppCompatActivity {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 Toast.makeText(UpdateClass.this, "Successfully Updated Class!", Toast.LENGTH_LONG).show();
+
+                                                                // Save statistics to SQLite DB before changing Activity.
+                                                                // timeType of 2 because this is a Class Activity
+                                                                localDB.updateStatistics(usage, 2, user.getId());
+
                                                                 // Once Delete is Successful, send user back to ClassList
                                                                 startActivity(new Intent(UpdateClass.this, ClassList.class));
                                                             }
