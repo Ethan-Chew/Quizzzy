@@ -2,6 +2,10 @@ package sg.edu.np.mad.quizzzy.Models;
 
 import java.util.ArrayList;
 
+/**
+ * <b>UserWithRecents</b> is an 'extension' of User, where it contains recentlyOpenedFlashlets.
+ * UserWithRecents is only used when getting data from the SQLite database as recentlyOpenedFlashlets is not saved in Firebase
+ * */
 public class UserWithRecents {
     private User user;
     private ArrayList<String> recentlyOpenedFlashlets;

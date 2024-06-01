@@ -2,13 +2,11 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +19,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.R;
@@ -29,14 +28,14 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Gson gson = new Gson();
 
-    private final ClassRecyclerInterface classRecyclerInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
     private ArrayList<UserClass> classes;
     private ClassList activity;
     private User user;
     boolean classOptionsclicked = false;
 
-    public ClassAdapter(ClassRecyclerInterface classRecyclerInterface, ClassList activity, ArrayList<UserClass> classes, User user) {
-        this.classRecyclerInterface = classRecyclerInterface;
+    public ClassAdapter(RecyclerViewInterface recyclerViewInterface, ClassList activity, ArrayList<UserClass> classes, User user) {
+        this.recyclerViewInterface = recyclerViewInterface;
         this.classes = classes;
         this.activity = activity;
         this.user = user;
@@ -46,7 +45,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassViewHolder>{
     @Override
     public ClassViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.class_list_item, parent, false);
-        return new ClassViewHolder(item, classRecyclerInterface);
+        return new ClassViewHolder(item, recyclerViewInterface);
     }
 
     @Override

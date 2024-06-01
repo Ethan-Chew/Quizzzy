@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,18 +34,22 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
-import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListRecyclerInterface;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
-public class FlashletList extends AppCompatActivity implements FlashletListRecyclerInterface {
+public class FlashletList extends AppCompatActivity implements RecyclerViewInterface {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
     UserWithRecents userWithRecents;
+    SQLiteManager localDB;
+    UsageStatistic usage;
     Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
@@ -62,6 +66,14 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             return insets;
         });
 
+        // Get User from SQLite DB
+        localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
+        userWithRecents = localDB.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, userWithRecents.getUser().getId());
+
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.flashlets);
@@ -72,6 +84,13 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
@@ -85,7 +104,7 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 } else if (itemId == R.id.flashlets) {
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
@@ -100,16 +119,46 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
 
-        // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletList.this);
-        userWithRecents = localDB.getUser();
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
+
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 1 because this is a Flashlet Activity
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
+
             startActivity(returnToLoginIntent);
         }
 
@@ -121,6 +170,13 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
                 Intent createFlashcardIntent = new Intent(FlashletList.this, CreateFlashlet.class);
                 createFlashcardIntent.putExtra("userId", userWithRecents.getUser().getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 startActivity(createFlashcardIntent);
             }
         });
@@ -140,6 +196,13 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
                 public void onClick(View v) {
                     Intent createFlashletIntent = new Intent(FlashletList.this, CreateFlashlet.class);
                     createFlashletIntent.putExtra("userId", userWithRecents.getUser().getId());
+
+                    // Save statistics to SQLite DB before changing Activity.
+                    // timeType of 1 because this is a Flashlet Activity
+                    localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                    // Kills updateStatisticsLoop as we are switching to another activity.
+                    usage.setActivityChanged(true);
+
                     startActivity(createFlashletIntent);
                 }
             });
@@ -180,6 +243,13 @@ public class FlashletList extends AppCompatActivity implements FlashletListRecyc
         String flashletJson = gson.toJson(userFlashlets.get(position));
         Intent sendToFlashletDetail = new Intent(FlashletList.this, FlashletDetail.class);
         sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
+
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 1 because this is a Flashlet Activity
+        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
         startActivity(sendToFlashletDetail);
     }
 }

@@ -1,13 +1,12 @@
 package sg.edu.np.mad.quizzzy.Flashlets.Recycler;
 
-import android.content.Intent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.R;
 
 public class FlashletListViewHolder extends RecyclerView.ViewHolder {
@@ -18,7 +17,7 @@ public class FlashletListViewHolder extends RecyclerView.ViewHolder {
     TextView lastUpdatedLabel;
     TextView optionsMenu;
 
-    public FlashletListViewHolder(View itemView, FlashletListRecyclerInterface flashletListRecyclerInterface) {
+    public FlashletListViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
 
         // Find item from View
@@ -31,11 +30,11 @@ public class FlashletListViewHolder extends RecyclerView.ViewHolder {
         // Set onClick of Flashlet List Container
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                if (flashletListRecyclerInterface != null) {
+                if (recyclerViewInterface != null) {
                     int pos = getAdapterPosition();
 
                     if (pos != RecyclerView.NO_POSITION) {
-                        flashletListRecyclerInterface.onItemClick(pos);
+                        recyclerViewInterface.onItemClick(pos);
                     }
                 }
             }

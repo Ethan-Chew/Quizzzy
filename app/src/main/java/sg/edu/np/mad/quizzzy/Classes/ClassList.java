@@ -2,12 +2,12 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -34,19 +33,24 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.MainActivity;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
-public class ClassList extends AppCompatActivity implements ClassRecyclerInterface {
+public class ClassList extends AppCompatActivity implements RecyclerViewInterface {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ArrayList<UserClass> classes = new ArrayList<UserClass>();
     Gson gson = new Gson();
+    SQLiteManager localDB;
     User user;
     UserWithRecents userWithRecents;
+    UsageStatistic usage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,14 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             return insets;
         });
 
+        // Get User from SQLite DB
+        localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
+        userWithRecents = localDB.getUser();
+        user = userWithRecents.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 2, user.getId());
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -69,6 +81,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 if (itemId == R.id.home) {
                     return true;
                 } else if (itemId == R.id.create) {
@@ -82,34 +101,62 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
             }
         });
 
-
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.cLViewToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 ClassList.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
 
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
+
         RecyclerView recyclerView = findViewById(R.id.cLRecyclerView);
 
-        // Get User from SQLite DB
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(ClassList.this);
-        userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
             Intent returnToLoginIntent = new Intent(ClassList.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 2 because this is a Class Activity
+            localDB.updateStatistics(usage, 2, user.getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
+
             startActivity(returnToLoginIntent);
         }
-        user = userWithRecents.getUser();
 
         // Get all the Classes the User is in from Firebase
         CollectionReference classColRef = db.collection("class");
@@ -152,6 +199,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             public void onClick(View v) {
                 Intent createClassIntent = new Intent(getApplicationContext(), AddClass.class);
                 createClassIntent.putExtra("userId", user.getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 startActivity(createClassIntent);
             }
         });
@@ -163,6 +217,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
             public void onClick(View v) {
                 Intent createclassintent = new Intent(ClassList.this, AddClass.class);
                 createclassintent.putExtra("userId", user.getId());
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 startActivity(createclassintent);
             }
         });
@@ -174,6 +235,13 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         Intent sendToClassDetails = new Intent(ClassList.this, ClassDetail.class);
         sendToClassDetails.putExtra("classJson", classJson);
         sendToClassDetails.putExtra("userId", user.getId());
+
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 2 because this is a Class Activity
+        localDB.updateStatistics(usage, 2, user.getId());
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
         startActivity(sendToClassDetails);
     }
 }

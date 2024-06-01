@@ -114,7 +114,7 @@ public class HomeActivity extends AppCompatActivity  {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
@@ -147,12 +147,9 @@ public class HomeActivity extends AppCompatActivity  {
                     public boolean onMenuItemClick(MenuItem item) {
                         int itemId = item.getItemId();
                         if (itemId == R.id.logout) {
-                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
                             localDB.dropUser(FirebaseAuth.getInstance().getUid());
                             FirebaseAuth.getInstance().signOut();
-                            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(HomeActivity.this, MainActivity.class));
                         }
                         return true;
                     }
@@ -161,6 +158,7 @@ public class HomeActivity extends AppCompatActivity  {
             }
         });
 
+        // Set the User's Username on the Header
         usernameView.setText(userWithRecents.getUser().getUsername());
 
         TextView showClassList = findViewById(R.id.hSClassList);
@@ -208,6 +206,7 @@ public class HomeActivity extends AppCompatActivity  {
                                     TextView nRVTitle = recentlyViewedView.findViewById(R.id.fRVTitle);
                                     nRVTitle.setText(flashlet.getTitle());
                                     TextView nRVDesc = recentlyViewedView.findViewById(R.id.fRVDescription);
+                                    nRVDesc.setText("Flashlet");
 
                                     recentlyViewedView.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -321,6 +320,11 @@ public class HomeActivity extends AppCompatActivity  {
     @Override
     protected void onResume() {
         super.onResume();
+
+        /*
+        * Everytime the page is brought back to the user's view, re-check the recentlyOpenedFlashlets
+        * If all recentlyOpenedFlashlet has been deleted, remove it from the view
+        * */
 
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
         userWithRecents = localDB.getUser();

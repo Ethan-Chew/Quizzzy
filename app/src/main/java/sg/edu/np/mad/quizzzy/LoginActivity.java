@@ -45,22 +45,28 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Configure Firebase Authenticator
         FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
 
+        // Get Respective Text Items on screen
         View loginBtn = findViewById(R.id.loginBtnLoginAct);
         EditText usernameView = findViewById(R.id.usernameField);
         EditText passwordView = findViewById(R.id.passwordField);
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+
+        // Detect when the user has pressed the Login Button
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = usernameView.getText().toString();
                 String password = passwordView.getText().toString();
 
+                // Ensures that the user's email and password field is not empty
                 if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Username or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else {
+                    // Send an Authentication request to Firebase Authentication
                     mAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -68,10 +74,12 @@ public class LoginActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                         DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
+                                        // Get the User's Data from Firebase under the 'Users' collection
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
+                                                    // Save the User to our SQLite (Local) Database
                                                     DocumentSnapshot document = task.getResult();
                                                     SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
                                                     String userJson = gson.toJson(document.getData());
@@ -81,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                     startActivity(homeScreenIntent);
                                                 } else {
-                                                    Log.d(TAG, "get failed with ", task.getException());
+                                                    Log.d(TAG, "Get user failed with ", task.getException());
                                                 }
                                             }
                                         });

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Flashlet {
     String id; // Unique UUID
     String title;
-    String description;
+    String description; // Description
     ArrayList<String> creatorId;
     String classId;
     ArrayList<Flashcard> flashcards;
