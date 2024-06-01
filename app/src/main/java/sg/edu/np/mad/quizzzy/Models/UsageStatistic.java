@@ -23,7 +23,7 @@ public class UsageStatistic {
     // Methods
     // Updates total time spent on activity
     public void updateTimeData() {
-        timeElapsed = (System.currentTimeMillis() - startTime) / 1000;
+        timeElapsed = (System.currentTimeMillis() - startTime) / 60000;
         startTime = System.currentTimeMillis();
     }
 

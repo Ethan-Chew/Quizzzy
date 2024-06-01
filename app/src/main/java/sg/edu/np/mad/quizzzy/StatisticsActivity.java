@@ -118,16 +118,16 @@ public class StatisticsActivity extends AppCompatActivity {
         TextView weekTotal = findViewById(R.id.statsWeekTotal);
         TextView weekAverage = findViewById(R.id.statsWeekAverage);
 
-        weekTotal.setText(String.valueOf(totalFlashcardUsage + totalFlashletUsage + totalClassUsage));
+        weekTotal.setText(String.valueOf(Math.floorDiv(totalFlashcardUsage + totalFlashletUsage + totalClassUsage, 60)));
         weekAverage.setText(String.valueOf(averageFlashcardUsage + averageFlashletUsage + averageClassUsage));
 
         TextView weekFlashcardTotal = findViewById(R.id.statsWeekTotalFlashcard);
         TextView weekFlashletTotal = findViewById(R.id.statsWeekTotalFlashlet);
         TextView weekClassTotal = findViewById(R.id.statsWeekTotalClass);
 
-        weekFlashcardTotal.setText(String.valueOf(totalFlashcardUsage));
-        weekFlashletTotal.setText(String.valueOf(totalFlashletUsage));
-        weekClassTotal.setText(String.valueOf(totalClassUsage));
+        weekFlashcardTotal.setText(String.valueOf(Math.floorDiv(totalFlashcardUsage, 60)));
+        weekFlashletTotal.setText(String.valueOf(Math.floorDiv(totalFlashletUsage, 60)));
+        weekClassTotal.setText(String.valueOf(Math.floorDiv(totalClassUsage, 60)));
 
         TextView weekFlashcardAvg = findViewById(R.id.statsWeekAvgFlashcard);
         TextView weekFlashletAvg = findViewById(R.id.statsWeekAvgFlashlet);
