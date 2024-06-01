@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -130,6 +131,26 @@ public class AddClass extends AppCompatActivity {
                 AddClass.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
+
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         addMemberBtn = findViewById(R.id.acadd_membersbtn);
         Button createClassbtn = findViewById(R.id.accreate_class);
