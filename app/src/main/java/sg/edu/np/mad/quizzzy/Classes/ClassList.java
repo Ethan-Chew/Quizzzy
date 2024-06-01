@@ -109,6 +109,10 @@ public class ClassList extends AppCompatActivity implements ClassRecyclerInterfa
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+
                 ClassList.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
