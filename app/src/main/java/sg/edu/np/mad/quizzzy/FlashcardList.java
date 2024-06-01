@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResult;
@@ -18,6 +19,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,6 +36,9 @@ import java.util.Collections;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
+import sg.edu.np.mad.quizzzy.Models.User;
 
 public class FlashcardList extends AppCompatActivity {
     Gson gson = new Gson();
@@ -55,14 +60,48 @@ public class FlashcardList extends AppCompatActivity {
             return insets;
         });
 
+        // Add Flashlet to SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashcardList.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 0, user.getId());
+
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.fCToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 0 because this is a Flashcard Activity
+                localDB.updateStatistics(usage, 0, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 finish();
             }
         });
+
+        // Handle Back Button Click
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Log.d("Backbutton", "handleOnBackPressed: pee");
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 0 because this is a Flashcard Activity
+                localDB.updateStatistics(usage, 0, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous page
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous page
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         flashcard_front = findViewById(R.id.flashcard_front);
         flashcard_back = findViewById(R.id.flashcard_back);
