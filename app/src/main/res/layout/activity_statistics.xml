@@ -34,7 +34,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/statsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -49,13 +48,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/statsTodayContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/statsTodayTotalContainer"
                     android:layout_width="match_parent"
                     android:layout_height="150sp"
                     android:layout_marginStart="25dp"
@@ -98,7 +95,150 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/statsTodayStatsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/list_item_background"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="25dp"
+                        android:layout_marginTop="15dp"
+                        android:text="Flashcards Viewed"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/statsTodayTotalContainer"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:background="@drawable/list_item_background"
+                        android:orientation="horizontal"
+                        android:paddingLeft="15sp"
+                        android:paddingRight="15sp"
+                        android:paddingBottom="15sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="@drawable/list_item_background"
+                            android:orientation="vertical"
+                            android:paddingLeft="15sp"
+                            android:paddingRight="15sp"
+                            android:paddingBottom="15sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent">
+
+                            <TextView
+                                android:id="@+id/statsFlashcardToday"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="36sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Today"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="@drawable/list_item_background"
+                            android:orientation="vertical"
+                            android:paddingLeft="15sp"
+                            android:paddingRight="15sp"
+                            android:paddingBottom="15sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent">
+
+                            <TextView
+                                android:id="@+id/statsFlashcardWeekTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="36sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Weekly Total"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="@drawable/list_item_background"
+                            android:orientation="vertical"
+                            android:paddingLeft="15sp"
+                            android:paddingRight="15sp"
+                            android:paddingBottom="15sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent">
+
+                            <TextView
+                                android:id="@+id/statsFlashcardWeekAverage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="36sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Weekly Avg."
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
@@ -139,9 +279,8 @@
                         app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
 
                         <LinearLayout
-                            android:id="@+id/statsTodayFlashcardContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -149,7 +288,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -159,8 +297,7 @@
                             <TextView
                                 android:id="@+id/statsTodayFlashcard"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -169,9 +306,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashcard"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -180,9 +315,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsTodayFlashletContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -190,7 +324,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -200,8 +333,8 @@
                             <TextView
                                 android:id="@+id/statsTodayFlashlet"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
+
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -210,9 +343,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashlet"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -221,9 +352,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsTodayClassContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -231,7 +361,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -241,8 +370,7 @@
                             <TextView
                                 android:id="@+id/statsTodayClass"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -251,9 +379,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Classes"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -262,16 +388,8 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/statsWeekContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/statsWeekTotalContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
@@ -340,7 +458,6 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
                                 android:text="Total"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -378,7 +495,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:layout_marginTop="5dp"
                                 android:text="Average"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -389,7 +505,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/statsWeekStatsTotalContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
@@ -430,9 +545,8 @@
                         app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
 
                         <LinearLayout
-                            android:id="@+id/statsWeekTotalFlashcardContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -440,7 +554,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -450,8 +563,7 @@
                             <TextView
                                 android:id="@+id/statsWeekTotalFlashcard"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -460,9 +572,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashcard"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -471,9 +581,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsWeekTotalFlashletContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -481,7 +590,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -491,8 +599,7 @@
                             <TextView
                                 android:id="@+id/statsWeekTotalFlashlet"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -501,9 +608,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashlet"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -512,9 +617,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsWeekTotalClassContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -522,7 +626,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -532,8 +635,7 @@
                             <TextView
                                 android:id="@+id/statsWeekTotalClass"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -542,9 +644,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Classes"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -555,7 +655,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/statsWeekStatsAvgContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
@@ -596,9 +695,8 @@
                         app:layout_constraintTop_toBottomOf="@+id/statsTodayTotalContainer">
 
                         <LinearLayout
-                            android:id="@+id/statsWeekAvgFlashcardContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -606,7 +704,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -616,8 +713,7 @@
                             <TextView
                                 android:id="@+id/statsWeekAvgFlashcard"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -626,9 +722,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashcard"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -637,9 +731,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsWeekAvgFlashletContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -647,7 +740,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -657,8 +749,7 @@
                             <TextView
                                 android:id="@+id/statsWeekAvgFlashlet"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -667,9 +758,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Flashlet"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -678,9 +767,8 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/statsWeekAvgClassContainer"
                             android:layout_width="0dp"
-                            android:layout_height="100sp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
@@ -688,7 +776,6 @@
                             android:background="@drawable/list_item_background"
                             android:orientation="vertical"
                             android:paddingLeft="15sp"
-                            android:paddingTop="15sp"
                             android:paddingRight="15sp"
                             android:paddingBottom="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -698,8 +785,7 @@
                             <TextView
                                 android:id="@+id/statsWeekAvgClass"
                                 android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="4"
+                                android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
@@ -708,9 +794,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"
                                 android:text="Classes"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
