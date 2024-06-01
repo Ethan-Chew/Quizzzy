@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -49,9 +50,11 @@ import sg.edu.np.mad.quizzzy.LoginActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class CreateClassFlashlet extends AppCompatActivity {
     // Initialisation of Firebase Cloud Firestore
@@ -87,14 +90,48 @@ public class CreateClassFlashlet extends AppCompatActivity {
             return insets;
         });
 
+        // Add Flashlet to SQLite DB
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateClassFlashlet.this);
+        User user = localDB.getUser().getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        UsageStatistic usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, user.getId());
+
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.cFToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 CreateClassFlashlet.this.getOnBackPressedDispatcher().onBackPressed();
             }
         });
+
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -106,6 +143,13 @@ public class CreateClassFlashlet extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
@@ -117,7 +161,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
-                    // TODO: Integrate Darius's Part
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
                     return true;
                 }
                 return false;
@@ -212,9 +256,6 @@ public class CreateClassFlashlet extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                // Add Flashlet to SQLite DB
-                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateClassFlashlet.this);
-                                User user = localDB.getUser().getUser();
                                 CollectionReference docRef = db.collection("class");
                                 docRef.whereIn("id", Collections.singletonList(classId)).get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -240,6 +281,13 @@ public class CreateClassFlashlet extends AppCompatActivity {
                                                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
                                                                 // Send User back to class Page
                                                                 Intent flashletListIntent = new Intent(CreateClassFlashlet.this, ClassDetail.class);
+
+                                                                // Save statistics to SQLite DB before changing Activity.
+                                                                // timeType of 1 because this is a Flashlet Activity
+                                                                localDB.updateStatistics(usage, 1, user.getId());
+                                                                // Kills updateStatisticsLoop as we are switching to another activity.
+                                                                usage.setActivityChanged(true);
+
                                                                 startActivity(flashletListIntent);
                                                             }
                                                         });
