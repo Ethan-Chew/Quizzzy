@@ -11,4 +11,5 @@
     <color name="light_blue_900">#FF01579B</color>
     <color name="mediumPurple">#9874D3</color>
     <color name="darkPurple">#614A88</color>
+    <color name="bgPurple">#9874D3</color>
 </resources>
