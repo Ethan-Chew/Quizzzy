@@ -54,7 +54,6 @@ public class FlashletDetail extends AppCompatActivity {
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
