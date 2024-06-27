@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,6 +41,7 @@ import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class UpdateFlashlet extends AppCompatActivity {
@@ -54,6 +56,7 @@ public class UpdateFlashlet extends AppCompatActivity {
     Button addNewFlashcard;
     Button updateFlashletBtn;
     EditText updateFlashletTitle;
+    Switch isFlashletPublicSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,10 +96,8 @@ public class UpdateFlashlet extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -105,6 +106,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
@@ -153,6 +155,8 @@ public class UpdateFlashlet extends AppCompatActivity {
         // Update UI Fields according to Loaded Flashlet
         updateFlashletTitle = findViewById(R.id.uFTitle);
         updateFlashletTitle.setText(flashlet.getTitle());
+        isFlashletPublicSwitch = findViewById(R.id.uFIsPublicSwitch);
+        isFlashletPublicSwitch.setChecked(flashlet.getIsPublic());
 
         /// Populate existing list of Flashcards in Flashlet
         flashcardListView = findViewById(R.id.uFFlashcardList);

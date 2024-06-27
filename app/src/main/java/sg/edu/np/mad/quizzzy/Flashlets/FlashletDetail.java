@@ -38,6 +38,7 @@ import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -99,10 +100,8 @@ public class FlashletDetail extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -111,6 +110,7 @@ public class FlashletDetail extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;

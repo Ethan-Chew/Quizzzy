@@ -53,6 +53,7 @@ import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 /** <strong>Home Screen</strong> <br/>
  * Once Logged In, the User will be able to view their Recently Viewed Flashlets, Created Flashlets, and access the list of Classes <br/>
@@ -103,10 +104,8 @@ public class HomeActivity extends AppCompatActivity  {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.home) {
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -115,6 +114,7 @@ public class HomeActivity extends AppCompatActivity  {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;

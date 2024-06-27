@@ -5,9 +5,9 @@
         android:title="Home"
         android:icon="@drawable/home"/>
     <item
-        android:id="@+id/create"
-        android:title="Create"
-        android:icon="@drawable/create"/>
+        android:id="@+id/search"
+        android:title="Search"
+        android:icon="@drawable/magnifyingglass"/>
     <item
         android:id="@+id/flashlets"
         android:icon="@drawable/menucard"

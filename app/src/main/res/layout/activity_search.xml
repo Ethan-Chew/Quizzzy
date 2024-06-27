@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/aSConstrainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity">
+    tools:context=".Search.SearchActivity">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/aSSearchHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/search_screen_header_background"
@@ -22,7 +22,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="80dp"
             android:layout_marginBottom="30dp"
             android:text="Explore Flashlets &amp; Users"
             android:textColor="@color/white"
@@ -30,60 +30,112 @@
             android:textStyle="bold" />
 
         <SearchView
-            android:id="@+id/aCSearchField"
+            android:id="@+id/aSSearchField"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/search_bar_background" />
-
-        <Button
-            android:id="@+id/aCSearchBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="Search" />
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/search_bar_background"
+            android:queryHint="Search for a Flashlet or User" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/acRecentsListContainer"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/aSResultsTabBar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintTop_toBottomOf="@+id/aSSearchHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flashlets" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Users" />
+    </com.google.android.material.tabs.TabLayout>
+    
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/aSResultsViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="vertical">
+        app:layout_constraintTop_toBottomOf="@id/aSResultsTabBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/aSSearchHeader"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
         <LinearLayout
+            android:id="@+id/aSRecentsListContainer"
+            android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="Recents"
-                android:textColor="@color/offsetBlack"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/aSClearRecentsTxt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Clear all"
-                android:textSize="16sp"
-                android:textColor="@color/bgPurple"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Recents"
+                    android:textColor="@color/offsetBlack"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/aSClearRecentsTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear all"
+                    android:textSize="16sp"
+                    android:textColor="@color/bgPurple"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/aSRecentsList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:src="@drawable/sad_face" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="You have no recent searches!"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+            </LinearLayout>
         </LinearLayout>
-
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
@@ -96,4 +148,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
