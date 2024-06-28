@@ -3,6 +3,9 @@ package sg.edu.np.mad.quizzzy.Search;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SearchView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,22 +15,32 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.ArrayList;
+
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
+import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
+import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface {
 
     // Search Result Items
     private TabLayout searchResultTabs;
     private ViewPager2 searchResultViewPager;
+    private LinearLayout noRecentsContainer;
+    private RecyclerView recentsContainer;
     private SearchAdapter searchAdapter;
     private SearchView searchView;
 
@@ -72,11 +85,31 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
+        // Initialise SQLite Database
+        SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
+        ArrayList<String> recentSearches = localDB.getSearchQueries();
+
+        /// Hide Search Result Container
+        searchResultTabs.setVisibility(View.GONE);
+        searchResultViewPager.setVisibility(View.GONE);
+
+        /// Display list of Recents or 'No Recent Searches'
+        noRecentsContainer = findViewById(R.id.aSNoRecentsList);
+        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+        if (recentSearches.isEmpty()) {
+            recentsContainer.setVisibility(View.GONE);
+        } else {
+            noRecentsContainer.setVisibility(View.GONE);
+        }
+
         // Handle Search View Searches
         searchView = findViewById(R.id.aSSearchField);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if (!recentSearches.contains(query)) {
+                    localDB.addSearchQueries(query);
+                }
                 return false;
             }
 
@@ -117,5 +150,27 @@ public class SearchActivity extends AppCompatActivity {
                 searchResultTabs.selectTab(searchResultTabs.getTabAt(position));
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Update Recent RecyclerView with Items
+        SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
+        ArrayList<String> recentSearches = localDB.getSearchQueries();
+
+        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+        RecentSearchesAdapter searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        recentsContainer.setLayoutManager(layoutManager);
+        recentsContainer.setItemAnimator(new DefaultItemAnimator());
+        recentsContainer.setAdapter(searchesAdapter);
+    }
+
+    // Handle Recent RecyclerView Item onClick
+    @Override
+    public void onItemClick(int position) {
+        // TODO
     }
 }

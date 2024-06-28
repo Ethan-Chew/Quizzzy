@@ -107,12 +107,13 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <ListView
-                android:id="@+id/aSRecentsList"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/aSRecentsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <LinearLayout
+                android:id="@+id/aSNoRecentsList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
