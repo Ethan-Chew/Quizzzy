@@ -25,7 +25,8 @@
         android:textSize="20sp" />
 
     <ImageView
+        android:id="@+id/rSRRemove"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:srcCompat="@drawable/linkage_arrow" />
+        app:srcCompat="@drawable/cancel" />
 </LinearLayout>

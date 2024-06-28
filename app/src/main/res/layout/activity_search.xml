@@ -22,7 +22,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="60dp"
             android:layout_marginBottom="30dp"
             android:text="Explore Flashlets &amp; Users"
             android:textColor="@color/white"

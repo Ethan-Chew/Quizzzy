@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
@@ -69,5 +70,14 @@ public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
     public void dropSearchQuery(String query) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, SEARCH_QUERY + " =? ", new String[]{ query });
+    }
+
+    public void dropAllSearchQuery() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ArrayList<String> searchQueries = getSearchQueries();
+
+        for (String query : searchQueries) {
+            dropSearchQuery(query);
+        }
     }
 }

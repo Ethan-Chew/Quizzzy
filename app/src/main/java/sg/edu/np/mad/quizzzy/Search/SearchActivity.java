@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,21 +22,30 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
+import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
+import sg.edu.np.mad.quizzzy.Models.SearchResult;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
-public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface {
+public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnEmptyListener {
 
     // Search Result Items
     private TabLayout searchResultTabs;
@@ -43,6 +54,10 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     private RecyclerView recentsContainer;
     private SearchAdapter searchAdapter;
     private SearchView searchView;
+    private TextView clearAllRecents;
+
+    // Initialisation of Firebase Cloud Firestore
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,17 +105,13 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         ArrayList<String> recentSearches = localDB.getSearchQueries();
 
         /// Hide Search Result Container
+        searchResultTabs = findViewById(R.id.aSResultsTabBar);
+        searchResultViewPager = findViewById(R.id.aSResultsViewPager);
         searchResultTabs.setVisibility(View.GONE);
         searchResultViewPager.setVisibility(View.GONE);
 
         /// Display list of Recents or 'No Recent Searches'
-        noRecentsContainer = findViewById(R.id.aSNoRecentsList);
-        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
-        if (recentSearches.isEmpty()) {
-            recentsContainer.setVisibility(View.GONE);
-        } else {
-            noRecentsContainer.setVisibility(View.GONE);
-        }
+        onResume();
 
         // Handle Search View Searches
         searchView = findViewById(R.id.aSSearchField);
@@ -110,12 +121,23 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                 if (!recentSearches.contains(query)) {
                     localDB.addSearchQueries(query);
                 }
+                onResume();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
+            }
+        });
+
+        // Handle Clear All Recently Searched
+        clearAllRecents = findViewById(R.id.aSClearRecentsTxt);
+        clearAllRecents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                localDB.dropAllSearchQuery();
+                onResume();
             }
         });
 
@@ -160,17 +182,83 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
         ArrayList<String> recentSearches = localDB.getSearchQueries();
 
+        noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
-        RecentSearchesAdapter searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches);
+        if (recentSearches.isEmpty()) {
+            noRecentsContainer.setVisibility(View.VISIBLE);
+            recentsContainer.setVisibility(View.GONE);
+        } else {
+            noRecentsContainer.setVisibility(View.GONE);
+        }
+
+        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+        RecentSearchesAdapter searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
         recentsContainer.setLayoutManager(layoutManager);
         recentsContainer.setItemAnimator(new DefaultItemAnimator());
         recentsContainer.setAdapter(searchesAdapter);
     }
 
+    // Handle Search Results
+    protected SearchResult retrieveSearchResults(String searchQuery) {
+        CollectionReference flashletColRef = db.collection("flashlets");
+        CollectionReference usersColRef = db.collection("users");
+
+        SearchResult searchResult = new SearchResult();
+
+        flashletColRef
+                .whereGreaterThanOrEqualTo("title", searchQuery)
+                .whereLessThanOrEqualTo("title", searchQuery + "\uf8ff")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Flashlet flashlet = document.toObject(Flashlet.class);
+                                flashletList.add(flashlet);
+                            }
+                            searchResult.setFlashlets(flashletList);
+
+                            usersColRef
+                                    .whereGreaterThanOrEqualTo("username", searchQuery)
+                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                ArrayList<User> usersList = new ArrayList<User>();
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    User user = document.toObject(User.class);
+                                                    usersList.add(user);
+                                                }
+                                                searchResult.setUsers(usersList);
+
+                                                return searchResult;
+                                            } else {
+                                                Toast.makeText(SearchActivity.this, "Search failed :(, try again later.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Toast.makeText(SearchActivity.this, "Search failed :(, try again later.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     // Handle Recent RecyclerView Item onClick
     @Override
     public void onItemClick(int position) {
         // TODO
+    }
+
+    // Handle Recent List Empty
+    @Override
+    public void isRecentsEmpty(Boolean isEmpty) {
+        if (isEmpty) {
+            noRecentsContainer.setVisibility(View.VISIBLE);
+            recentsContainer.setVisibility(View.GONE);
+        }
     }
 }
