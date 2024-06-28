@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.Models.SearchResult;
@@ -44,6 +45,11 @@ import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
+
+interface OnSearchEventListener {
+    void onSearchResult(SearchResult searchResult);
+    void onError(Exception err);
+}
 
 public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnEmptyListener {
 
@@ -122,6 +128,19 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     localDB.addSearchQueries(query);
                 }
                 onResume();
+
+                retrieveSearchResults(query, new OnSearchEventListener() {
+                    @Override
+                    public void onSearchResult(SearchResult searchResult) {
+                        searchResultTabs.setVisibility(View.VISIBLE);
+                        searchResultViewPager.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onError(Exception err) {
+                        Toast.makeText(getApplicationContext(), "Error Searching :(, try again later.", Toast.LENGTH_LONG).show();
+                    }
+                });
                 return false;
             }
 
@@ -200,7 +219,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
     // Handle Search Results
-    protected SearchResult retrieveSearchResults(String searchQuery) {
+    protected void retrieveSearchResults(String searchQuery, OnSearchEventListener callback) {
         CollectionReference flashletColRef = db.collection("flashlets");
         CollectionReference usersColRef = db.collection("users");
 
@@ -213,38 +232,80 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            ArrayList<String> flashletIdList = new ArrayList<String>();
                             ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Flashlet flashlet = document.toObject(Flashlet.class);
                                 flashletList.add(flashlet);
+                                flashletIdList.add(flashlet.getId());
                             }
-                            searchResult.setFlashlets(flashletList);
 
-                            usersColRef
-                                    .whereGreaterThanOrEqualTo("username", searchQuery)
-                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
-                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                ArrayList<User> usersList = new ArrayList<User>();
-                                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                                    User user = document.toObject(User.class);
-                                                    usersList.add(user);
+                            usersColRef.whereIn("id", flashletIdList).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        ArrayList<User> users = new ArrayList<User>();
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            User user = document.toObject(User.class);
+                                            users.add(user);
+                                        }
+
+                                        // Add User ID and Username to FlashletId
+                                        ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
+                                        for (int i = 0; i < flashletList.size(); i++) {
+                                            for (int j = 0; j < flashletList.size(); j++) {
+                                                if (users.get(j).getId() == flashletList.get(i).getCreatorID()) {
+                                                    flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
+                                                    break;
                                                 }
-                                                searchResult.setUsers(usersList);
-
-                                                return searchResult;
-                                            } else {
-                                                Toast.makeText(SearchActivity.this, "Search failed :(, try again later.", Toast.LENGTH_SHORT).show();
                                             }
                                         }
-                                    });
+                                        searchResult.setFlashlets(flashletWithUsernames);
+
+                                        // Query the Users
+                                        usersColRef
+                                                .whereGreaterThanOrEqualTo("username", searchQuery)
+                                                .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            ArrayList<User> usersList = new ArrayList<User>();
+                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                User user = document.toObject(User.class);
+                                                                usersList.add(user);
+                                                            }
+                                                            searchResult.setUsers(usersList);
+
+                                                            callback.onSearchResult(searchResult);
+                                                        } else {
+                                                            callback.onError(task.getException());
+                                                        }
+                                                    }
+                                                });
+                                    } else {
+                                        callback.onError(task.getException());
+                                    }
+                                }
+                            });
                         } else {
-                            Toast.makeText(SearchActivity.this, "Search failed :(, try again later.", Toast.LENGTH_SHORT).show();
+                            callback.onError(task.getException());
                         }
                     }
                 });
+    }
+
+    // Handle Search Results, and display on screen
+    protected void displaySearchResults(SearchResult searchResult) {
+        // Hide Recents Container
+        noRecentsContainer.setVisibility(View.GONE);
+        recentsContainer.setVisibility(View.GONE);
+
+
+
+        // Display Search Result Tabs and View Pager
+        searchResultTabs.setVisibility(View.VISIBLE);
+        searchResultViewPager.setVisibility(View.VISIBLE);
     }
 
     // Handle Recent RecyclerView Item onClick
