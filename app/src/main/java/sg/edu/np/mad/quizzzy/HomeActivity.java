@@ -52,6 +52,7 @@ import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
@@ -123,6 +124,7 @@ public class HomeActivity extends AppCompatActivity  {
 
         // Get User from SQLite
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
+        SQLiteRecentSearchesManager recentSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(HomeActivity.this);
         userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
         if (userWithRecents == null) {
@@ -148,6 +150,7 @@ public class HomeActivity extends AppCompatActivity  {
                         int itemId = item.getItemId();
                         if (itemId == R.id.logout) {
                             localDB.dropUser(FirebaseAuth.getInstance().getUid());
+                            recentSearchesDB.dropAllSearchQuery();
                             FirebaseAuth.getInstance().signOut();
                             startActivity(new Intent(HomeActivity.this, MainActivity.class));
                         }

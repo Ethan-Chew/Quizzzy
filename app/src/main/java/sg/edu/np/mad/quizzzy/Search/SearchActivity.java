@@ -36,6 +36,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
@@ -65,6 +66,9 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     private SearchAdapter searchAdapter;
     private SearchView searchView;
     private TextView clearAllRecents;
+
+    // Global Data
+    private ArrayList<String> recentSearches = new ArrayList<String>();
 
     Gson gson = new Gson();
 
@@ -205,7 +209,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Update Recent RecyclerView with Items
         SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
-        ArrayList<String> recentSearches = localDB.getSearchQueries();
+        recentSearches = localDB.getSearchQueries();
 
         noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
@@ -238,16 +242,18 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            ArrayList<String> flashletIdList = new ArrayList<String>();
+                            ArrayList<String> flashletOwnerId = new ArrayList<String>();
                             ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String flashletJson = gson.toJson(document.getData());
                                 Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
-                                flashletList.add(flashlet);
-                                flashletIdList.add(flashlet.getId());
+                                if (flashlet.getIsPublic()) {
+                                    flashletList.add(flashlet);
+                                    flashletOwnerId.add(flashlet.getCreatorID());
+                                }
                             }
 
-                            if (flashletIdList.isEmpty()) {
+                            if (flashletOwnerId.isEmpty()) {
                                 // Query the Users
                                 usersColRef
                                         .whereGreaterThanOrEqualTo("username", searchQuery)
@@ -270,21 +276,20 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                             }
                                         });
                             } else {
-                                usersColRef.whereIn("id", flashletIdList).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                usersColRef.whereIn("id", flashletOwnerId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         if (task.isSuccessful()) {
                                             ArrayList<User> users = new ArrayList<User>();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                                User user = document.toObject(User.class);
-                                                users.add(user);
+                                                String userJson = gson.toJson(document.getData());
+                                                users.add(gson.fromJson(userJson, User.class));
                                             }
-
                                             // Add User ID and Username to FlashletId
                                             ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
                                             for (int i = 0; i < flashletList.size(); i++) {
                                                 for (int j = 0; j < flashletList.size(); j++) {
-                                                    if (users.get(j).getId() == flashletList.get(i).getCreatorID()) {
+                                                    if (Objects.equals(users.get(j).getId(), flashletList.get(i).getCreatorID())) {
                                                         flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
                                                         break;
                                                     }
@@ -342,7 +347,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     // Handle Recent RecyclerView Item onClick
     @Override
     public void onItemClick(int position) {
-//        searchView.setQuery();
+        searchView.setQuery(recentSearches.get(position), true);
     }
 
     // Handle Recent List Empty

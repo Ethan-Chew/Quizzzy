@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy.Search;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +22,12 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
+import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedFlashletsAdapter;
 
@@ -30,6 +36,8 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     RecyclerView flashletRecyclerView;
     LinearLayout noRelatedSearchesContainer;
     Gson gson = new Gson();
+    ArrayList<FlashletWithUsername> flashlets = new ArrayList<FlashletWithUsername>();
+    UserWithRecents currentUser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,11 +49,15 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Get Current Logged in User
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(getActivity());
+        currentUser = localDB.getUser();
+
         // Get Data from Fragment Bundle
         Bundle args = getArguments();
         Type ArrayOfFlashletsType = new TypeToken<ArrayList<FlashletWithUsername>>(){}.getType();
         String flashletJson = args.getString("searchedFlashlets");
-        ArrayList<FlashletWithUsername> flashlets = gson.fromJson(flashletJson, ArrayOfFlashletsType);
+        flashlets = gson.fromJson(flashletJson, ArrayOfFlashletsType);
 
         noRelatedSearchesContainer = getView().findViewById(R.id.fSFNoResultsInfo);
         if (flashlets.isEmpty()) {
@@ -62,6 +74,12 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
 
     @Override
     public void onItemClick(int position) {
-        // TODO
+        FlashletWithUsername flashlet = flashlets.get(position);
+        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);
+        Log.d("HAWESFRGUDijfrsgbdf", gson.toJson(flashlet));
+        sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
+        sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());
+
+        startActivity(sendToFlashletDetail);
     }
 }

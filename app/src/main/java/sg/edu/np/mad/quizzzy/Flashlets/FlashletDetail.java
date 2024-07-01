@@ -29,6 +29,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
@@ -154,21 +155,34 @@ public class FlashletDetail extends AppCompatActivity {
 
         // Handle Edit Button Pressed
         ImageView editFlashletBtn = findViewById(R.id.fDEditOption);
-        editFlashletBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
-                sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
+        /// If User ID does not match the Owner of the Flashlet, disable editing
+        if (!Objects.equals(userId, flashlet.getCreatorID())) {
+            editFlashletBtn.setBackgroundResource(R.drawable.clone_icon);
+            /// Handle clone onClick
+            editFlashletBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userId);
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
+                }
+            });
+        } else {
+            /// Handle edit onClick
+            editFlashletBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
+                    sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
 
-                startActivity(sendToEdit);
-            }
-        });
+                    // Save statistics to SQLite DB before changing Activity.
+                    // timeType of 1 because this is a Flashlet Activity
+                    localDB.updateStatistics(usage, 1, userId);
+                    // Kills updateStatisticsLoop as we are switching to another activity.
+                    usage.setActivityChanged(true);
+
+                    startActivity(sendToEdit);
+                }
+            });
+        }
 
         // Find View Components
         flashletTitleLbl = findViewById(R.id.fDFlashletTitle);
