@@ -28,7 +28,7 @@ public class SearchResult {
     }
 
     public SearchResult() {
-        this.flashlets = null;
-        this.users = null;
+        this.flashlets = new ArrayList<FlashletWithUsername>();
+        this.users = new ArrayList<User>();
     }
 }

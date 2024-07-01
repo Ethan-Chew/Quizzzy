@@ -48,11 +48,13 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/aSTabFlashlets"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Flashlets" />
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/aSTabUsers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Users" />
@@ -69,6 +71,7 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
 
     <ScrollView
+        android:id="@+id/aSRecentsListContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="20dp"
@@ -77,7 +80,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         <LinearLayout
-            android:id="@+id/aSRecentsListContainer"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">

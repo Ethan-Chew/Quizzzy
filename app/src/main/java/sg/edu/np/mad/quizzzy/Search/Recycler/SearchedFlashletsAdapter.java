@@ -18,8 +18,9 @@ public class SearchedFlashletsAdapter extends RecyclerView.Adapter<SearchedFlash
     private final RecyclerViewInterface recyclerViewInterface;
     private ArrayList<FlashletWithUsername> flashlets;
 
-    public SearchedFlashletsAdapter(RecyclerViewInterface recyclerViewInterface) {
+    public SearchedFlashletsAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<FlashletWithUsername> flashlets) {
         this.recyclerViewInterface = recyclerViewInterface;
+        this.flashlets = flashlets;
     }
 
     @NonNull
@@ -32,11 +33,17 @@ public class SearchedFlashletsAdapter extends RecyclerView.Adapter<SearchedFlash
 
     @Override
     public void onBindViewHolder(@NonNull SearchedFlashletsViewHolder holder, int position) {
+        FlashletWithUsername flashletListItem = flashlets.get(position);
 
+        // Set Text of Elements on the UI
+        holder.flashletTitleLabel.setText(flashletListItem.getFlashlet().getTitle());
+        String flashletCountText = flashletListItem.getFlashlet().getFlashcards().size() + " Flashcards";
+        holder.flashcardCountLabel.setText(flashletCountText);
+        holder.ownerUsernameLabel.setText(flashletListItem.getOwnerUsername());
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return flashlets.size();
     }
 }

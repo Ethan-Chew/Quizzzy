@@ -2,10 +2,12 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -56,11 +59,14 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     // Search Result Items
     private TabLayout searchResultTabs;
     private ViewPager2 searchResultViewPager;
+    private ScrollView recentsListContainer;
     private LinearLayout noRecentsContainer;
     private RecyclerView recentsContainer;
     private SearchAdapter searchAdapter;
     private SearchView searchView;
     private TextView clearAllRecents;
+
+    Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -108,9 +114,9 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Initialise SQLite Database
         SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
-        ArrayList<String> recentSearches = localDB.getSearchQueries();
 
         /// Hide Search Result Container
+        recentsListContainer = findViewById(R.id.aSRecentsListContainer);
         searchResultTabs = findViewById(R.id.aSResultsTabBar);
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
         searchResultTabs.setVisibility(View.GONE);
@@ -121,10 +127,12 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Handle Search View Searches
         searchView = findViewById(R.id.aSSearchField);
+        searchResultTabs = findViewById(R.id.aSResultsTabBar);
+        searchResultViewPager = findViewById(R.id.aSResultsViewPager);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!recentSearches.contains(query)) {
+                if (!localDB.getSearchQueries().contains(query)) {
                     localDB.addSearchQueries(query);
                 }
                 onResume();
@@ -134,6 +142,11 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     public void onSearchResult(SearchResult searchResult) {
                         searchResultTabs.setVisibility(View.VISIBLE);
                         searchResultViewPager.setVisibility(View.VISIBLE);
+                        recentsListContainer.setVisibility(View.GONE);
+
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        searchAdapter = new SearchAdapter(fragmentManager, getLifecycle(), searchResult);
+                        searchResultViewPager.setAdapter(searchAdapter);
                     }
 
                     @Override
@@ -161,13 +174,6 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         });
 
         // Handle Search Result Pages
-        searchResultTabs = findViewById(R.id.aSResultsTabBar);
-        searchResultViewPager = findViewById(R.id.aSResultsViewPager);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        searchAdapter = new SearchAdapter(fragmentManager, getLifecycle());
-        searchResultViewPager.setAdapter(searchAdapter);
-
         searchResultTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -235,59 +241,84 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                             ArrayList<String> flashletIdList = new ArrayList<String>();
                             ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Flashlet flashlet = document.toObject(Flashlet.class);
+                                String flashletJson = gson.toJson(document.getData());
+                                Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
                                 flashletList.add(flashlet);
                                 flashletIdList.add(flashlet.getId());
                             }
 
-                            usersColRef.whereIn("id", flashletIdList).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        ArrayList<User> users = new ArrayList<User>();
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            User user = document.toObject(User.class);
-                                            users.add(user);
-                                        }
+                            if (flashletIdList.isEmpty()) {
+                                // Query the Users
+                                usersColRef
+                                        .whereGreaterThanOrEqualTo("username", searchQuery)
+                                        .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    ArrayList<User> usersList = new ArrayList<User>();
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        String userJson = gson.toJson(document.getData());
+                                                        usersList.add(gson.fromJson(userJson, User.class));
+                                                    }
+                                                    searchResult.setUsers(usersList);
 
-                                        // Add User ID and Username to FlashletId
-                                        ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
-                                        for (int i = 0; i < flashletList.size(); i++) {
-                                            for (int j = 0; j < flashletList.size(); j++) {
-                                                if (users.get(j).getId() == flashletList.get(i).getCreatorID()) {
-                                                    flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
-                                                    break;
+                                                    callback.onSearchResult(searchResult);
+                                                } else {
+                                                    callback.onError(task.getException());
                                                 }
                                             }
-                                        }
-                                        searchResult.setFlashlets(flashletWithUsernames);
+                                        });
+                            } else {
+                                usersColRef.whereIn("id", flashletIdList).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            ArrayList<User> users = new ArrayList<User>();
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                User user = document.toObject(User.class);
+                                                users.add(user);
+                                            }
 
-                                        // Query the Users
-                                        usersColRef
-                                                .whereGreaterThanOrEqualTo("username", searchQuery)
-                                                .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
-                                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            ArrayList<User> usersList = new ArrayList<User>();
-                                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                User user = document.toObject(User.class);
-                                                                usersList.add(user);
-                                                            }
-                                                            searchResult.setUsers(usersList);
-
-                                                            callback.onSearchResult(searchResult);
-                                                        } else {
-                                                            callback.onError(task.getException());
-                                                        }
+                                            // Add User ID and Username to FlashletId
+                                            ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
+                                            for (int i = 0; i < flashletList.size(); i++) {
+                                                for (int j = 0; j < flashletList.size(); j++) {
+                                                    if (users.get(j).getId() == flashletList.get(i).getCreatorID()) {
+                                                        flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
+                                                        break;
                                                     }
-                                                });
-                                    } else {
-                                        callback.onError(task.getException());
+                                                }
+                                            }
+                                            searchResult.setFlashlets(flashletWithUsernames);
+
+                                            // Query the Users
+                                            usersColRef
+                                                    .whereGreaterThanOrEqualTo("username", searchQuery)
+                                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                ArrayList<User> usersList = new ArrayList<User>();
+                                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                    User user = document.toObject(User.class);
+                                                                    usersList.add(user);
+                                                                }
+                                                                searchResult.setUsers(usersList);
+
+                                                                callback.onSearchResult(searchResult);
+                                                            } else {
+                                                                callback.onError(task.getException());
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            callback.onError(task.getException());
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         } else {
                             callback.onError(task.getException());
                         }
@@ -311,7 +342,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     // Handle Recent RecyclerView Item onClick
     @Override
     public void onItemClick(int position) {
-        // TODO
+//        searchView.setQuery();
     }
 
     // Handle Recent List Empty
