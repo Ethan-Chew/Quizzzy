@@ -331,19 +331,6 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                 });
     }
 
-    // Handle Search Results, and display on screen
-    protected void displaySearchResults(SearchResult searchResult) {
-        // Hide Recents Container
-        noRecentsContainer.setVisibility(View.GONE);
-        recentsContainer.setVisibility(View.GONE);
-
-
-
-        // Display Search Result Tabs and View Pager
-        searchResultTabs.setVisibility(View.VISIBLE);
-        searchResultViewPager.setVisibility(View.VISIBLE);
-    }
-
     // Handle Recent RecyclerView Item onClick
     @Override
     public void onItemClick(int position) {

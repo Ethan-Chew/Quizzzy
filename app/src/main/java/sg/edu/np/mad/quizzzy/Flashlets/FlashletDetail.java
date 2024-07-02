@@ -12,10 +12,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
@@ -24,12 +26,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
@@ -38,6 +44,7 @@ import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -55,6 +62,8 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,17 +164,69 @@ public class FlashletDetail extends AppCompatActivity {
 
         // Handle Edit Button Pressed
         ImageView editFlashletBtn = findViewById(R.id.fDEditOption);
+        ImageView cloneFlashletBtn = findViewById(R.id.fDCloneOption);
         /// If User ID does not match the Owner of the Flashlet, disable editing
         if (!Objects.equals(userId, flashlet.getCreatorID())) {
-            editFlashletBtn.setBackgroundResource(R.drawable.clone_icon);
+            editFlashletBtn.setVisibility(View.GONE);
             /// Handle clone onClick
-            editFlashletBtn.setOnClickListener(new View.OnClickListener() {
+            cloneFlashletBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(FlashletDetail.this);
+                    builder.setTitle("Clone Flashlet")
+                            .setMessage("Do you want to clone this flashlet?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                String id = UUID.randomUUID().toString();
+                                Flashlet newFlashlet = flashlet;
+                                newFlashlet.setId(id);
+                                newFlashlet.setCreatorID(userId);
+                                db.collection("flashlets")
+                                        .document(id)
+                                        .set(newFlashlet)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+                                                ArrayList<String> createdFlashlets = localDB.getUser().getUser().getCreatedFlashlets();
+                                                createdFlashlets.add(id);
+                                                localDB.updateCreatedFlashcards(localDB.getUser().getUser().getId(), createdFlashlets);
 
+                                                // Save Flashlet ID to User's Firebase
+                                                db.collection("users").document(userId).update("createdFlashlets", createdFlashlets)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
+
+                                                                // Send User to their cloned flashlet
+                                                                Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
+                                                                flashletCloneIntent.putExtra("flashletJSON", gson.toJson(newFlashlet));
+
+                                                                startActivity(flashletCloneIntent);
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), "Failed to Clone Flashlet", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getApplicationContext(), "Failed to Clone Flashlet", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                            })
+                            .setNegativeButton("Cancel", ((dialog, which) -> {}))
+                            .setCancelable(false);
+                    builder.create().show(); // Show Alert
                 }
             });
         } else {
+            cloneFlashletBtn.setVisibility(View.GONE);
             /// Handle edit onClick
             editFlashletBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
