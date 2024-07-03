@@ -40,9 +40,5 @@ public class DialogQrCodeActivity extends AppCompatActivity {
         flashletNameTextView = findViewById(R.id.flashletNameTextView);
         dialogCloseButton = findViewById(R.id.dialogCloseButton);
 
-        Intent receiveIntent = getIntent();
-        flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletTitle"), Flashlet.class);
-
-        flashletNameTextView.setText(flashlet.getTitle());
     }
 }

@@ -273,26 +273,22 @@ public class FlashletDetail extends AppCompatActivity {
             }
         });
 
-        //pass intent for flashlet name
-        Intent flashletName = new Intent(FlashletDetail.this, DialogQrCodeActivity.class);
-        flashletName.putExtra("flashletTitle", gson.toJson(flashlet));
-
         // sharing qr code
         shareFlashletbtn = findViewById(R.id.shareqrcodebtn);
         shareFlashletbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog();
+                showDialog(flashlet.getTitle());
             }
         });
     }
 
-    private void showDialog(){
+    private void showDialog(String flashletTitleLbl){
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_qr_code);
         dialog.setCancelable(false);
-        flashletNameTextView = findViewById(R.id.flashletNameTextView);
-        flashletNameTextView.setText(flashlet.getTitle());
+        flashletNameTextView.setText(flashletTitleLbl);
+
         dialog.show();
 
         ImageView dialogCloseButton = dialog.findViewById(R.id.dialogCloseButton);
