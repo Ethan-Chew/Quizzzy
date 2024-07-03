@@ -39,6 +39,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.PushNotificationService;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -132,6 +134,10 @@ public class HomeActivity extends AppCompatActivity  {
             startActivity(returnToLoginIntent);
         }
 
+        // Subscribe to Firebase FCM
+        PushNotificationService pushNotificationService = new PushNotificationService();
+        pushNotificationService.subscribeToUserIDTopic(userWithRecents.getUser().getId());
+
         // Set Home Screen Data
         usernameView = findViewById(R.id.hPUsernameText);
         horiRecentlyViewed = findViewById(R.id.hPHoriRecentlyViewed);
@@ -152,6 +158,9 @@ public class HomeActivity extends AppCompatActivity  {
                             localDB.dropUser(FirebaseAuth.getInstance().getUid());
                             recentSearchesDB.dropAllSearchQuery();
                             FirebaseAuth.getInstance().signOut();
+                            // Unsubscribe from Firebase FCM
+                            PushNotificationService pushNotificationService = new PushNotificationService();
+                            pushNotificationService.unsubscribeFromUserIDTopic(userWithRecents.getUser().getId());
                             startActivity(new Intent(HomeActivity.this, MainActivity.class));
                         }
                         return true;

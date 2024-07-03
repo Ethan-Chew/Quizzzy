@@ -40,6 +40,7 @@ import java.util.UUID;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.PushNotificationService;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -177,6 +178,7 @@ public class FlashletDetail extends AppCompatActivity {
                             .setMessage("Do you want to clone this flashlet?")
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 String id = UUID.randomUUID().toString();
+                                String creatorId = flashlet.getCreatorID();
                                 Flashlet newFlashlet = flashlet;
                                 newFlashlet.setId(id);
                                 newFlashlet.setCreatorID(userId);
@@ -197,6 +199,9 @@ public class FlashletDetail extends AppCompatActivity {
                                                             @Override
                                                             public void onSuccess(Void unused) {
                                                                 Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
+                                                                // Send Message via Firebase FCM notifying the Owner of the flashlet their flashlet was cloned
+                                                                PushNotificationService pushNotificationService = new PushNotificationService();
+                                                                pushNotificationService.sendFlashletCloneMessage(creatorId, flashlet.getTitle());
 
                                                                 // Send User to their cloned flashlet
                                                                 Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
