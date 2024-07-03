@@ -1,6 +1,6 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,12 +30,12 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import sg.edu.np.mad.quizzzy.DialogQrCodeActivity;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
-import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -53,6 +53,8 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
+    ImageView shareFlashletbtn;
+    TextView flashletNameTextView;
 
 
     @Override
@@ -268,6 +270,36 @@ public class FlashletDetail extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
                 return true;
+            }
+        });
+
+        //pass intent for flashlet name
+        Intent flashletName = new Intent(FlashletDetail.this, DialogQrCodeActivity.class);
+        flashletName.putExtra("flashletTitle", gson.toJson(flashlet));
+
+        // sharing qr code
+        shareFlashletbtn = findViewById(R.id.shareqrcodebtn);
+        shareFlashletbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog();
+            }
+        });
+    }
+
+    private void showDialog(){
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_qr_code);
+        dialog.setCancelable(false);
+        flashletNameTextView = findViewById(R.id.flashletNameTextView);
+        flashletNameTextView.setText(flashlet.getTitle());
+        dialog.show();
+
+        ImageView dialogCloseButton = dialog.findViewById(R.id.dialogCloseButton);
+        dialogCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
             }
         });
     }

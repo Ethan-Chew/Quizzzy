@@ -15,6 +15,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        renderscriptTargetApi = 21
+        renderscriptSupportModeEnabled = true
     }
 
     buildTypes {
@@ -37,9 +40,13 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.gson)
     implementation(libs.firebase.auth)
+    implementation(libs.fragment)
+    implementation(libs.zxing.android.embedded)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-firestore")
+    coreLibraryDesugaring("com.android.tools.desugar_jdk_libs:2.0.2")
+    implementation("androidx.multidex:multidex:2.0.0")
 }
