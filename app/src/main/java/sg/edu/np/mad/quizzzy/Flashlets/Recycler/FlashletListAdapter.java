@@ -42,12 +42,18 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     private final User user;
     private FlashletList activity;
     boolean flashletOptionsOnClick = false;
+    private FlashletCountListener flashletCountListener;
 
-    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, RecyclerViewInterface recyclerViewInterface, User user) {
+    public interface FlashletCountListener {
+        void flashletCount(Integer count);
+    }
+
+    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, RecyclerViewInterface recyclerViewInterface, User user, FlashletCountListener flashletCountListener) {
         this.userFlashlets = userFlashlets;
         this.activity = activity;
         this.recyclerViewInterface = recyclerViewInterface;
         this.user = user;
+        this.flashletCountListener = flashletCountListener;
     }
 
     @NonNull
@@ -91,13 +97,15 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                                             @Override
                                             public void onSuccess(Void unused) {
                                                 User user = localDB.getUser().getUser();
-                                                ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
-                                                createdFlashlets.remove(listItem.getId());
-                                                localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
+                                                userFlashlets.remove(listItem);
+                                                ArrayList<String> createdFlashletsId = user.getCreatedFlashlets();
+                                                createdFlashletsId.remove(listItem.getId());
+                                                localDB.updateCreatedFlashcards(user.getId(), createdFlashletsId);
                                                 notifyItemRemoved(holder.getAdapterPosition());
                                                 notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
                                                 Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
+                                                flashletCountListener.flashletCount(getItemCount());
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

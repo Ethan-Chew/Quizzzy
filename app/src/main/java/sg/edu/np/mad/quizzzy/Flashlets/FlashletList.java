@@ -45,7 +45,7 @@ import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
-public class FlashletList extends AppCompatActivity implements RecyclerViewInterface {
+public class FlashletList extends AppCompatActivity implements RecyclerViewInterface, FlashletListAdapter.FlashletCountListener {
     // Data
     ArrayList<Flashlet> userFlashlets = new ArrayList<Flashlet>();
     UserWithRecents userWithRecents;
@@ -225,7 +225,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
 
                     /// Display Flashlet List on Screen
                     noFlashletNotif.setVisibility(View.GONE);
-                    FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, FlashletList.this, FlashletList.this, userWithRecents.getUser());
+                    FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, FlashletList.this, FlashletList.this, userWithRecents.getUser(), FlashletList.this);
                     LinearLayoutManager userLayoutManager = new LinearLayoutManager(FlashletList.this);
                     recyclerView.setLayoutManager(userLayoutManager);
                     recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -259,5 +259,12 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         usage.setActivityChanged(true);
 
         startActivity(sendToFlashletDetail);
+    }
+
+    @Override
+    public void flashletCount(Integer count) {
+        TextView flashletCount = findViewById(R.id.fLCounterLabel);
+        String flashletCountStr = "You have " + count + " Total Flashlet" + (count == 1 ? "" : "s");
+        flashletCount.setText(flashletCountStr);
     }
 }

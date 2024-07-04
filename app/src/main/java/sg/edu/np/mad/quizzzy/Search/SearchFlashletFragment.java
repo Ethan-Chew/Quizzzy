@@ -75,9 +75,7 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     @Override
     public void onItemClick(int position) {
         FlashletWithUsername flashlet = flashlets.get(position);
-        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);
-        Log.d("HAWESFRGUDijfrsgbdf", gson.toJson(flashlet));
-        sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
+        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
         sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());
 
         startActivity(sendToFlashletDetail);
