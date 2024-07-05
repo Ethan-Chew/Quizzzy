@@ -235,11 +235,15 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     return;
                 }
 
+                /// Ensure that there is at least one Flashcard
+                if (flashcards.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "You need to create at least one flashcard!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                ArrayList<String> creatorId = new ArrayList<>();
-                creatorId.add(userId);
-                newFlashlet = new Flashlet(id, title, "", creatorId, null, flashcards, System.currentTimeMillis() / 1000L); // Initialise Flashlet with Empty Description
+                newFlashlet = new Flashlet(id, title, "", userId, null, flashcards, System.currentTimeMillis() / 1000L, true); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);
