@@ -63,9 +63,9 @@
                 android:id="@+id/uPFlashletCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="0 Flashlets"
                 android:textColor="@color/white"
-                android:textSize="20dp"
-                android:text="0 Flashlets" />
+                android:textSize="20dp" />
         </LinearLayout>
 
     </LinearLayout>
