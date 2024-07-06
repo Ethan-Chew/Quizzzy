@@ -86,7 +86,7 @@ public class HomeActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_home);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.hSConstrainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
@@ -150,6 +150,10 @@ public class HomeActivity extends AppCompatActivity  {
                             localDB.dropUser(FirebaseAuth.getInstance().getUid());
                             FirebaseAuth.getInstance().signOut();
                             startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                        } else if (itemId == R.id.profile) {
+                            Intent profileIntent = new Intent(HomeActivity.this, UserProfileActivity.class);
+                            profileIntent.putExtra("userJSON", gson.toJson(userWithRecents.getUser()));
+                            startActivity(profileIntent);
                         }
                         return true;
                     }
@@ -163,11 +167,11 @@ public class HomeActivity extends AppCompatActivity  {
 
         TextView showClassList = findViewById(R.id.hSClassList);
         showClassList.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 Intent showclassintent = new Intent(getApplicationContext(), ClassList.class);
-                 startActivity(showclassintent);
-             }
+            @Override
+            public void onClick(View v) {
+                Intent showclassintent = new Intent(getApplicationContext(), ClassList.class);
+                startActivity(showclassintent);
+            }
         });
 
         // If there are no Recently Viewed, display text
@@ -322,9 +326,9 @@ public class HomeActivity extends AppCompatActivity  {
         super.onResume();
 
         /*
-        * Everytime the page is brought back to the user's view, re-check the recentlyOpenedFlashlets
-        * If all recentlyOpenedFlashlet has been deleted, remove it from the view
-        * */
+         * Everytime the page is brought back to the user's view, re-check the recentlyOpenedFlashlets
+         * If all recentlyOpenedFlashlet has been deleted, remove it from the view
+         * */
 
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
         userWithRecents = localDB.getUser();
