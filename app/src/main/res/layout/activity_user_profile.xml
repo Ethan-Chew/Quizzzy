@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Search.UserProfileActivity">
+    tools:context=".UserProfileActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/uPViewToolbar"
@@ -34,6 +34,7 @@
         app:layout_constraintTop_toBottomOf="@+id/uPViewToolbar">
 
         <TextView
+            android:id="@+id/uPUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"

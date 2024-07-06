@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -54,6 +55,15 @@ public class LoginActivity extends AppCompatActivity {
         EditText usernameView = findViewById(R.id.usernameField);
         EditText passwordView = findViewById(R.id.passwordField);
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+
+        // Handle Back Navigation
+        Toolbar toolbar = findViewById(R.id.loginToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginActivity.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         // Detect when the user has pressed the Login Button
         loginBtn.setOnClickListener(new View.OnClickListener() {
