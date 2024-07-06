@@ -55,10 +55,9 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
 5. Study Statistics - Darius Koh Kai Keat S10255626
     - Study Statistics will tracks the time that users spend on the app using Graphs. (in the different sections e.g. flashcards, notes)
 
-## App Categories Stage 2
-1. Dedicated Study Mode
-2. Improved Visualisation for Study Statistics
-3. Sign in With Google / 2 Factor Authentication
-4. Permissions and Sharing Chapters with Unique Code
-5. Text-to-Speech
-6. Widgets
+## App Categories Stage 2 / Improvements Made
+1. Profile Screen - Ethan Chew
+2. Global Search for Flashlets and Users - Ethan Chew
+    - Allow users to Clone Flashlets to their account
+        - Owner of the Original Flashlet will get a notification that their Flashlet has been cloned
+    - Optical Character Recognition (OCR) to detect text and search for it
