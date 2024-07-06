@@ -202,6 +202,12 @@ public class AddClass extends AppCompatActivity {
                     newMemberUsernames.add(editText.getText().toString());
                 }
 
+                // Check if there is at least one new member
+                if (newMemberUsernames.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "You need to add at least one user into your class!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 // Check if All Members Exist in Firebase, and get their ID
                 CollectionReference usersColRef = db.collection("users");
                 usersColRef.whereIn("username", newMemberUsernames).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

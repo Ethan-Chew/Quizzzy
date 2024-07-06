@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -54,6 +55,15 @@ public class SignupActivity extends AppCompatActivity {
         EditText confirmPassword = findViewById(R.id.confirmPassword);
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(SignupActivity.this);
+
+        //Handle Back Navigation
+        Toolbar toolbar = findViewById(R.id.signUpToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignupActivity.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override

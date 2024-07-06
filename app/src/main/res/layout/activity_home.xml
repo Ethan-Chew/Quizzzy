@@ -45,7 +45,7 @@
                     android:id="@+id/dropdownMenu"
                     android:layout_width="30dp"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/horizontalmenu" />
+                    app:srcCompat="@drawable/ellipsis_menu" />
         </LinearLayout>
 
         <TextView
