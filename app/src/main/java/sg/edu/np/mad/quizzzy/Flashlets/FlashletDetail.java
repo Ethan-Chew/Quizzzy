@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.activity.OnBackPressedCallback;
@@ -77,7 +78,6 @@ public class FlashletDetail extends AppCompatActivity {
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
         String userId = receiveIntent.getStringExtra("userId");
-        String flashletId = receiveIntent.getStringExtra("id");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
 
         // Update SQLite with Recently Opened
@@ -284,8 +284,12 @@ public class FlashletDetail extends AppCompatActivity {
         shareFlashletbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                showDialog(flashletId);
+                String flashletId = flashlet.getId();
+                if (flashletId != null && !flashletId.isEmpty()) {
+                    showDialog(flashletId);
+                } else {
+                    Toast.makeText(FlashletDetail.this, "Flashlet ID is invalid.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -296,6 +300,8 @@ public class FlashletDetail extends AppCompatActivity {
         dialog.setCancelable(false);
 
         dialogQrCodeImageView = dialog.findViewById(R.id.dialogQrCodeImageView);
+        flashletNameTextView = dialog.findViewById(R.id.flashletNameTextView);
+        flashletNameTextView.setText(flashlet.getTitle());
         generateQrCode(id, dialogQrCodeImageView);
 
         dialog.show();
