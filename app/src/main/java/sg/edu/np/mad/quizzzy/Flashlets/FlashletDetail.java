@@ -2,6 +2,8 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,10 +29,12 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.ArrayList;
 
-import sg.edu.np.mad.quizzzy.DialogQrCodeActivity;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -55,6 +59,7 @@ public class FlashletDetail extends AppCompatActivity {
     GestureDetector gestureDetector;
     ImageView shareFlashletbtn;
     TextView flashletNameTextView;
+    ImageView dialogQrCodeImageView;
 
 
     @Override
@@ -72,6 +77,7 @@ public class FlashletDetail extends AppCompatActivity {
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
         String userId = receiveIntent.getStringExtra("userId");
+        String flashletId = receiveIntent.getStringExtra("id");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
 
         // Update SQLite with Recently Opened
@@ -278,16 +284,19 @@ public class FlashletDetail extends AppCompatActivity {
         shareFlashletbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(flashlet.getTitle());
+
+                showDialog(flashletId);
             }
         });
     }
 
-    private void showDialog(String flashletTitleLbl){
+    private void showDialog(String id){
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_qr_code);
         dialog.setCancelable(false);
-        flashletNameTextView.setText(flashletTitleLbl);
+
+        dialogQrCodeImageView = dialog.findViewById(R.id.dialogQrCodeImageView);
+        generateQrCode(id, dialogQrCodeImageView);
 
         dialog.show();
 
@@ -298,6 +307,28 @@ public class FlashletDetail extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+    }
+
+    private void generateQrCode(String id, ImageView imageView){
+        QRCodeWriter writer = new QRCodeWriter();
+        try {
+            Bitmap bitmap = toBitmap(writer.encode(id, BarcodeFormat.QR_CODE, 512, 512));
+            imageView.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Bitmap toBitmap(com.google.zxing.common.BitMatrix matrix){
+        int width = matrix.getWidth();
+        int height = matrix.getHeight();
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bmp.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            }
+        }
+        return bmp;
     }
 
     // To re-initialize the DB update loop when returning to the screen
