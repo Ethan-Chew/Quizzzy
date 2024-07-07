@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy.Search;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -32,6 +33,7 @@ public class SearchUsersFragment extends Fragment implements RecyclerViewInterfa
     RecyclerView usersRecyclerView;
     LinearLayout noRelatedSearchesContainer;
     Gson gson = new Gson();
+    ArrayList<User> users = new ArrayList<User>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +67,8 @@ public class SearchUsersFragment extends Fragment implements RecyclerViewInterfa
 
     @Override
     public void onItemClick(int position) {
-        // TODO
+        Intent sendToUserIntent = new Intent(getActivity(), UserProfileActivity.class);
+        sendToUserIntent.putExtra("userJSON", gson.toJson(users.get(position)));
+        startActivity(sendToUserIntent);
     }
 }

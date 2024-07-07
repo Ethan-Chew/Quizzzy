@@ -82,14 +82,14 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="25dp"
                             android:layout_marginEnd="25dp"
-                            android:layout_marginTop="45dp"
+                            android:layout_marginBottom="5dp"
                             android:text="Recently Viewed"
                             android:textColor="@color/black"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/hPUsernameText"/>
+                            app:layout_constraintBottom_toTopOf="@id/hPRVHoriScroll" />
 
                         <HorizontalScrollView
                             android:id="@+id/hPRVHoriScroll"
@@ -97,8 +97,8 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/hPRecentlyViewedTxt"
-                            android:layout_marginTop="5dp"
+                            app:layout_constraintBottom_toBottomOf="@id/hPHeaderContainer"
+                            android:layout_marginBottom="20dp"
                             android:layout_marginStart="25dp"
                             android:layout_marginEnd="25dp"
                             tools:layout_editor_absoluteX="25dp"

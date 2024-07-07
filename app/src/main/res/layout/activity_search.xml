@@ -29,13 +29,33 @@
             android:textSize="34sp"
             android:textStyle="bold" />
 
-        <SearchView
-            android:id="@+id/aSSearchField"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="30dp"
-            android:background="@drawable/search_bar_background"
-            android:queryHint="Search for a Flashlet or User" />
+            android:orientation="horizontal">
+
+            <SearchView
+                android:id="@+id/aSSearchField"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/search_bar_background"
+                android:queryHint="Search for a Flashlet or User" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/aSOCRBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:background="@drawable/circular_background"
+                android:src="@drawable/camera" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout

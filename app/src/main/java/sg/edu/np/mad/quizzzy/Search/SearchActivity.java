@@ -1,10 +1,12 @@
 package sg.edu.np.mad.quizzzy.Search;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -43,6 +45,7 @@ import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.Models.SearchResult;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -66,6 +69,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     private SearchAdapter searchAdapter;
     private SearchView searchView;
     private TextView clearAllRecents;
+    private ImageView startOcrBtn;
 
     // Global Data
     private ArrayList<String> recentSearches = new ArrayList<String>();
@@ -117,7 +121,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         });
 
         // Initialise SQLite Database
-        SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(SearchActivity.this);
+        SQLiteRecentSearchesManager localSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
 
         /// Hide Search Result Container
         recentsListContainer = findViewById(R.id.aSRecentsListContainer);
@@ -136,12 +141,12 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!localDB.getSearchQueries().contains(query)) {
-                    localDB.addSearchQueries(query);
+                if (!localSearchesDB.getSearchQueries().contains(query)) {
+                    localSearchesDB.addSearchQueries(query);
                 }
                 onResume();
 
-                retrieveSearchResults(query, new OnSearchEventListener() {
+                retrieveSearchResults(query, localDB, new OnSearchEventListener() {
                     @Override
                     public void onSearchResult(SearchResult searchResult) {
                         searchResultTabs.setVisibility(View.VISIBLE);
@@ -172,7 +177,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         clearAllRecents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                localDB.dropAllSearchQuery();
+                localSearchesDB.dropAllSearchQuery();
                 onResume();
             }
         });
@@ -201,6 +206,15 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                 searchResultTabs.selectTab(searchResultTabs.getTabAt(position));
             }
         });
+
+        // Handle OCR Button onClick
+        startOcrBtn = findViewById(R.id.aSOCRBtn);
+        startOcrBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SearchActivity.this, OCRActivity.class));
+            }
+        });
     }
 
     @Override
@@ -208,8 +222,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         super.onResume();
 
         // Update Recent RecyclerView with Items
-        SQLiteRecentSearchesManager localDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
-        recentSearches = localDB.getSearchQueries();
+        SQLiteRecentSearchesManager localSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
+        recentSearches = localSearchesDB.getSearchQueries();
 
         noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
@@ -229,7 +243,11 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
     // Handle Search Results
-    protected void retrieveSearchResults(String searchQuery, OnSearchEventListener callback) {
+    protected void retrieveSearchResults(String searchQuery, SQLiteManager localDB, OnSearchEventListener callback) {
+        // Get Current User
+        User currentLoggedInUser = localDB.getUser().getUser();
+
+        // Search database with SearchQuery
         CollectionReference flashletColRef = db.collection("flashlets");
         CollectionReference usersColRef = db.collection("users");
 
@@ -308,7 +326,11 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                                                 ArrayList<User> usersList = new ArrayList<User>();
                                                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                                                     User user = document.toObject(User.class);
-                                                                    usersList.add(user);
+                                                                    if (!Objects.equals(user.getId(), currentLoggedInUser.getId())) {
+                                                                        Log.d("User1", user.getId());
+                                                                        Log.d("User2", currentLoggedInUser.getId());
+                                                                        usersList.add(user);
+                                                                    }
                                                                 }
                                                                 searchResult.setUsers(usersList);
 
