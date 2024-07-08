@@ -51,14 +51,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition-chinese:16.0.0")
-
     implementation ("com.google.guava:guava:31.0.1-android")
     implementation ("androidx.concurrent:concurrent-futures:1.2.0")
-    implementation ("androidx.camera:camera-core:1.2.2")
-    implementation ("androidx.camera:camera-camera2:1.2.2")
-    implementation ("androidx.camera:camera-lifecycle:1.2.2")
-    implementation ("androidx.camera:camera-video:1.2.2")
-
-    implementation ("androidx.camera:camera-view:1.2.2")
-    implementation ("androidx.camera:camera-extensions:1.2.2")
+    implementation ("androidx.camera:camera-core:1.3.4")
+    implementation ("androidx.camera:camera-camera2:1.3.4")
+    implementation ("androidx.camera:camera-lifecycle:1.3.4")
+    implementation ("androidx.camera:camera-video:1.3.4")
+    implementation ("androidx.camera:camera-view:1.3.4")
+    implementation ("androidx.camera:camera-extensions:1.3.4")
 }

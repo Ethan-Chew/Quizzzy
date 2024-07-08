@@ -1,4 +1,4 @@
-package sg.edu.np.mad.quizzzy.Search;
+package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,11 +21,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.User;
-import sg.edu.np.mad.quizzzy.R;
-import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedFlashletsAdapter;
 import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedUsersAdapter;
 
 public class SearchUsersFragment extends Fragment implements RecyclerViewInterface {
@@ -50,7 +47,7 @@ public class SearchUsersFragment extends Fragment implements RecyclerViewInterfa
         Bundle args = getArguments();
         Type ArrayOfUserType = new TypeToken<ArrayList<User>>(){}.getType();
         String flashletJson = args.getString("searchedUsers");
-        ArrayList<User> users = gson.fromJson(flashletJson, ArrayOfUserType);
+        users = gson.fromJson(flashletJson, ArrayOfUserType);
 
         noRelatedSearchesContainer = getView().findViewById(R.id.fSUNoResultsInfo);
         if (users.isEmpty()) {

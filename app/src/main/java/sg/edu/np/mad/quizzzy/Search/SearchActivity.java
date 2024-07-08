@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy.Search;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -15,6 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -212,7 +218,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         startOcrBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchActivity.this, OCRActivity.class));
+                Intent sendToOCRActivity = new Intent(SearchActivity.this, OCRActivity.class);
+                ocrActivityResultLauncher.launch(sendToOCRActivity);
             }
         });
     }
@@ -253,6 +260,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         SearchResult searchResult = new SearchResult();
 
+        // Query the Cloud Firestore Database to search for Flashlet titles similar to the searchQuery
         flashletColRef
                 .whereGreaterThanOrEqualTo("title", searchQuery)
                 .whereLessThanOrEqualTo("title", searchQuery + "\uf8ff")
@@ -260,92 +268,71 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            ArrayList<String> flashletOwnerId = new ArrayList<String>();
+                            ArrayList<String> flashletOwnerIds = new ArrayList<String>();
                             ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String flashletJson = gson.toJson(document.getData());
                                 Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
                                 if (flashlet.getIsPublic()) {
                                     flashletList.add(flashlet);
-                                    flashletOwnerId.add(flashlet.getCreatorID());
+                                    flashletOwnerIds.add(flashlet.getCreatorID());
                                 }
                             }
 
-                            if (flashletOwnerId.isEmpty()) {
-                                // Query the Users
-                                usersColRef
-                                        .whereGreaterThanOrEqualTo("username", searchQuery)
-                                        .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
-                                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    ArrayList<User> usersList = new ArrayList<User>();
-                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        String userJson = gson.toJson(document.getData());
-                                                        usersList.add(gson.fromJson(userJson, User.class));
-                                                    }
-                                                    searchResult.setUsers(usersList);
-
-                                                    callback.onSearchResult(searchResult);
-                                                } else {
-                                                    callback.onError(task.getException());
-                                                }
-                                            }
-                                        });
-                            } else {
-                                usersColRef.whereIn("id", flashletOwnerId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            ArrayList<User> users = new ArrayList<User>();
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                String userJson = gson.toJson(document.getData());
-                                                users.add(gson.fromJson(userJson, User.class));
-                                            }
-                                            // Add User ID and Username to FlashletId
-                                            ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
-                                            for (int i = 0; i < flashletList.size(); i++) {
-                                                for (int j = 0; j < flashletList.size(); j++) {
-                                                    if (Objects.equals(users.get(j).getId(), flashletList.get(i).getCreatorID())) {
-                                                        flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
-                                                        break;
+                            // Query the Database to search for User with Usernames similar to searchQuery
+                            usersColRef
+                                    .whereGreaterThanOrEqualTo("username", searchQuery)
+                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                ArrayList<User> usersList = new ArrayList<User>();
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    String userJson = gson.toJson(document.getData());
+                                                    User user = gson.fromJson(userJson, User.class);
+                                                    if (!Objects.equals(user.getId(), currentLoggedInUser.getId())) {
+                                                        usersList.add(user);
                                                     }
                                                 }
-                                            }
-                                            searchResult.setFlashlets(flashletWithUsernames);
+                                                searchResult.setUsers(usersList);
 
-                                            // Query the Users
-                                            usersColRef
-                                                    .whereGreaterThanOrEqualTo("username", searchQuery)
-                                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
-                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                // If there are Flashlet Search Results, get the Username of the Owners
+                                                if (!flashletList.isEmpty()) {
+                                                    usersColRef.whereIn("id", flashletOwnerIds).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                             if (task.isSuccessful()) {
-                                                                ArrayList<User> usersList = new ArrayList<User>();
+                                                                ArrayList<User> users = new ArrayList<User>();
                                                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                    User user = document.toObject(User.class);
-                                                                    if (!Objects.equals(user.getId(), currentLoggedInUser.getId())) {
-                                                                        Log.d("User1", user.getId());
-                                                                        Log.d("User2", currentLoggedInUser.getId());
-                                                                        usersList.add(user);
+                                                                    String userJson = gson.toJson(document.getData());
+                                                                    users.add(gson.fromJson(userJson, User.class));
+                                                                }
+                                                                // Add User ID and Username to FlashletId
+                                                                ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
+                                                                for (int i = 0; i < flashletList.size(); i++) {
+                                                                    for (int j = 0; j < flashletList.size(); j++) {
+                                                                        if (Objects.equals(users.get(j).getId(), flashletList.get(i).getCreatorID())) {
+                                                                            flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
+                                                                            break;
+                                                                        }
                                                                     }
                                                                 }
-                                                                searchResult.setUsers(usersList);
-
+                                                                searchResult.setFlashlets(flashletWithUsernames);
                                                                 callback.onSearchResult(searchResult);
                                                             } else {
                                                                 callback.onError(task.getException());
                                                             }
                                                         }
                                                     });
-                                        } else {
-                                            callback.onError(task.getException());
+                                                } else {
+                                                    callback.onSearchResult(searchResult);
+                                                }
+                                            } else {
+                                                callback.onError(task.getException());
+                                            }
                                         }
-                                    }
-                                });
-                            }
+                                    });
                         } else {
                             callback.onError(task.getException());
                         }
@@ -367,4 +354,19 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
             recentsContainer.setVisibility(View.GONE);
         }
     }
+
+    // Handle OCR Result from OCRActivity
+    ActivityResultLauncher<Intent> ocrActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        String ocrResult = data.getStringExtra("result");
+                        Log.d("result", ocrResult);
+                    }
+                }
+            }
+    );
 }

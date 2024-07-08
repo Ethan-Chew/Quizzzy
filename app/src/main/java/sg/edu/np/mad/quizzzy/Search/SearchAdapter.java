@@ -1,11 +1,9 @@
 package sg.edu.np.mad.quizzzy.Search;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -15,6 +13,7 @@ import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 import sg.edu.np.mad.quizzzy.Models.SearchResult;
+import sg.edu.np.mad.quizzzy.SearchUsersFragment;
 
 public class SearchAdapter extends FragmentStateAdapter {
 

@@ -3,23 +3,33 @@ package sg.edu.np.mad.quizzzy.Search;
 import static android.Manifest.permission_group.CAMERA;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalGetImage;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -30,7 +40,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -43,8 +61,12 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
     PreviewView cameraView;
     SurfaceHolder holder;
     SurfaceView surfaceView;
+    TextView decodedText;
     Canvas canvas;
     Paint paint;
+
+    // Bounding Box Values
+    float left, top, right, bottom;
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -60,15 +82,39 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
             return insets;
         });
 
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.oAViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         if (checkCameraPermission()) {
             startCameraPreview();
         } else {
             requestCameraPermission();
         }
 
+        // Save Decoded Text Label
+        decodedText = findViewById(R.id.oADecodedText);
+
         // Create Bounding Rect
         surfaceView = findViewById(R.id.oAOverlay);
         setupBoundingRect(surfaceView);
+
+        // Handle Submit Button Click
+        Button submitButton = findViewById(R.id.oASearch);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("result", decodedText.getText().toString());
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
     }
 
     // Start CameraX
@@ -91,6 +137,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     private void bindPreview(ProcessCameraProvider cameraProvider) {
+        // Setup the AndroidX Camera
         Preview preview = new Preview.Builder()
                 .build();
 
@@ -99,8 +146,83 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                 .build();
 
         preview.setSurfaceProvider(cameraView.getSurfaceProvider());
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector,preview);
 
+        // Analyse the Image
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
+
+        imageAnalysis.setAnalyzer(executor, new ImageAnalysis.Analyzer() {
+            // Handle OCR Image Recognition
+            @OptIn(markerClass = ExperimentalGetImage.class) @Override
+            public void analyze(@NonNull ImageProxy imageProxy) {
+                Bitmap bitmap = imageProxy.toBitmap();
+                TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+                if (bitmap != null) {
+                    // Get Cropping Values
+                    cameraView = findViewById(R.id.oACameraPreviewView);
+                    int cameraHeight = cameraView.getHeight();
+                    int cameraWidth = cameraView.getWidth();
+
+                    // Scale the bitmap to match the cameraView dimensions
+                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, cameraWidth, cameraHeight, false);
+
+                    int scaledWidth = scaledBitmap.getWidth();
+                    int scaledHeight = scaledBitmap.getHeight();
+
+                    float diameter;
+
+                    diameter = scaledWidth;
+                    if (scaledHeight < scaledWidth) {
+                        diameter = scaledHeight;
+                    }
+
+                    int offset = (int) (0.05 * diameter);
+                    diameter -= offset;
+
+                    // Calculate the Bounding Box's Boundaries
+                    left = (float) (scaledWidth / 2.0 - diameter / 2.5);
+                    top = (float) (scaledHeight / 2.0 - diameter / 5.0);
+                    right = (float) (scaledWidth / 2.0 + diameter / 2.5);
+                    bottom = (float) (scaledHeight / 2.0 + diameter / 5.0);
+
+                    int cropWidth = (int) (right - left);
+                    int cropHeight = (int) (bottom - top);
+                    Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, (int) left, (int) top, cropWidth, cropHeight);
+                    InputImage croppedImage = InputImage.fromBitmap(croppedBitmap, 0);
+
+                    Task<Text> result = recognizer.process(croppedImage)
+                            .addOnSuccessListener(new OnSuccessListener<Text>() {
+                                @Override
+                                public void onSuccess(Text text) {
+                                    StringBuilder result = new StringBuilder();
+                                    for (Text.TextBlock block : text.getTextBlocks()) {
+                                        String blockText = block.getText();
+                                        Point[] blockCornerPoint = block.getCornerPoints();
+                                        for (Text.Line line : block.getLines()) {
+                                            String lineText = line.getText();
+                                            for (Text.Element element : line.getElements()) {
+                                                String elementText = element.getText();
+                                                result.append(elementText);
+                                            }
+                                            decodedText.setText(blockText);
+                                        }
+                                    }
+                                    imageProxy.close();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(OCRActivity.this, "Failed to detect text from image", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        });
+
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageAnalysis);
     }
 
     // Draw Detection Bounding Box on the Screen
@@ -112,16 +234,12 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     private void drawBoundingRect() {
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        // Calculate Size of Bounding Box
         cameraView = findViewById(R.id.oACameraPreviewView);
         int height = cameraView.getHeight();
         int width = cameraView.getWidth();
 
-        Log.d("aaa", String.valueOf(height));
-        Log.d("aaa", String.valueOf(width));
-
-        float left, right, top, bottom, diameter;
+        float diameter;
 
         diameter = width;
         if (height < width) {
@@ -133,33 +251,38 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
         canvas = holder.lockCanvas();
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-        //border's properties
+
+        // Customise the Bounding Box's Line Stroke
         paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.parseColor("#ffffff"));
         paint.setStrokeWidth(5);
 
+        // Calculate the Bounding Box's Boundaries
         left = (float) (width / 2.0 - diameter / 2.5);
         top = (float) (height / 2.0 - diameter / 5.0);
         right = (float) (width / 2.0 + diameter / 2.5);
         bottom = (float) (height / 2.0 + diameter / 5.0);
 
+        // Draw Outlines of each corner on the Bounding Box
         float cornerLength = 50f;
-        // Top-left corner
+        /// Top-left corner
         canvas.drawLine(left, top, left + cornerLength, top, paint);
         canvas.drawLine(left, top, left, top + cornerLength, paint);
 
-        // Top-right corner
+        /// Top-right corner
         canvas.drawLine(right, top, right - cornerLength, top, paint);
         canvas.drawLine(right, top, right, top + cornerLength, paint);
 
-        // Bottom-left corner
+        /// Bottom-left corner
         canvas.drawLine(left, bottom, left + cornerLength, bottom, paint);
         canvas.drawLine(left, bottom, left, bottom - cornerLength, paint);
 
-        // Bottom-right corner
+        /// Bottom-right corner
         canvas.drawLine(right, bottom, right - cornerLength, bottom, paint);
         canvas.drawLine(right, bottom, right, bottom - cornerLength, paint);
+
+        // Add the Outlines to the Holder
         holder.unlockCanvasAndPost(canvas);
     }
 

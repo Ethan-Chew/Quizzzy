@@ -335,6 +335,7 @@ public class HomeActivity extends AppCompatActivity  {
             ConstraintLayout constraintLayout = findViewById(R.id.hSConstrainLayout);
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
+            constraintSet.clear(R.id.hPClassesTitle, ConstraintSet.TOP);
             constraintSet.connect(R.id.hPClassesTitle, ConstraintSet.TOP, R.id.hSNoFlashlets, ConstraintSet.BOTTOM, 20);
             constraintSet.applyTo(constraintLayout);
 
