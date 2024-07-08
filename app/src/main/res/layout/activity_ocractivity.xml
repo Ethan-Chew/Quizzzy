@@ -66,12 +66,12 @@
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent">
         <Button
-            android:id="@+id/oASearch"
+            android:id="@+id/oAComplete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:textSize="20sp"
-            android:text="Search" />
+            android:text="Done" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

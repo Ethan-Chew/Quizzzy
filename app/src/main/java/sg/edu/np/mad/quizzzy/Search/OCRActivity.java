@@ -13,6 +13,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -43,6 +44,8 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
@@ -104,15 +107,32 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         surfaceView = findViewById(R.id.oAOverlay);
         setupBoundingRect(surfaceView);
 
-        // Handle Submit Button Click
-        Button submitButton = findViewById(R.id.oASearch);
-        submitButton.setOnClickListener(new View.OnClickListener() {
+        // Handle Complete Button Click
+        Button completeButton = findViewById(R.id.oAComplete);
+        completeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.putExtra("result", decodedText.getText().toString());
-                setResult(RESULT_OK, intent);
-                finish();
+                // Show the Bottom Sheet to Edit OCR Text
+                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(OCRActivity.this);
+                View dialogView = LayoutInflater.from(OCRActivity.this).inflate(R.layout.ocr_bottom_sheet_layout, null);
+                bottomSheetDialog.setContentView(dialogView);
+                bottomSheetDialog.show();
+
+                TextInputEditText editText = dialogView.findViewById(R.id.oBSEditText);
+                Button searchBtn = dialogView.findViewById(R.id.oBSSearchBtn);
+                Button generateBtn = dialogView.findViewById(R.id.oBSGenerateBtn);
+
+                editText.setText(decodedText.getText().toString());
+
+                searchBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.putExtra("result", editText.getText().toString());
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                });
             }
         });
     }
