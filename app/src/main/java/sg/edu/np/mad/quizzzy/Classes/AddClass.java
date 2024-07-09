@@ -1,5 +1,7 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
@@ -39,9 +41,13 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import sg.edu.np.mad.quizzzy.Classes.ClassList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -159,12 +165,27 @@ public class AddClass extends AppCompatActivity {
         LinearLayout addmem = findViewById(R.id.acaddmembers);
         Intent receivingIntent = getIntent();
         String userId = receivingIntent.getStringExtra("userId");
+        String userName = receivingIntent.getStringExtra("username");
+
         addMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
 
                 EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
+                memberUsernameInput.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (s.toString().equals(userName)) {
+                            memberUsernameInput.setError("You cannot add yourself as a member.");
+                        }
+                    }
+                });
+
                 usernameInputs.add(memberUsernameInput);
 
                 ImageView deleteMember = newMemberView.findViewById(R.id.acmDelete);
@@ -187,7 +208,7 @@ public class AddClass extends AppCompatActivity {
             }
         });
 
-        // when button click
+// when button click
         EditText classTitle = findViewById(R.id.acNewTitle);
         createClassbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,59 +218,103 @@ public class AddClass extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please give your class a name!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                ArrayList<String> newMemberUsernames = new ArrayList<>();
-                for (EditText editText : usernameInputs) {
-                    newMemberUsernames.add(editText.getText().toString());
-                }
 
-                // Check if All Members Exist in Firebase, and get their ID
-                CollectionReference usersColRef = db.collection("users");
-                usersColRef.whereIn("username", newMemberUsernames).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        ArrayList<String> newMemberIds = new ArrayList<>();
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String userJson = gson.toJson(document.getData());
-                                User user = gson.fromJson(userJson, User.class);
+                // Check if class title already exists for the user
+                db.collection("class")
+                        .whereEqualTo("creatorId", userId)
+                        .whereEqualTo("classTitle", title)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (!task.getResult().isEmpty()) {
+                                        Toast.makeText(getApplicationContext(), "Class name already exists!", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        ArrayList<String> newMemberUsernames = new ArrayList<>();
+                                        for (EditText editText : usernameInputs) {
+                                            String username = editText.getText().toString();
+                                            if (username.equals(userName)) {
+                                                Toast.makeText(getApplicationContext(), "You cannot add yourself as a member!", Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+                                            newMemberUsernames.add(username);
+                                        }
 
-                                newMemberIds.add(user.getId());
-                            }
+                                        // Check for duplicate members
+                                        Set<String> uniqueUsernames = new HashSet<>(newMemberUsernames);
+                                        if (uniqueUsernames.size() != newMemberUsernames.size()) {
+                                            Toast.makeText(getApplicationContext(), "Duplicate members found!", Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
 
-                            if (newMemberIds.size() != usernameInputs.size()) {
-                                Toast.makeText(getApplicationContext(), "One or More of the Usernames entered do not exist!", Toast.LENGTH_LONG).show();
-                            } else {
-                                String classId = UUID.randomUUID().toString();
-                                ArrayList<String> creatorId = new ArrayList<>();
-                                creatorId.add(userId);
-                                newMemberIds.add(userId);
+                                        // Check if there is at least one new member
+                                        if (newMemberUsernames.isEmpty()) {
+                                            Toast.makeText(getApplicationContext(), "You need to add at least one user into your class!", Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
 
-                                UserClass userClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
-                                db.collection("class").document(classId).set(userClass).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
+                                        // Check if All Members Exist in Firebase, and get their ID
+                                        CollectionReference usersColRef = db.collection("users");
+                                        usersColRef.whereIn("username", newMemberUsernames).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                ArrayList<String> newMemberIds = new ArrayList<>();
+                                                Set<String> seenUsernames = new HashSet<>();
+                                                if (task.isSuccessful()) {
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        String userJson = gson.toJson(document.getData());
+                                                        User user = gson.fromJson(userJson, User.class);
+                                                        String username = user.getUsername();
 
-                                        // Save statistics to SQLite DB before changing Activity.
-                                        // timeType of 2 because this is a Class Activity
-                                        localDB.updateStatistics(usage, 2, user.getId());
-                                        // Kills updateStatisticsLoop as we are switching to another activity.
-                                        usage.setActivityChanged(true);
+                                                        if (!seenUsernames.add(username)) {
+                                                            Toast.makeText(getApplicationContext(), "Duplicate member added: " + username, Toast.LENGTH_LONG).show();
+                                                            return;
+                                                        }
 
-                                        startActivity(new Intent(getApplicationContext(), ClassList.class));
+                                                        newMemberIds.add(user.getId());
+                                                    }
+
+                                                    if (newMemberIds.size() != newMemberUsernames.size()) {
+                                                        Toast.makeText(getApplicationContext(), "One or More of the Usernames entered do not exist!", Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        String classId = UUID.randomUUID().toString();
+                                                        ArrayList<String> creatorId = new ArrayList<>();
+                                                        creatorId.add(userId);
+                                                        newMemberIds.add(0, userId);
+
+                                                        UserClass userClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
+                                                        db.collection("class").document(classId).set(userClass).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                Toast.makeText(getApplicationContext(), "Successfully Created Class!", Toast.LENGTH_LONG).show();
+
+                                                                // Save statistics to SQLite DB before changing Activity.
+                                                                // timeType of 2 because this is a Class Activity
+                                                                localDB.updateStatistics(usage, 2, user.getId());
+                                                                // Kills updateStatisticsLoop as we are switching to another activity.
+                                                                usage.setActivityChanged(true);
+
+                                                                startActivity(new Intent(getApplicationContext(), ClassList.class));
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), "Failed to create Class. Try Again!", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                                    }
+                                                } else {
+                                                    Toast.makeText(getApplicationContext(), "Failed to check all member's existence!", Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                        });
                                     }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), "Failed to create Class. Try Again!", Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Failed to retrieve user's classes!", Toast.LENGTH_LONG).show();
+                                }
                             }
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Failed to check all member's existance!", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                        });
             }
         });
 
