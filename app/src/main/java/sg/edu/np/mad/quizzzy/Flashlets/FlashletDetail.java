@@ -3,6 +3,7 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,12 +81,12 @@ public class FlashletDetail extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
-        String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
 
         // Update SQLite with Recently Opened
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
         ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
+        String userId = localDB.getUser().getUser().getId();
 
         // Create new UsageStatistic class and start the update loop
         UsageStatistic usage = new UsageStatistic();
@@ -166,6 +167,7 @@ public class FlashletDetail extends AppCompatActivity {
         // Handle Edit Button Pressed
         ImageView editFlashletBtn = findViewById(R.id.fDEditOption);
         ImageView cloneFlashletBtn = findViewById(R.id.fDCloneOption);
+
         /// If User ID does not match the Owner of the Flashlet, disable editing
         if (!Objects.equals(userId, flashlet.getCreatorID())) {
             editFlashletBtn.setVisibility(View.GONE);
@@ -178,7 +180,7 @@ public class FlashletDetail extends AppCompatActivity {
                             .setMessage("Do you want to clone this flashlet?")
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 String id = UUID.randomUUID().toString();
-                                String creatorId = flashlet.getCreatorID();
+                                String originalCreatorId = flashlet.getCreatorID();
                                 Flashlet newFlashlet = flashlet;
                                 newFlashlet.setId(id);
                                 newFlashlet.setCreatorID(userId);
@@ -201,11 +203,12 @@ public class FlashletDetail extends AppCompatActivity {
                                                                 Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
                                                                 // Send Message via Firebase FCM notifying the Owner of the flashlet their flashlet was cloned
                                                                 PushNotificationService pushNotificationService = new PushNotificationService();
-                                                                pushNotificationService.sendFlashletCloneMessage(creatorId, flashlet.getTitle());
+                                                                pushNotificationService.sendFlashletCloneMessage(originalCreatorId, flashlet.getTitle());
 
                                                                 // Send User to their cloned flashlet
                                                                 Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
                                                                 flashletCloneIntent.putExtra("flashletJSON", gson.toJson(newFlashlet));
+                                                                flashletCloneIntent.putExtra("userId", userId);
 
                                                                 startActivity(flashletCloneIntent);
                                                             }

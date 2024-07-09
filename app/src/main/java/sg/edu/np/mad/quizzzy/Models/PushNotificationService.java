@@ -80,9 +80,9 @@ public class PushNotificationService extends FirebaseMessagingService {
             @Override
             public void run() {
                 final OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(10, TimeUnit.SECONDS) // Set the connection timeout
-                        .writeTimeout(10, TimeUnit.SECONDS)   // Set the write timeout
-                        .readTimeout(10, TimeUnit.SECONDS)    // Set the read timeout
+                        .connectTimeout(120, TimeUnit.SECONDS) // Set the connection timeout
+                        .writeTimeout(120, TimeUnit.SECONDS)   // Set the write timeout
+                        .readTimeout(120, TimeUnit.SECONDS)    // Set the read timeout
                         .build();
 
                 String jsonData = "{\"topic\":\"" + receiverUserId + "\",\"message\":\"" + "Someone cloned your Flashlet: " + flashletName + "\"}";

@@ -37,7 +37,6 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     LinearLayout noRelatedSearchesContainer;
     Gson gson = new Gson();
     ArrayList<FlashletWithUsername> flashlets = new ArrayList<FlashletWithUsername>();
-    UserWithRecents currentUser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,10 +47,6 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Get Current Logged in User
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(getActivity());
-        currentUser = localDB.getUser();
 
         // Get Data from Fragment Bundle
         Bundle args = getArguments();
@@ -74,6 +69,10 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
 
     @Override
     public void onItemClick(int position) {
+        // Get Current Logged in User
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(getActivity());
+        UserWithRecents currentUser = localDB.getUser();
+
         FlashletWithUsername flashlet = flashlets.get(position);
         Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
         sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());

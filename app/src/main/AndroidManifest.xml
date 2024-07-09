@@ -30,7 +30,8 @@
         <activity
             android:name=".Search.SearchActivity"
             android:exported="false"
-            android:theme="@style/Theme.Quizzzy" />
+            android:theme="@style/Theme.Quizzzy"
+            android:screenOrientation="portrait"  />
         <activity
             android:name=".Classes.UpdateClass"
             android:exported="false"
@@ -109,7 +110,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
+        <meta-data android:name="geminiApiKey" android:value="${geminiApiKey}" />
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr, ocr_chinese" />

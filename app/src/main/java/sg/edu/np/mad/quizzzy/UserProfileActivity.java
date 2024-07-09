@@ -113,29 +113,31 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
 
         // Retrieve Flashlets from Database
         flashletRecyclerView = findViewById(R.id.uPRecyclerView);
-        db.collection("flashlets").whereIn("id", user.getCreatedFlashlets()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String flashletJson = gson.toJson(document.getData());
-                        Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
-                        if (flashlet.getIsPublic()) {
-                            flashlets.add(flashlet);
+        if (!user.getCreatedFlashlets().isEmpty()) {
+            db.collection("flashlets").whereIn("id", user.getCreatedFlashlets()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String flashletJson = gson.toJson(document.getData());
+                            Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
+                            if (flashlet.getIsPublic()) {
+                                flashlets.add(flashlet);
+                            }
                         }
-                    }
 
-                    /// Display Flashlet List on Screen
-                    ProfileFlashletAdapter adapter = new ProfileFlashletAdapter(flashlets, UserProfileActivity.this);
-                    LinearLayoutManager userLayoutManager = new LinearLayoutManager(UserProfileActivity.this);
-                    flashletRecyclerView.setLayoutManager(userLayoutManager);
-                    flashletRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                    flashletRecyclerView.setAdapter(adapter);
-                } else {
-                    Log.d("Firebase", "Flashlet get failed with ", task.getException());
+                        /// Display Flashlet List on Screen
+                        ProfileFlashletAdapter adapter = new ProfileFlashletAdapter(flashlets, UserProfileActivity.this);
+                        LinearLayoutManager userLayoutManager = new LinearLayoutManager(UserProfileActivity.this);
+                        flashletRecyclerView.setLayoutManager(userLayoutManager);
+                        flashletRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                        flashletRecyclerView.setAdapter(adapter);
+                    } else {
+                        Log.d("Firebase", "Flashlet get failed with ", task.getException());
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

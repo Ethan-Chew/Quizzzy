@@ -364,7 +364,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
                         String ocrResult = data.getStringExtra("result");
-                        Log.d("result", ocrResult);
+                        searchView.setQuery(ocrResult, true);
                     }
                 }
             }

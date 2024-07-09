@@ -12,7 +12,9 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -47,6 +49,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.gson.Gson;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
@@ -57,9 +60,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandler;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
+import sg.edu.np.mad.quizzzy.Models.GeminiResponseEventHandler;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.R;
 
 public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+    Gson gson = new Gson();
 
     PreviewView cameraView;
     SurfaceHolder holder;
@@ -124,6 +134,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
                 editText.setText(decodedText.getText().toString());
 
+                // Handle Search Button Click
                 searchBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -131,6 +142,47 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                         intent.putExtra("result", editText.getText().toString());
                         setResult(RESULT_OK, intent);
                         finish();
+                    }
+                });
+
+                // Handle Generate Button Click
+                generateBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Disable the Button and show loading
+                        generateBtn.setText("Loading...");
+                        generateBtn.setEnabled(false);
+                        searchBtn.setEnabled(false);
+
+                        TextInputEditText editText = dialogView.findViewById(R.id.oBSEditText);
+                        GeminiHandler.generateFlashletOnKeyword(editText.getText().toString(), new GeminiResponseEventHandler() {
+                            @Override
+                            public void onResponse(GeminiHandlerResponse handlerResponse) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Send Intent to CreateFlashlet
+                                        Intent sendToCreateFlashlet = new Intent(OCRActivity.this, CreateFlashlet.class);
+                                        sendToCreateFlashlet.putExtra("autofilledFlashletJSON", gson.toJson(handlerResponse));
+                                        startActivity(sendToCreateFlashlet);
+
+                                        // Reset the Button
+                                        generateBtn.setText("Generate Flashlet");
+                                        generateBtn.setEnabled(true);
+                                        searchBtn.setEnabled(true);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception err) {
+                                Toast.makeText(OCRActivity.this, "Failed to Generate Flashlet", Toast.LENGTH_LONG).show();
+                                // Enable the Button
+                                generateBtn.setText("Generate Flashlet");
+                                generateBtn.setEnabled(true);
+                                searchBtn.setEnabled(true);
+                            }
+                        });
                     }
                 });
             }
@@ -187,7 +239,6 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
                     // Scale the bitmap to match the cameraView dimensions
                     Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, cameraWidth, cameraHeight, false);
-
                     int scaledWidth = scaledBitmap.getWidth();
                     int scaledHeight = scaledBitmap.getHeight();
 
@@ -219,7 +270,8 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                                     StringBuilder result = new StringBuilder();
                                     for (Text.TextBlock block : text.getTextBlocks()) {
                                         String blockText = block.getText();
-                                        Point[] blockCornerPoint = block.getCornerPoints();
+                                        Rect blockRect = block.getBoundingBox();
+//                                        drawTextBounding(blockRect);
                                         for (Text.Line line : block.getLines()) {
                                             String lineText = line.getText();
                                             for (Text.Element element : line.getElements()) {
@@ -283,7 +335,6 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         top = (float) (height / 2.0 - diameter / 5.0);
         right = (float) (width / 2.0 + diameter / 2.5);
         bottom = (float) (height / 2.0 + diameter / 5.0);
-
         // Draw Outlines of each corner on the Bounding Box
         float cornerLength = 50f;
         /// Top-left corner
@@ -303,6 +354,22 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         canvas.drawLine(right, bottom, right, bottom - cornerLength, paint);
 
         // Add the Outlines to the Holder
+        holder.unlockCanvasAndPost(canvas);
+    }
+
+    // Draw Detected Text Bounding Box
+    private void drawTextBounding(Rect bounds) {
+        canvas = holder.lockCanvas();
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+
+        // Customise the Bounding Box's Line Stroke
+        paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.parseColor("#aaaaaa"));
+        paint.setStrokeWidth(5);
+
+        // Draw Box
+        canvas.drawRect(bounds.left, bounds.top, bounds.width(), bounds.height(), paint);
         holder.unlockCanvasAndPost(canvas);
     }
 

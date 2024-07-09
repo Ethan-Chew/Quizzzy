@@ -251,6 +251,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         String flashletJson = gson.toJson(userFlashlets.get(position));
         Intent sendToFlashletDetail = new Intent(FlashletList.this, FlashletDetail.class);
         sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
+        sendToFlashletDetail.putExtra("userId", localDB.getUser().getUser().getId());
 
         // Save statistics to SQLite DB before changing Activity.
         // timeType of 1 because this is a Flashlet Activity

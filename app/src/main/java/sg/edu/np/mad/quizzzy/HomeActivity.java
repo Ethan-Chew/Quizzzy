@@ -73,6 +73,7 @@ import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 public class HomeActivity extends AppCompatActivity  {
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SQLiteManager localDB;
     Gson gson = new Gson();
 
     UserWithRecents userWithRecents;
@@ -129,7 +130,7 @@ public class HomeActivity extends AppCompatActivity  {
         });
 
         // Get User from SQLite
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
+        localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
         SQLiteRecentSearchesManager recentSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(HomeActivity.this);
         userWithRecents = localDB.getUser();
         /// If User is somehow null, return user back to login page
@@ -186,7 +187,11 @@ public class HomeActivity extends AppCompatActivity  {
 
         // Set the User's Username on the Header
         usernameView.setText(userWithRecents.getUser().getUsername());
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         TextView showClassList = findViewById(R.id.hSClassList);
         showClassList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +200,7 @@ public class HomeActivity extends AppCompatActivity  {
                 startActivity(showclassintent);
             }
         });
+        horiRecentlyViewed.removeAllViews(); // Clear the Recently Viewed List
 
         // If there are no Recently Viewed, display text
         recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
@@ -332,7 +338,7 @@ public class HomeActivity extends AppCompatActivity  {
             });
 
             /// Re-Constrain Class Title
-            ConstraintLayout constraintLayout = findViewById(R.id.hSConstrainLayout);
+            ConstraintLayout constraintLayout = findViewById(R.id.hSContainerConstraint);
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
             constraintSet.clear(R.id.hPClassesTitle, ConstraintSet.TOP);
@@ -341,36 +347,6 @@ public class HomeActivity extends AppCompatActivity  {
 
             // Remove Loader
             loader.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        /*
-         * Everytime the page is brought back to the user's view, re-check the recentlyOpenedFlashlets
-         * If all recentlyOpenedFlashlet has been deleted, remove it from the view
-         * */
-
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);
-        userWithRecents = localDB.getUser();
-        /// If User is somehow null, return user back to login page
-        if (userWithRecents == null) {
-            Intent returnToLoginIntent = new Intent(HomeActivity.this, MainActivity.class);
-            startActivity(returnToLoginIntent);
-        }
-
-        recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
-
-        if (recentlyOpenedFlashletsIds.isEmpty()) {
-            horiRecentlyViewed.removeAllViews();
-            View noRecentlyViewed = LayoutInflater.from(HomeActivity.this).inflate(R.layout.flashlet_recently_viewed, null, false);
-            TextView nRVTitle = noRecentlyViewed.findViewById(R.id.fRVTitle);
-            nRVTitle.setText("No Recently Viewed");
-            TextView nRVDesc = noRecentlyViewed.findViewById(R.id.fRVDescription);
-            nRVDesc.setText("");
-            horiRecentlyViewed.addView(noRecentlyViewed);
         }
     }
 }

@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -37,6 +38,7 @@ import java.util.UUID;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -47,6 +49,7 @@ import sg.edu.np.mad.quizzzy.StatisticsActivity;
 public class CreateFlashlet extends AppCompatActivity {
     // Initialisation of Firebase Cloud Firestore
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    Gson gson = new Gson();
 
     // Data Variables
     Flashlet newFlashlet;
@@ -74,6 +77,7 @@ public class CreateFlashlet extends AppCompatActivity {
         // Add Flashlet to SQLite DB
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(CreateFlashlet.this);
         User user = localDB.getUser().getUser();
+        String userId = user.getId();
 
         // Create new UsageStatistic class and start the update loop
         UsageStatistic usage = new UsageStatistic();
@@ -155,7 +159,15 @@ public class CreateFlashlet extends AppCompatActivity {
         // Check if Redirect from Class Page
         Intent receivingIntent = getIntent();
         String classId = receivingIntent.getStringExtra("classId");
-        String userId = receivingIntent.getStringExtra("userId");
+        String autofilledFlashlet = receivingIntent.getStringExtra("autofilledFlashletJSON");
+        if (autofilledFlashlet != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autofillGeminiFlashlet(gson.fromJson(autofilledFlashlet, GeminiHandlerResponse.class));
+                }
+            });
+        }
 
         // Listen for onClick on 'Create Flashlet' button, then create the flashlet
         addNewFlashcardBtn = findViewById(R.id.cFAddNewFlashcardBtn);
@@ -300,6 +312,64 @@ public class CreateFlashlet extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private void autofillGeminiFlashlet(GeminiHandlerResponse handlerResponse) {
+        flashcardListView = findViewById(R.id.cFCreateNewFlashcardList);
+        // Set the Title of the Flashlet
+        createFlashletTitle = findViewById(R.id.cFNewTitle);
+        createFlashletTitle.setText(handlerResponse.getTitle());
+
+        // Create the necessary flashcards
+        flashcards = handlerResponse.getFlashcards();
+        for (Flashcard flashcard : flashcards) {
+            newFlashcardView = LayoutInflater.from(CreateFlashlet.this).inflate(R.layout.create_flashlet_newflashcard, null, false);
+
+            // Listen for updates in the Flashcard Info
+            EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
+            keywordEditText.setText(flashcard.getKeyword());
+            keywordEditText.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    flashcard.setKeyword(keywordEditText.getText().toString());
+                }
+            });
+            EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
+            definitionEditText.setText(flashcard.getDefinition());
+            definitionEditText.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    flashcard.setDefinition(definitionEditText.getText().toString());
+                }
+            });
+
+            // Handle Delete Flashcard Item
+            ImageView deleteFlashcardItem = newFlashcardView.findViewById(R.id.newFlashcardDelete);
+            deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    flashcards.remove(flashcard);
+                    flashcardListView.removeView(newFlashcardView);
+                }
+            });
+
+            // Add Inflated View to LinearLayout Container
+            flashcardListView.addView(newFlashcardView);
+
+            // Add Spacer View
+            View spacerView = new View(CreateFlashlet.this);
+            LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    20
+            );
+            flashcardListView.addView(spacerView, spacerParams);
+        }
     }
 
     // To re-initialize the DB update loop when returning to the screen
