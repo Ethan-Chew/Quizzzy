@@ -1,6 +1,7 @@
 package sg.edu.np.mad.quizzzy.Models;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.ChatFutures;
@@ -17,9 +18,11 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import sg.edu.np.mad.quizzzy.BuildConfig;
+
 public class GeminiHandler {
     static public void generateFlashletOnKeyword(String topic, GeminiResponseEventHandler callback) {
-        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", "AIzaSyDNswk-cKZZMu0aXSPT9Jb6OG9aivvVC_4");
+        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", BuildConfig.GEMINI_API_KEY);
         GenerativeModelFutures model = GenerativeModelFutures.from(gm);
 
         // Create Flashlet Prompt
@@ -68,6 +71,10 @@ public class GeminiHandler {
             @Override
             public void onSuccess(GenerateContentResponse result) {
                 String resultText = result.getText();
+                Log.d("aaa", resultText);
+                if (resultText.equals("INVALID")) {
+                    callback.onError(new Exception("Invalid Search Query. Try again with another word!"));
+                }
 
                 // Parse the Result into a Flashlet
                 String[] lines = resultText.split("\n");
@@ -84,7 +91,7 @@ public class GeminiHandler {
 
             @Override
             public void onFailure(Throwable t) {
-
+                callback.onError(new Exception(t));
             }
         }, executor);
     }

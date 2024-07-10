@@ -176,7 +176,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
                             @Override
                             public void onError(Exception err) {
-                                Toast.makeText(OCRActivity.this, "Failed to Generate Flashlet", Toast.LENGTH_LONG).show();
+                                Toast.makeText(OCRActivity.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                                 // Enable the Button
                                 generateBtn.setText("Generate Flashlet");
                                 generateBtn.setEnabled(true);
