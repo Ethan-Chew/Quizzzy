@@ -3,12 +3,14 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
@@ -25,7 +27,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -38,11 +42,15 @@ import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListAdapter;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandler;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
+import sg.edu.np.mad.quizzzy.Models.GeminiResponseEventHandler;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.OCRActivity;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
@@ -168,17 +176,28 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         createFlashlet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
-                Intent createFlashcardIntent = new Intent(FlashletList.this, CreateFlashlet.class);
-                createFlashcardIntent.putExtra("userId", userWithRecents.getUser().getId());
+                PopupMenu popupMenu = new PopupMenu(FlashletList.this, v);
+                popupMenu.inflate(R.menu.create_flashlet_options);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
 
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
+                        // Save statistics to SQLite DB before changing Activity.
+                        // timeType of 1 because this is a Flashlet Activity
+                        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                        // Kills updateStatisticsLoop as we are switching to another activity.
+                        usage.setActivityChanged(true);
 
-                startActivity(createFlashcardIntent);
+                        if (itemId == R.id.cFOCreate) {
+                            startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
+                        } else if (itemId == R.id.cFOAutogenerate) {
+                            handleBottomDialogView();
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
 
@@ -211,12 +230,12 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                             if (itemId == R.id.cFOCreate) {
                                 startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
                             } else if (itemId == R.id.cFOAutogenerate) {
-
+                                handleBottomDialogView();
                             }
                             return true;
                         }
                     });
-
+                    popupMenu.show();
                 }
             });
             recyclerView.setVisibility(View.GONE);
@@ -259,6 +278,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         recreate();
     }
 
+    // Handle onClick of the Flashlet List Recycler View
     @Override
     public void onItemClick(int position) {
         String flashletJson = gson.toJson(userFlashlets.get(position));
@@ -275,10 +295,59 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         startActivity(sendToFlashletDetail);
     }
 
+    // Update the Flashlet Count everytime a Flashlet is deleted
     @Override
     public void flashletCount(Integer count) {
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
         String flashletCountStr = "You have " + count + " Total Flashlet" + (count == 1 ? "" : "s");
         flashletCount.setText(flashletCountStr);
+    }
+
+    // Create the BottomDialogView to get the user's Search Term to be Autogenerated into a Flashlet
+    private void handleBottomDialogView() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(FlashletList.this);
+        View dialogView = LayoutInflater.from(FlashletList.this).inflate(R.layout.autogenerate_flashlet_bottom_sheet, null);
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.show();
+
+        // Handle Search Button Click
+        TextInputEditText editText = dialogView.findViewById(R.id.aFEditText);
+        Button generateBtn = dialogView.findViewById(R.id.aFGenerateBtn);
+        generateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Disable the Button and show loading
+                generateBtn.setText("Loading...");
+                generateBtn.setEnabled(false);
+
+                // Send the Flashlet to the Gemini AI Handler and await for a response/error
+                GeminiHandler.generateFlashletOnKeyword(editText.getText().toString(), new GeminiResponseEventHandler() {
+                    @Override
+                    public void onResponse(GeminiHandlerResponse handlerResponse) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Send Intent to CreateFlashlet
+                                Intent sendToCreateFlashlet = new Intent(FlashletList.this, CreateFlashlet.class);
+                                sendToCreateFlashlet.putExtra("autofilledFlashletJSON", gson.toJson(handlerResponse));
+                                startActivity(sendToCreateFlashlet);
+
+                                // Reset the Button
+                                generateBtn.setText("Generate Flashlet");
+                                generateBtn.setEnabled(true);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception err) {
+                        Toast.makeText(FlashletList.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        // Enable the Button
+                        generateBtn.setText("Generate Flashlet");
+                        generateBtn.setEnabled(true);
+                    }
+                });
+            }
+        });
     }
 }
