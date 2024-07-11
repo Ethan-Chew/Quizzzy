@@ -341,10 +341,16 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
 
                     @Override
                     public void onError(Exception err) {
-                        Toast.makeText(FlashletList.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        // Enable the Button
-                        generateBtn.setText("Generate Flashlet");
-                        generateBtn.setEnabled(true);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Display an Error to the User
+                                Toast.makeText(FlashletList.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                // Enable the Button
+                                generateBtn.setText("Generate Flashlet");
+                                generateBtn.setEnabled(true);
+                            }
+                        });
                     }
                 });
             }
