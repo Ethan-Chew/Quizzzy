@@ -1,15 +1,25 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -17,7 +27,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
+import com.google.zxing.WriterException;
 
+import sg.edu.np.mad.quizzzy.Classes.QRCodeUtil;
+import sg.edu.np.mad.quizzzy.Classes.TOTPUtil;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -86,14 +99,62 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent receiveIntent = getIntent();
         user = gson.fromJson(receiveIntent.getStringExtra("userJSON"), User.class);
 
-        // Set View Text
+        // get UI elements
         TextView usernameLbl = findViewById(R.id.uPUsername);
         TextView flashletCountLbl = findViewById(R.id.uPFlashletCount);
+        Button register2FA = findViewById(R.id.register2FA);
 
         usernameLbl.setText(user.getUsername());
         String flashletCount = user.getCreatedFlashlets().size() + " Flashlets";
         flashletCountLbl.setText(flashletCount);
 
+//        EditText totpEditText = findViewById(R.id.totpEditText);
+//        Button verifyButton = findViewById(R.id.verifyButton);
+        String secret = TOTPUtil.generateSecretKey();
 
+//        verifyButton.setOnClickListener(v -> {
+//            String totpCode = totpEditText.getText().toString().trim();
+//            boolean isValid = TOTPUtil.verifyTOTP(secret, totpCode);
+//            if (isValid) {
+//                Toast.makeText(UserProfileActivity.this, "TOTP is valid", Toast.LENGTH_SHORT).show();
+//            } else {
+//                Toast.makeText(UserProfileActivity.this, "Invalid TOTP", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+        register2FA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = inflater.inflate(R.layout.register2fa_popup, null);
+                final PopupWindow popupWindow = new PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+                popupWindow.setElevation(5.0f);
+                ImageView qrCodeImageView = popupView.findViewById(R.id.qrCodeImageView);
+                Button closeButton = popupView.findViewById(R.id.close_button);
+                closeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
+                popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
+
+
+
+                String issuer = "Quizzzy";
+                String account = "user@example.com";
+                String totpUri = TOTPUtil.getTOTPURI(secret, issuer, account);
+
+
+                try {
+                    Log.d("debug",totpUri);
+                    Bitmap qrCodeBitmap = QRCodeUtil.generateQRCode(totpUri);
+                    qrCodeImageView.setImageBitmap(qrCodeBitmap);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                };
+            }
+        });
     }
 }
