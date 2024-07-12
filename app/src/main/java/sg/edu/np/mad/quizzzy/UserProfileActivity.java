@@ -31,6 +31,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
 
+import sg.edu.np.mad.quizzzy.Classes.HOTPWatcher;
 import sg.edu.np.mad.quizzzy.Classes.QRCodeUtil;
 import sg.edu.np.mad.quizzzy.Classes.TOTPUtil;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
@@ -159,6 +160,19 @@ public class UserProfileActivity extends AppCompatActivity {
                     }
                 }
 
+                final EditText pin1 = popupView.findViewById(R.id.pin1);
+                final EditText pin2 = popupView.findViewById(R.id.pin2);
+                final EditText pin3 = popupView.findViewById(R.id.pin3);
+                final EditText pin4 = popupView.findViewById(R.id.pin4);
+                final EditText pin5 = popupView.findViewById(R.id.pin5);
+                final EditText pin6 = popupView.findViewById(R.id.pin6);
+
+                pin1.addTextChangedListener(new HOTPWatcher(pin1, pin2));
+                pin2.addTextChangedListener(new HOTPWatcher(pin2, pin3));
+                pin3.addTextChangedListener(new HOTPWatcher(pin3, pin4));
+                pin4.addTextChangedListener(new HOTPWatcher(pin4, pin5));
+                pin5.addTextChangedListener(new HOTPWatcher(pin5, pin6));
+                pin6.addTextChangedListener(new HOTPWatcher(pin6, null));
 
 
                 String issuer = "Quizzzy";
