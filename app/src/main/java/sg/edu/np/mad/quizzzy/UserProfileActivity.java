@@ -29,10 +29,21 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import sg.edu.np.mad.quizzzy.Classes.QRCodeUtil;
 import sg.edu.np.mad.quizzzy.Classes.TOTPUtil;
@@ -227,8 +238,16 @@ public class UserProfileActivity extends AppCompatActivity {
                         pin5.getText().toString() +
                         pin6.getText().toString();
                 boolean isValid = verifyTOTP(secret, totp);
-                if (isValid) {
-                    Toast.makeText(UserProfileActivity.this, "TOTP is valid", Toast.LENGTH_SHORT).show();
+                if (!isValid) {
+                    FirebaseAuth mAuth;
+                    mAuth = FirebaseAuth.getInstance();
+                    FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    Map<String, Object> firebaseSecret = new HashMap<>();
+                    firebaseSecret.put("2faSecret", secret);
+
+
+                    firebase.collection("users").document(currentUser.getUid()).update(firebaseSecret);
                 } else {
                     Toast.makeText(UserProfileActivity.this, "Invalid TOTP", Toast.LENGTH_SHORT).show();
                 }
