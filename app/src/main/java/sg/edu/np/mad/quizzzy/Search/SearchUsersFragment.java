@@ -1,4 +1,4 @@
-package sg.edu.np.mad.quizzzy;
+package sg.edu.np.mad.quizzzy.Search;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,10 +23,11 @@ import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedUsersAdapter;
+import sg.edu.np.mad.quizzzy.UserProfileActivity;
 
 public class SearchUsersFragment extends Fragment implements RecyclerViewInterface {
-
     RecyclerView usersRecyclerView;
     LinearLayout noRelatedSearchesContainer;
     Gson gson = new Gson();

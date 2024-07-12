@@ -1,8 +1,12 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -128,6 +132,24 @@ public class HomeActivity extends AppCompatActivity  {
                 return false;
             }
         });
+
+        // Check if User is Connected to the Network; if not, tell them it is required
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isNetworkConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if (!isNetworkConnected) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+            builder
+                    .setTitle("Not connected to Internet!")
+                    .setMessage("For Quizzzy to function normally, your device has to be connected to the internet! Most features will not work as intended without internet.")
+                    .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            
+                        }
+                    });
+            builder.create();
+        }
 
         // Get User from SQLite
         localDB = SQLiteManager.instanceOfDatabase(HomeActivity.this);

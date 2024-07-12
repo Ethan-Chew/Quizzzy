@@ -179,8 +179,8 @@ public class FlashletDetail extends AppCompatActivity {
                     builder.setTitle("Clone Flashlet")
                             .setMessage("Do you want to clone this flashlet?")
                             .setPositiveButton("Yes", (dialog, which) -> {
-                                String id = UUID.randomUUID().toString();
-                                String originalCreatorId = flashlet.getCreatorID();
+                                final String id = UUID.randomUUID().toString();
+                                final String originalCreatorId = flashlet.getCreatorID();
                                 Flashlet newFlashlet = flashlet;
                                 newFlashlet.setId(id);
                                 newFlashlet.setCreatorID(userId);

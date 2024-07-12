@@ -12,6 +12,7 @@ public class ProfileFlashletViewHolder extends RecyclerView.ViewHolder {
 
     TextView titleLabel;
     TextView flashcardCountLabel;
+    TextView flashletLastUpdatedLabel;
 
     public ProfileFlashletViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
@@ -19,11 +20,10 @@ public class ProfileFlashletViewHolder extends RecyclerView.ViewHolder {
         // Find Item from View
         titleLabel = itemView.findViewById(R.id.fLITitle);
         flashcardCountLabel = itemView.findViewById(R.id.fLICount);
-        TextView lastUpdatedLabel = itemView.findViewById(R.id.fLILUpdatedLabel);
+        flashletLastUpdatedLabel = itemView.findViewById(R.id.fLILUpdatedLabel);
         TextView optionsMenu = itemView.findViewById(R.id.fLIOptionsMenu);
 
         // Hide Unnecessary Items
-        lastUpdatedLabel.setVisibility(View.GONE);
         optionsMenu.setVisibility(View.GONE);
 
         // Set onClick of Flashlet List Container

@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListViewHolder;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -47,6 +49,9 @@ public class ProfileFlashletAdapter extends RecyclerView.Adapter<ProfileFlashlet
 
         String flashcardCountTxt = listItem.getFlashcards().size() + " Keyword" + (listItem.getFlashcards().size() == 1 ? "" : "s");
         holder.flashcardCountLabel.setText(flashcardCountTxt);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
+        holder.flashletLastUpdatedLabel.setText(sdf.format(listItem.getLastUpdatedUnix() * 1000L));
     }
 
     @Override

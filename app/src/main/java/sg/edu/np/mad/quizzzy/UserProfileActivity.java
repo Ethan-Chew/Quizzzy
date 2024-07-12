@@ -28,13 +28,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 public class UserProfileActivity extends AppCompatActivity implements RecyclerViewInterface {
@@ -103,13 +106,13 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
         Intent receiveIntent = getIntent();
         user = gson.fromJson(receiveIntent.getStringExtra("userJSON"), User.class);
 
-        // Set View Text
-        TextView usernameLbl = findViewById(R.id.uPUsername);
-        TextView flashletCountLbl = findViewById(R.id.sURFlashletCount);
+        // Get Currently Logged In User
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(UserProfileActivity.this);
+        UserWithRecents loggedInUser = localDB.getUser();
 
+        // Set Username Text
+        TextView usernameLbl = findViewById(R.id.uPUsername);
         usernameLbl.setText(user.getUsername());
-        String flashletCount = user.getCreatedFlashlets().size() + " Flashlets";
-        flashletCountLbl.setText(flashletCount);
 
         // Retrieve Flashlets from Database
         flashletRecyclerView = findViewById(R.id.uPRecyclerView);
@@ -121,10 +124,20 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String flashletJson = gson.toJson(document.getData());
                             Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
-                            if (flashlet.getIsPublic()) {
+                            // If the Profile's User is the same as the current user, show all flashlets. Else, only show public flashlets
+                            if (!Objects.equals(loggedInUser.getUser().getId(), user.getId())) {
+                                if (flashlet.getIsPublic()) {
+                                    flashlets.add(flashlet);
+                                }
+                            } else {
                                 flashlets.add(flashlet);
                             }
                         }
+
+                        // Update Flashlet Count
+                        TextView flashletCountLbl = findViewById(R.id.sURFlashletCount);
+                        String flashletCount = flashlets.size() + " Flashlets";
+                        flashletCountLbl.setText(flashletCount);
 
                         /// Display Flashlet List on Screen
                         ProfileFlashletAdapter adapter = new ProfileFlashletAdapter(flashlets, UserProfileActivity.this);
@@ -142,6 +155,7 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
 
     @Override
     public void onItemClick(int position) {
+        Log.d("item click", String.valueOf(position));
         String flashletJson = gson.toJson(flashlets.get(position));
         Intent sendToFlashletDetail = new Intent(UserProfileActivity.this, FlashletDetail.class);
         sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
