@@ -2,11 +2,13 @@ package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -138,7 +140,24 @@ public class UserProfileActivity extends AppCompatActivity {
                         popupWindow.dismiss();
                     }
                 });
+                // Set a dim background behind the popup
+                popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                popupWindow.setOutsideTouchable(true);
+
+                // Show the popup window at the center of the layout
                 popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
+
+                // Dim the background
+                View container = popupWindow.getContentView().getRootView();
+                if (container != null) {
+                    WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+                    WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+                    p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                    p.dimAmount = 0.5f;
+                    if (wm != null) {
+                        wm.updateViewLayout(container, p);
+                    }
+                }
 
 
 
