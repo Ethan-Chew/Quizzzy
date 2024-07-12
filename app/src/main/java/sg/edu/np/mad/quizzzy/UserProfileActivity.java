@@ -1,9 +1,13 @@
 package sg.edu.np.mad.quizzzy;
 
+import static sg.edu.np.mad.quizzzy.Classes.TOTPUtil.verifyTOTP;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -12,7 +16,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,14 +34,19 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
 
-import sg.edu.np.mad.quizzzy.Classes.HOTPWatcher;
 import sg.edu.np.mad.quizzzy.Classes.QRCodeUtil;
 import sg.edu.np.mad.quizzzy.Classes.TOTPUtil;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.User;
 
+
+
 public class UserProfileActivity extends AppCompatActivity {
+
+    public static class secret {
+        public static String secret = TOTPUtil.generateSecretKey();
+    }
 
     Gson gson = new Gson();
 
@@ -68,7 +76,7 @@ public class UserProfileActivity extends AppCompatActivity {
         // Handle Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
-        bottomNavigationView.setPadding(0,0,0,0);
+        bottomNavigationView.setPadding(0, 0, 0, 0);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -77,21 +85,21 @@ public class UserProfileActivity extends AppCompatActivity {
 
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    overridePendingTransition(0,0);
+                    overridePendingTransition(0, 0);
                     return true;
-                }  else if (itemId == R.id.create) {
+                } else if (itemId == R.id.create) {
                     Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
                     createFlashletIntent.putExtra("userId", "");
                     startActivity(createFlashletIntent);
-                    overridePendingTransition(0,0);
+                    overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
                     startActivity(new Intent(getApplicationContext(), FlashletList.class));
-                    overridePendingTransition(0,0);
+                    overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
-                    overridePendingTransition(0,0);
+                    overridePendingTransition(0, 0);
                     return true;
                 }
                 return false;
@@ -110,28 +118,15 @@ public class UserProfileActivity extends AppCompatActivity {
         usernameLbl.setText(user.getUsername());
         String flashletCount = user.getCreatedFlashlets().size() + " Flashlets";
         flashletCountLbl.setText(flashletCount);
+        String secret = UserProfileActivity.secret.secret;
 
-//        EditText totpEditText = findViewById(R.id.totpEditText);
-//        Button verifyButton = findViewById(R.id.verifyButton);
-        String secret = TOTPUtil.generateSecretKey();
-
-//        verifyButton.setOnClickListener(v -> {
-//            String totpCode = totpEditText.getText().toString().trim();
-//            boolean isValid = TOTPUtil.verifyTOTP(secret, totpCode);
-//            if (isValid) {
-//                Toast.makeText(UserProfileActivity.this, "TOTP is valid", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(UserProfileActivity.this, "Invalid TOTP", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         register2FA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.register2fa_popup, null);
-                final PopupWindow popupWindow = new PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+                PopupWindow popupWindow = new PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
                 popupWindow.setElevation(5.0f);
                 ImageView qrCodeImageView = popupView.findViewById(R.id.qrCodeImageView);
                 Button closeButton = popupView.findViewById(R.id.close_button);
@@ -160,19 +155,19 @@ public class UserProfileActivity extends AppCompatActivity {
                     }
                 }
 
-                final EditText pin1 = popupView.findViewById(R.id.pin1);
-                final EditText pin2 = popupView.findViewById(R.id.pin2);
-                final EditText pin3 = popupView.findViewById(R.id.pin3);
-                final EditText pin4 = popupView.findViewById(R.id.pin4);
-                final EditText pin5 = popupView.findViewById(R.id.pin5);
-                final EditText pin6 = popupView.findViewById(R.id.pin6);
+                EditText pin1 = popupView.findViewById(R.id.pin1);
+                EditText pin2 = popupView.findViewById(R.id.pin2);
+                EditText pin3 = popupView.findViewById(R.id.pin3);
+                EditText pin4 = popupView.findViewById(R.id.pin4);
+                EditText pin5 = popupView.findViewById(R.id.pin5);
+                EditText pin6 = popupView.findViewById(R.id.pin6);
 
-                pin1.addTextChangedListener(new HOTPWatcher(pin1, pin2));
-                pin2.addTextChangedListener(new HOTPWatcher(pin2, pin3));
-                pin3.addTextChangedListener(new HOTPWatcher(pin3, pin4));
-                pin4.addTextChangedListener(new HOTPWatcher(pin4, pin5));
-                pin5.addTextChangedListener(new HOTPWatcher(pin5, pin6));
-                pin6.addTextChangedListener(new HOTPWatcher(pin6, null));
+                pin1.addTextChangedListener(new TOTPWatcher(pin1, pin2, popupView));
+                pin2.addTextChangedListener(new TOTPWatcher(pin2, pin3, popupView));
+                pin3.addTextChangedListener(new TOTPWatcher(pin3, pin4, popupView));
+                pin4.addTextChangedListener(new TOTPWatcher(pin4, pin5, popupView));
+                pin5.addTextChangedListener(new TOTPWatcher(pin5, pin6, popupView));
+                pin6.addTextChangedListener(new TOTPWatcher(pin6, null, popupView));
 
 
                 String issuer = "Quizzzy";
@@ -181,13 +176,79 @@ public class UserProfileActivity extends AppCompatActivity {
 
 
                 try {
-                    Log.d("debug",totpUri);
+                    Log.d("debug", totpUri);
                     Bitmap qrCodeBitmap = QRCodeUtil.generateQRCode(totpUri);
                     qrCodeImageView.setImageBitmap(qrCodeBitmap);
                 } catch (WriterException e) {
                     e.printStackTrace();
-                };
+                }
             }
         });
+    }
+    private class TOTPWatcher implements TextWatcher {
+
+        private View currentView;
+        private View nextView;
+        private View popupView;
+
+        public TOTPWatcher(View currentView, View nextView, View popupView) {
+            this.currentView = currentView;
+            this.nextView = nextView;
+            this.popupView = popupView;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (s.length() == 1 && nextView != null) {
+                nextView.requestFocus(); // Move focus to next EditText
+            } else if (s.length() == 0 && currentView != null) {
+                currentView.requestFocus(); // Stay on the current EditText
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (areAllPinFieldsFilled()) {
+                String secret = UserProfileActivity.secret.secret;
+                EditText pin1 = popupView.findViewById(R.id.pin1);
+                EditText pin2 = popupView.findViewById(R.id.pin2);
+                EditText pin3 = popupView.findViewById(R.id.pin3);
+                EditText pin4 = popupView.findViewById(R.id.pin4);
+                EditText pin5 = popupView.findViewById(R.id.pin5);
+                EditText pin6 = popupView.findViewById(R.id.pin6);
+                String totp = pin1.getText().toString() +
+                        pin2.getText().toString() +
+                        pin3.getText().toString() +
+                        pin4.getText().toString() +
+                        pin5.getText().toString() +
+                        pin6.getText().toString();
+                boolean isValid = verifyTOTP(secret, totp);
+                if (isValid) {
+                    Toast.makeText(UserProfileActivity.this, "TOTP is valid", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(UserProfileActivity.this, "Invalid TOTP", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        private boolean areAllPinFieldsFilled() {
+            EditText pin1 = popupView.findViewById(R.id.pin1);
+            EditText pin2 = popupView.findViewById(R.id.pin2);
+            EditText pin3 = popupView.findViewById(R.id.pin3);
+            EditText pin4 = popupView.findViewById(R.id.pin4);
+            EditText pin5 = popupView.findViewById(R.id.pin5);
+            EditText pin6 = popupView.findViewById(R.id.pin6);
+
+            return !pin1.getText().toString().isEmpty() &&
+                    !pin2.getText().toString().isEmpty() &&
+                    !pin3.getText().toString().isEmpty() &&
+                    !pin4.getText().toString().isEmpty() &&
+                    !pin5.getText().toString().isEmpty() &&
+                    !pin6.getText().toString().isEmpty();
+        }
     }
 }
