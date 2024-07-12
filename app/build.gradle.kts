@@ -55,4 +55,5 @@ dependencies {
     implementation ("androidx.camera:camera-video:1.3.4")
     implementation ("androidx.camera:camera-view:1.3.4")
     implementation ("androidx.camera:camera-extensions:1.3.4")
+    implementation ("com.google.guava:guava:31.0.1-android")
 }

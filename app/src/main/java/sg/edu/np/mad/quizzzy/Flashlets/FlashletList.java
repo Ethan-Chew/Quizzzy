@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -41,6 +42,7 @@ import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
@@ -167,17 +169,29 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         createFlashlet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FlashletList.this.getOnBackPressedDispatcher().onBackPressed();
-                Intent createFlashcardIntent = new Intent(FlashletList.this, CreateFlashlet.class);
-                createFlashcardIntent.putExtra("userId", userWithRecents.getUser().getId());
+                PopupMenu popupMenu = new PopupMenu(FlashletList.this, v);
+                popupMenu.inflate(R.menu.create_flashlet_options);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
 
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
+                        // Save statistics to SQLite DB before changing Activity.
+                        // timeType of 1 because this is a Flashlet Activity
+                        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                        // Kills updateStatisticsLoop as we are switching to another activity.
+                        usage.setActivityChanged(true);
 
-                startActivity(createFlashcardIntent);
+                        if (itemId == R.id.cFOCreate) {
+                            startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
+                        } else if (itemId == R.id.cFOAutogenerate) {
+                        } else if (itemId == R.id.cFOJoinFlashlet) {
+                            startActivity(new Intent(FlashletList.this, QrCodeScannerActivity.class));
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
 
