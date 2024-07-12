@@ -5,10 +5,11 @@
     android:layout_height="wrap_content"
     android:background="@drawable/list_item_background"
     android:orientation="vertical"
-    android:paddingLeft="15sp"
-    android:paddingTop="15sp"
-    android:paddingRight="15sp"
-    android:paddingBottom="15sp">
+    android:paddingLeft="15dp"
+    android:paddingTop="15dp"
+    android:paddingRight="15dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"

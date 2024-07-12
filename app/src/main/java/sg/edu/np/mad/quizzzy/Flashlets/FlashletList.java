@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Flashlets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -324,6 +325,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                 GeminiHandler.generateFlashletOnKeyword(editText.getText().toString(), new GeminiResponseEventHandler() {
                     @Override
                     public void onResponse(GeminiHandlerResponse handlerResponse) {
+                        Looper.prepare();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -341,6 +343,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
 
                     @Override
                     public void onError(Exception err) {
+                        Looper.prepare();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

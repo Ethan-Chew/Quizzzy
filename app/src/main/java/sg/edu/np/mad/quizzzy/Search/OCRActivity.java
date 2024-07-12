@@ -176,11 +176,16 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
                             @Override
                             public void onError(Exception err) {
-                                Toast.makeText(OCRActivity.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                                // Enable the Button
-                                generateBtn.setText("Generate Flashlet");
-                                generateBtn.setEnabled(true);
-                                searchBtn.setEnabled(true);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(OCRActivity.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                        // Enable the Button
+                                        generateBtn.setText("Generate Flashlet");
+                                        generateBtn.setEnabled(true);
+                                        searchBtn.setEnabled(true);
+                                    }
+                                });
                             }
                         });
                     }

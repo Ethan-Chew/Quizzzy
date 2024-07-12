@@ -44,7 +44,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
@@ -77,9 +80,9 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     private TextView clearAllRecents;
     private ImageView startOcrBtn;
 
-    // Global Data
+    // Data Variables
     private ArrayList<String> recentSearches = new ArrayList<String>();
-
+    private Boolean isSearchShown = false;
     Gson gson = new Gson();
 
     // Initialisation of Firebase Cloud Firestore
@@ -130,34 +133,61 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(SearchActivity.this);
         SQLiteRecentSearchesManager localSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
 
-        /// Hide Search Result Container
+        // Hide Search Result Container
         recentsListContainer = findViewById(R.id.aSRecentsListContainer);
         searchResultTabs = findViewById(R.id.aSResultsTabBar);
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
         searchResultTabs.setVisibility(View.GONE);
         searchResultViewPager.setVisibility(View.GONE);
 
-        /// Display list of Recents or 'No Recent Searches'
+        // Display list of Recent Searches or container showing No Recent Searches
         onResume();
 
         // Handle Search View Searches
         searchView = findViewById(R.id.aSSearchField);
         searchResultTabs = findViewById(R.id.aSResultsTabBar);
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
+        /// Listen to 'Focus' on the SearchView (when it is tapped)
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                /*
+                * If the Search Results Container (Tab and ViewPager) is Visible (isSearchShown == true) to the user,
+                * when the SearchView is focused, display the recent searches. Else, display the Search Results.
+                * If the Search Results Container is Not Visible, do nothing (display the recent searches at all times).
+                * */
+
+                if (isSearchShown) {
+                    if (hasFocus) {
+                        searchResultTabs.setVisibility(View.GONE);
+                        searchResultViewPager.setVisibility(View.GONE);
+                        recentsListContainer.setVisibility(View.VISIBLE);
+                    } else {
+                        searchResultTabs.setVisibility(View.VISIBLE);
+                        searchResultViewPager.setVisibility(View.VISIBLE);
+                        recentsListContainer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+        /// Listen to Text Changes in the Search View
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                // Add the Search Query to the local SQLite database and update the Recent Searches list
                 if (!localSearchesDB.getSearchQueries().contains(query)) {
                     localSearchesDB.addSearchQueries(query);
                 }
                 onResume();
 
+                // Callback Function to retrieve the Search Results
                 retrieveSearchResults(query, localDB, new OnSearchEventListener() {
                     @Override
                     public void onSearchResult(SearchResult searchResult) {
                         searchResultTabs.setVisibility(View.VISIBLE);
                         searchResultViewPager.setVisibility(View.VISIBLE);
                         recentsListContainer.setVisibility(View.GONE);
+                        isSearchShown = true;
 
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         searchAdapter = new SearchAdapter(fragmentManager, getLifecycle(), searchResult);
@@ -196,14 +226,10 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) { }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) { }
         });
 
         searchResultViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -260,93 +286,84 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         SearchResult searchResult = new SearchResult();
 
-        // Query the Cloud Firestore Database to search for Flashlet titles similar to the searchQuery
+        // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
         flashletColRef
                 .whereGreaterThanOrEqualTo("title", searchQuery)
                 .whereLessThanOrEqualTo("title", searchQuery + "\uf8ff")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            ArrayList<String> flashletOwnerIds = new ArrayList<String>();
-                            ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String flashletJson = gson.toJson(document.getData());
-                                Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
-                                if (flashlet.getIsPublic()) {
-                                    flashletList.add(flashlet);
-                                    flashletOwnerIds.add(flashlet.getCreatorID());
-                                }
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Convert the Flashlets from JSON to a Flashlet Object, and if it's public, add it to the list
+                        ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String flashletJson = gson.toJson(document.getData());
+                            Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
+                            if (flashlet.getIsPublic()) {
+                                flashletList.add(flashlet);
                             }
+                        }
 
-                            // Query the Database to search for User with Usernames similar to searchQuery
-                            usersColRef
-                                    .whereGreaterThanOrEqualTo("username", searchQuery)
-                                    .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
-                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                ArrayList<User> usersList = new ArrayList<User>();
-                                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                                    String userJson = gson.toJson(document.getData());
-                                                    User user = gson.fromJson(userJson, User.class);
-                                                    if (!Objects.equals(user.getId(), currentLoggedInUser.getId())) {
-                                                        usersList.add(user);
-                                                    }
-                                                }
-                                                searchResult.setUsers(usersList);
-
-                                                // If there are Flashlet Search Results, get the Username of the Owners
-                                                if (!flashletList.isEmpty()) {
-                                                    usersColRef.whereIn("id", flashletOwnerIds).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            if (task.isSuccessful()) {
-                                                                ArrayList<User> users = new ArrayList<User>();
-                                                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                    String userJson = gson.toJson(document.getData());
-                                                                    users.add(gson.fromJson(userJson, User.class));
-                                                                }
-                                                                // Add User ID and Username to FlashletId
-                                                                ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<FlashletWithUsername>();
-                                                                for (int i = 0; i < flashletList.size(); i++) {
-                                                                    for (int j = 0; j < flashletList.size(); j++) {
-                                                                        if (Objects.equals(users.get(j).getId(), flashletList.get(i).getCreatorID())) {
-                                                                            flashletWithUsernames.add(new FlashletWithUsername(flashletList.get(i), users.get(j).getUsername(), users.get(j).getId()));
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                }
-                                                                searchResult.setFlashlets(flashletWithUsernames);
-                                                                callback.onSearchResult(searchResult);
-                                                            } else {
-                                                                callback.onError(task.getException());
-                                                            }
-                                                        }
-                                                    });
-                                                } else {
-                                                    callback.onSearchResult(searchResult);
-                                                }
-                                            } else {
-                                                callback.onError(task.getException());
+                        // Retrieve Users with Usernames similar to the searchQuery
+                        usersColRef
+                                .whereGreaterThanOrEqualTo("username", searchQuery)
+                                .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                .get().addOnCompleteListener(userTask -> {
+                                    if (userTask.isSuccessful()) {
+                                        // Convert the Users from JSON to a User Object, only if the User is not the currently logged in user
+                                        ArrayList<User> usersList = new ArrayList<User>();
+                                        for (QueryDocumentSnapshot document : userTask.getResult()) {
+                                            String userJson = gson.toJson(document.getData());
+                                            User user = gson.fromJson(userJson, User.class);
+                                            if (!Objects.equals(user.getId(), currentLoggedInUser.getId())) {
+                                                usersList.add(user);
                                             }
                                         }
-                                    });
-                        } else {
-                            callback.onError(task.getException());
-                        }
+                                        searchResult.setUsers(usersList);
+
+                                        // If there were any Flashlets found, get the Username of the Owner
+                                        if (!flashletList.isEmpty()) {
+                                            usersColRef
+                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID()).collect(Collectors.toList()))
+                                                    .get().addOnCompleteListener(ownerTask -> {
+                                                        if (ownerTask.isSuccessful()) {
+                                                            Map<String, User> userMap = new HashMap<>();
+                                                            for (QueryDocumentSnapshot document : ownerTask.getResult()) {
+                                                                String userJson = gson.toJson(document.getData());
+                                                                User user = gson.fromJson(userJson, User.class);
+                                                                userMap.put(user.getId(), user);
+                                                            }
+
+                                                            ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
+                                                            for (Flashlet flashlet : flashletList) {
+                                                                User owner = userMap.get(flashlet.getCreatorID());
+                                                                if (owner != null) {
+                                                                    flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
+                                                                }
+                                                            }
+                                                            searchResult.setFlashlets(flashletWithUsernames);
+                                                            callback.onSearchResult(searchResult);
+                                                        } else {
+                                                            callback.onError(ownerTask.getException());
+                                                        }
+                                                    });
+                                        }
+
+                                        callback.onSearchResult(searchResult);
+                                    } else {
+                                        callback.onError(userTask.getException());
+                                    }
+                                });
+                    } else {
+                        callback.onError(task.getException());
                     }
                 });
     }
 
-    // Handle Recent RecyclerView Item onClick
+    // When a item on the Recent Searches RecyclerView is clicked, search it using the SearchView
     @Override
     public void onItemClick(int position) {
         searchView.setQuery(recentSearches.get(position), true);
     }
 
-    // Handle Recent List Empty
     @Override
     public void isRecentsEmpty(Boolean isEmpty) {
         if (isEmpty) {

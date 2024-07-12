@@ -216,14 +216,6 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
                 // Add Inflated View to LinearLayout Container
                 flashcardListView.addView(newFlashcardView);
-
-                // Add Spacer View
-                View spacerView = new View(CreateClassFlashlet.this);
-                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        20
-                );
-                flashcardListView.addView(spacerView, spacerParams);
             }
         });
 
