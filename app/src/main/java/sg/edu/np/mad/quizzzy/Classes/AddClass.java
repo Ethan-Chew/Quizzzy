@@ -208,7 +208,7 @@ public class AddClass extends AppCompatActivity {
             }
         });
 
-// when button click
+    // when button click
         EditText classTitle = findViewById(R.id.acNewTitle);
         createClassbtn.setOnClickListener(new View.OnClickListener() {
             @Override
