@@ -20,6 +20,15 @@
         app:navigationIcon="?attr/homeAsUpIndicator"/>
 
     <SurfaceView
+        android:id="@+id/oAHighlightedTxtOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/oABottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/oAViewToolbar" />
+
+    <SurfaceView
         android:id="@+id/oAOverlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
