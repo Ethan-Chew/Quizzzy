@@ -3,6 +3,7 @@ package sg.edu.np.mad.quizzzy.Flashlets.Recycler;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.View;
@@ -15,12 +16,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -63,6 +68,19 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
         // Create Drop Down Options Menu
         PopupMenu popup = new PopupMenu(activity, holder.optionsMenu);
         popup.inflate(R.menu.flashlet_list_options);
+
+        // Check if the user's ID matches the first creatorId in the flashlet
+        String firstCreatorId = listItem.getCreatorID().get(0);
+        MenuItem deleteItem = popup.getMenu().findItem(R.id.fLODelete);
+        MenuItem leaveItem = popup.getMenu().findItem(R.id.fLOLeave);
+        if (user.getId().equals(firstCreatorId)) {
+            deleteItem.setVisible(true);
+            leaveItem.setVisible(false);
+        } else {
+            deleteItem.setVisible(false);
+            leaveItem.setVisible(true);
+        }
+
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -116,10 +134,58 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
 
                     builder.create().show(); // Show Alert
                     return true;
+                } else if (itemId == R.id.fLOLeave) {
+                    // Handle leave flashlet logic
+                    SQLiteManager localDB = SQLiteManager.instanceOfDatabase(activity);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("Are you sure?")
+                            .setMessage("Confirm you want to leave Flashlet: " + listItem.getTitle() + "?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                // Confirmed Leave
+                                db.collection("flashlets").document(listItem.getId())
+                                        .update("creatorID", FieldValue.arrayRemove(user.getId()))
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                db.collection("users").document(user.getId())
+                                                        .update("createdFlashlets", FieldValue.arrayRemove(listItem.getId()))
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                notifyItemRemoved(holder.getAdapterPosition());
+                                                                notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
+                                                                Toast.makeText(activity.getApplicationContext(), "Left Flashlet Successfully!", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.e("Leave Flashlet", e.toString());
+                                                                Toast.makeText(activity.getApplicationContext(), "Failed to Leave Flashlet!", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.e("Leave Flashlet", e.toString());
+                                                Toast.makeText(activity.getApplicationContext(), "Failed to Leave Flashlet!", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                            })
+                            .setNegativeButton("Cancel", ((dialog, which) -> {
+                                // Handle Cancel Leave
+                            }))
+                            .setCancelable(true);
+
+                    builder.create().show(); // Show Alert
+                    return true;
                 }
                 return false;
             }
         });
+
         holder.optionsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
