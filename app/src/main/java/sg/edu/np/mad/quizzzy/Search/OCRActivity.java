@@ -81,15 +81,9 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
     Canvas canvas;
     SurfaceHolder holder;
     SurfaceView surfaceView;
-    Canvas textCanvas;
-    SurfaceHolder textHolder;
-    SurfaceView textSurfaceView;
     TextView decodedText;
 
     Paint paint;
-
-    // Bounding Box Values
-    float left, top, right, bottom;
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -130,9 +124,8 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         surfaceView = findViewById(R.id.oAOverlay);
         setupBoundingRect(surfaceView);
 
-        // Initialise the Text Bounding Boxes
-        textSurfaceView = findViewById(R.id.oAHighlightedTxtOverlay);
-        setupTextBoundingRect(textSurfaceView);
+        // Notify of Default OCR Language
+        Toast.makeText(OCRActivity.this, "OCR Language: English", Toast.LENGTH_LONG).show();
 
         // Handle Complete Button Click
         Button completeButton = findViewById(R.id.oAComplete);
@@ -211,6 +204,38 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         });
     }
 
+    private class BoundingBox {
+        private float left, top, right, bottom;
+        public BoundingBox(float left, float top, float right, float bottom) {
+            this.left = left;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+        }
+    }
+
+    private BoundingBox calculateBoundingBox(int width, int height) {
+        /*
+            This function takes in the Width and Height of the Camera View/Bitmap and calculates the bounding box coordinates
+
+            The Diameter is taken by either the height or the width, depending on which is shorter, minus-ed a offset for margin at the sides
+            Using the Diameter, the left, top, right, bottom values are calculated. These values are based on x and y positions on the screen.
+            e.g. Top Left Corner's Coordinate: (left, top). Bottom Right Corner's Coordinate: (bottom, right)
+        */
+
+        int diameter = Math.min(height, width);
+        int offset = (int) (0.05 * diameter);
+        diameter -= offset;
+
+        float left, top, right, bottom;
+        left = (float) (width / 2.0 - diameter / 2.5);
+        top = (float) (height / 2.0 - diameter / 5.0);
+        right = (float) (width / 2.0 + diameter / 2.5);
+        bottom = (float) (height / 2.0 + diameter / 5.0);
+
+        return new BoundingBox(left, top, right, bottom);
+    }
+
     // Start CameraX
     void startCameraPreview() {
         cameraView = findViewById(R.id.oACameraPreviewView);
@@ -255,41 +280,35 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
 
                 // Use different TextRecognition Clients depending on Language Settings
                 switch (selectedLanguage) {
-                    case 0: // English
-                        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-                        break;
                     case 1: // Chinese
                         recognizer = TextRecognition.getClient(new ChineseTextRecognizerOptions.Builder().build());
+                        break;
+                    default: // Default to English
+                        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
                         break;
                 }
 
                 if (bitmap != null) {
                     // Get Cropping Values
                     cameraView = findViewById(R.id.oACameraPreviewView);
-                    int cameraHeight = cameraView.getHeight();
-                    int cameraWidth = cameraView.getWidth();
 
-                    // Scale the bitmap to match the cameraView dimensions
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, cameraWidth, cameraHeight, false);
+                    // Scale and Rotate the bitmap to match the cameraView's dimensions
+                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, cameraView.getWidth(), cameraView.getHeight(), false);
                     Matrix matrix = new Matrix();
                     matrix.postRotate(90);
                     Bitmap rotatedScaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-                    int scaledWidth = rotatedScaledBitmap.getWidth();
-                    int scaledHeight = rotatedScaledBitmap.getHeight();
 
-                    float diameter = Math.min(scaledHeight, scaledWidth);
-                    int offset = (int) (0.05 * diameter);
-                    diameter -= offset;
+                    // Retrieve the BoundingBox Values
+                    BoundingBox boxVals = calculateBoundingBox(rotatedScaledBitmap.getWidth(), rotatedScaledBitmap.getHeight());
 
-                    // Calculate the Bounding Box's Boundaries
-                    left = (float) (scaledWidth / 2.0 - diameter / 2.5);
-                    top = (float) (scaledHeight / 2.0 - diameter / 5.0);
-                    right = (float) (scaledWidth / 2.0 + diameter / 2.5);
-                    bottom = (float) (scaledHeight / 2.0 + diameter / 5.0);
-
-                    int cropWidth = (int) (right - left);
-                    int cropHeight = (int) (bottom - top);
-                    Bitmap croppedBitmap = Bitmap.createBitmap(rotatedScaledBitmap, (int) left, (int) top, cropWidth, cropHeight);
+                    // Crop the Bitmap to match the BoundingBox drawn on the screen
+                    Bitmap croppedBitmap = Bitmap.createBitmap(
+                            rotatedScaledBitmap,
+                            (int) boxVals.left,
+                            (int) boxVals.top,
+                            (int) (boxVals.right - boxVals.left),
+                            (int) (boxVals.bottom - boxVals.top)
+                    );
                     InputImage croppedImage = InputImage.fromBitmap(croppedBitmap, 0);
 
                     Task<Text> result = recognizer.process(croppedImage)
@@ -297,11 +316,6 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                                 @Override
                                 public void onSuccess(Text text) {
                                     StringBuilder result = new StringBuilder();
-                                    textCanvas = textHolder.lockCanvas();
-
-                                    // Calculate scaling factors
-                                    float widthScaleFactor = (float) cameraView.getWidth() / (float) imageProxy.getWidth();
-                                    float heightScaleFactor = (float) cameraView.getHeight() / (float) imageProxy.getHeight();
 
                                     for (Text.TextBlock block : text.getTextBlocks()) {
                                         String blockText = block.getText();
@@ -309,13 +323,11 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                                             String lineText = line.getText();
                                             for (Text.Element element : line.getElements()) {
                                                 String elementText = element.getText();
-                                                drawTextBounding(textCanvas, scaleRect(element.getBoundingBox(), widthScaleFactor, heightScaleFactor));
                                                 result.append(elementText);
                                             }
                                             decodedText.setText(blockText);
                                         }
                                     }
-                                    textHolder.unlockCanvasAndPost(textCanvas);
                                     imageProxy.close();
                                 }
                             })
@@ -341,21 +353,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     private void drawBoundingRect() {
-        // Calculate Size of Bounding Box
         cameraView = findViewById(R.id.oACameraPreviewView);
-        int height = cameraView.getHeight();
-        int width = cameraView.getWidth();
-
-        float diameter;
-
-        diameter = width;
-        if (height < width) {
-            diameter = height;
-        }
-
-        int offset = (int) (0.05 * diameter);
-        diameter -= offset;
-
         canvas = holder.lockCanvas();
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 
@@ -366,58 +364,28 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         paint.setStrokeWidth(5);
 
         // Calculate the Bounding Box's Boundaries
-        left = (float) (width / 2.0 - diameter / 2.5);
-        top = (float) (height / 2.0 - diameter / 5.0);
-        right = (float) (width / 2.0 + diameter / 2.5);
-        bottom = (float) (height / 2.0 + diameter / 5.0);
+        BoundingBox boxVals = calculateBoundingBox(cameraView.getWidth(), cameraView.getHeight());
+
         // Draw Outlines of each corner on the Bounding Box
         float cornerLength = 50f;
         /// Top-left corner
-        canvas.drawLine(left, top, left + cornerLength, top, paint);
-        canvas.drawLine(left, top, left, top + cornerLength, paint);
+        canvas.drawLine(boxVals.left, boxVals.top, boxVals.left + cornerLength, boxVals.top, paint);
+        canvas.drawLine(boxVals.left, boxVals.top, boxVals.left, boxVals.top + cornerLength, paint);
 
         /// Top-right corner
-        canvas.drawLine(right, top, right - cornerLength, top, paint);
-        canvas.drawLine(right, top, right, top + cornerLength, paint);
+        canvas.drawLine(boxVals.right, boxVals.top, boxVals.right - cornerLength, boxVals.top, paint);
+        canvas.drawLine(boxVals.right, boxVals.top, boxVals.right, boxVals.top + cornerLength, paint);
 
         /// Bottom-left corner
-        canvas.drawLine(left, bottom, left + cornerLength, bottom, paint);
-        canvas.drawLine(left, bottom, left, bottom - cornerLength, paint);
+        canvas.drawLine(boxVals.left, boxVals.bottom, boxVals.left + cornerLength, boxVals.bottom, paint);
+        canvas.drawLine(boxVals.left, boxVals.bottom, boxVals.left, boxVals.bottom - cornerLength, paint);
 
         /// Bottom-right corner
-        canvas.drawLine(right, bottom, right - cornerLength, bottom, paint);
-        canvas.drawLine(right, bottom, right, bottom - cornerLength, paint);
+        canvas.drawLine(boxVals.right, boxVals.bottom, boxVals.right - cornerLength, boxVals.bottom, paint);
+        canvas.drawLine(boxVals.right, boxVals.bottom, boxVals.right, boxVals.bottom - cornerLength, paint);
 
         // Add the Outlines to the Holder
         holder.unlockCanvasAndPost(canvas);
-    }
-
-    // Draw Detected Text Bounding Box
-    private void setupTextBoundingRect(SurfaceView surfaceView) {
-        surfaceView.setZOrderOnTop(true);
-        textHolder = surfaceView.getHolder();
-        textHolder.setFormat(PixelFormat.TRANSPARENT);
-        textHolder.addCallback(OCRActivity.this);
-    }
-    private void drawTextBounding(Canvas canvas, Rect bounds) {
-        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-
-        // Customise the Bounding Box's Line Stroke
-        paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.parseColor("#008080"));
-        paint.setStrokeWidth(5);
-
-        // Draw Box
-        canvas.drawRect(bounds.left, bounds.top, bounds.width(), bounds.height(), paint);
-    }
-    private Rect scaleRect(Rect boundingBox, float widthScaleFactor, float heightScaleFactor) {
-        return new Rect(
-                (int) (boundingBox.left * widthScaleFactor),
-                (int) (boundingBox.top * heightScaleFactor),
-                (int) (boundingBox.right * widthScaleFactor),
-                (int) (boundingBox.bottom * heightScaleFactor)
-        );
     }
 
     // Manage Camera Permissions
@@ -479,12 +447,15 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                     int itemId = item.getItemId();
                     if (itemId == R.id.english) {
                         selectedLanguage = 0;
+                        Toast.makeText(OCRActivity.this, "OCR Language: English", Toast.LENGTH_SHORT).show();
                     } else if (itemId == R.id.chinese) {
                         selectedLanguage = 1;
+                        Toast.makeText(OCRActivity.this, "OCR Language: Chinese", Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
             });
+            popup.show();
             return true;
         }
         return super.onOptionsItemSelected(item);
