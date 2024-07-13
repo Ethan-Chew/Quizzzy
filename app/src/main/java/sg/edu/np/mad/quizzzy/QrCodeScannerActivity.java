@@ -12,8 +12,10 @@ import android.widget.TextView;
 import android.Manifest;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -43,6 +45,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class QrCodeScannerActivity extends AppCompatActivity {
 
@@ -55,6 +61,9 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     String scannedFlashletId;
     FirebaseFirestore db;
     FirebaseAuth auth;
+    UserWithRecents userWithRecents;
+    SQLiteManager localDB;
+    UsageStatistic usage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +91,54 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
             startCamera();
+        }
+
+        // Handle Back Navigation Toolbar
+        Toolbar toolbar = findViewById(R.id.qcsViewToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Handle Back Button Click
+        // Enabled is true so that the code within handleOnBackPressed will be executed
+        // This also disables the back button press from going to the previous screen
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 1 because this is a Flashlet Activity
+                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                // Enable the back button to be able to be used to go to the previous screen
+                setEnabled(false);
+                // Call the default back press behavior again to return to previous screen
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
+
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(QrCodeScannerActivity.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 1 because this is a Flashlet Activity
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
+
+            startActivity(returnToLoginIntent);
         }
     }
 
