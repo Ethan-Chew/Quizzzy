@@ -53,7 +53,7 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 public class QrCodeScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 201;
-    PreviewView previewView;
+    private PreviewView previewView;
     TextView textViewResult;
     TextView scanComplete;
     LinearLayout bottomPart;
@@ -61,9 +61,10 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     String scannedFlashletId;
     FirebaseFirestore db;
     FirebaseAuth auth;
-    UserWithRecents userWithRecents;
     SQLiteManager localDB;
     UsageStatistic usage;
+    UserWithRecents userWithRecents; // Assuming this is your User object with recent activities
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,51 +96,16 @@ public class QrCodeScannerActivity extends AppCompatActivity {
 
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.qcsViewToolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
-
-                QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
 
         // Handle Back Button Click
-        // Enabled is true so that the code within handleOnBackPressed will be executed
-        // This also disables the back button press from going to the previous screen
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
-
-                // Enable the back button to be able to be used to go to the previous screen
-                setEnabled(false);
-                // Call the default back press behavior again to return to previous screen
-                getOnBackPressedDispatcher().onBackPressed();
+                handleBackNavigation();
             }
         };
         this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
-
-        /// If User is somehow null, return user back to login page
-        if (userWithRecents == null) {
-            Intent returnToLoginIntent = new Intent(QrCodeScannerActivity.this, MainActivity.class);
-
-            // Save statistics to SQLite DB before changing Activity.
-            // timeType of 1 because this is a Flashlet Activity
-            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-            // Kills updateStatisticsLoop as we are switching to another activity.
-            usage.setActivityChanged(true);
-
-            startActivity(returnToLoginIntent);
-        }
     }
 
     private void startCamera() {
@@ -150,7 +116,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                // Handle any errors (including cancellation) here.
+                Log.e("Camera", "Camera initialization failed", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -159,6 +125,9 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
+
+        Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280, 720))
@@ -169,9 +138,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             scanBarcode(image);
             image.close();
         });
-
-        Preview preview = new Preview.Builder().build();
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
@@ -199,7 +165,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     scannedFlashletId = result.getText();
                 });
             } catch (Exception e) {
-                // no QR code found
+                Log.e("Barcode", "No QR code found", e);
             }
         }
     }
@@ -223,7 +189,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CAMERA_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_CAMERA_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startCamera();
         }
     }
@@ -232,5 +198,17 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         // Release any resources used by the camera if necessary
+    }
+
+    private void handleBackNavigation() {
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 1 because this is a Flashlet Activity
+        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
+        // Call the default back press behavior again to return to previous screen
+        previewView.setEnabled(false);
+        QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
     }
 }
