@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.Manifest;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -53,7 +54,8 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 public class QrCodeScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 201;
-    private PreviewView previewView;
+    private static final String TAG = "QrCodeScannerActivity";
+    PreviewView previewView;
     TextView textViewResult;
     TextView scanComplete;
     LinearLayout bottomPart;
@@ -86,6 +88,8 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
+        textViewResult.setText("Scanning...");
+
         openFlashletButton.setOnClickListener(v -> openFlashlet());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -108,6 +112,12 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
     }
 
+    private void handleBackNavigation() {
+        // Call the default back press behavior again to return to the previous screen
+        previewView.setEnabled(false);
+        QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
+    }
+
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
@@ -116,7 +126,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                Log.e("Camera", "Camera initialization failed", e);
+                Log.e(TAG, "Camera initialization failed", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -156,17 +166,19 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             Reader reader = new MultiFormatReader();
             try {
                 Result result = reader.decode(bitmap);
+                Log.d(TAG, "QR Code scanned successfully: " + result.getText());
                 runOnUiThread(() -> {
-                    textViewResult.setText(result.getText());
-                    textViewResult.setVisibility(View.VISIBLE);
+                    textViewResult.setVisibility(View.GONE);
                     scanComplete.setVisibility(View.VISIBLE);
                     bottomPart.setVisibility(View.VISIBLE);
                     scanComplete.setText("Scanning complete");
                     scannedFlashletId = result.getText();
                 });
             } catch (Exception e) {
-                Log.e("Barcode", "No QR code found", e);
+                Log.e(TAG, "No QR code found", e);
             }
+        } else {
+            Log.d(TAG, "No planes available in ImageProxy");
         }
     }
 
@@ -175,14 +187,24 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             String userId = auth.getCurrentUser().getUid();
             DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
 
+            // Add flashlet ID to the user's joinedFlashlets field
+            DocumentReference userRef = db.collection("users").document(userId);
+            userRef.update("joinedFlashlets", FieldValue.arrayUnion(scannedFlashletId))
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Flashlet ID added to joinedFlashlets successfully"))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding flashlet ID to joinedFlashlets", e));
+
+            // Add user ID to the flashlet's creatorID field
             flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
                     .addOnSuccessListener(aVoid -> {
-                        Log.d("Firestore", "User ID added to creatorID successfully");
+                        Log.d(TAG, "User ID added to creatorID successfully");
                         Intent intent = new Intent(this, FlashletDetail.class);
                         intent.putExtra("FLASHLET_ID", scannedFlashletId);
                         startActivity(intent);
                     })
-                    .addOnFailureListener(e -> Log.w("Firestore", "Error adding user ID to creatorID", e));
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding user ID to creatorID", e));
+        } else {
+            Log.d(TAG, "No scanned flashlet ID found");
+            Toast.makeText(this, "No Flashlet ID found. Please scan a valid QR code.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -198,17 +220,5 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         // Release any resources used by the camera if necessary
-    }
-
-    private void handleBackNavigation() {
-        // Save statistics to SQLite DB before changing Activity.
-        // timeType of 1 because this is a Flashlet Activity
-        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
-        // Kills updateStatisticsLoop as we are switching to another activity.
-        usage.setActivityChanged(true);
-
-        // Call the default back press behavior again to return to previous screen
-        previewView.setEnabled(false);
-        QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
     }
 }

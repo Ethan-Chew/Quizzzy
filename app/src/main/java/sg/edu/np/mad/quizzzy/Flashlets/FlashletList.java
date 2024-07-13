@@ -195,8 +195,10 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-        // Update User Interface with Updated Data
-        ArrayList<String> userFlashletIDs = userWithRecents.getUser().getCreatedFlashlets();
+        /// Update User Interface with Updated Data
+        ArrayList<String> userFlashletIDs = new ArrayList<>();
+        userFlashletIDs.addAll(userWithRecents.getUser().getCreatedFlashlets());
+        userFlashletIDs.addAll(userWithRecents.getUser().getJoinedFlashlets());
 
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
         String flashletCountStr = "You have " + userFlashletIDs.size() + " Total Flashlet" + (userFlashletIDs.size() == 1 ? "" : "s");
@@ -237,7 +239,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                         userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
                     }
 
-                    /// Display Flashlet List on Screen
+                    // Display Flashlet List on Screen
                     noFlashletNotif.setVisibility(View.GONE);
                     FlashletListAdapter userAdapter = new FlashletListAdapter(userFlashlets, FlashletList.this, FlashletList.this, userWithRecents.getUser());
                     LinearLayoutManager userLayoutManager = new LinearLayoutManager(FlashletList.this);
@@ -252,7 +254,20 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         });
     }
 
-    // To re-initialize the DB update loop when returning to the screen
+    private void redirectToLogin() {
+        Intent returnToLoginIntent = new Intent(FlashletList.this, MainActivity.class);
+
+        // Save statistics to SQLite DB before changing Activity.
+        // timeType of 1 because this is a Flashlet Activity
+        if (userWithRecents != null && userWithRecents.getUser() != null) {
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+        }
+        // Kills updateStatisticsLoop as we are switching to another activity.
+        usage.setActivityChanged(true);
+
+        startActivity(returnToLoginIntent);
+    }
+
     @Override
     protected void onRestart() {
         super.onRestart();
