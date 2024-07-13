@@ -65,7 +65,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     FirebaseAuth auth;
     SQLiteManager localDB;
     UsageStatistic usage;
-    UserWithRecents userWithRecents; // Assuming this is your User object with recent activities
+    UserWithRecents userWithRecents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,11 +187,11 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             String userId = auth.getCurrentUser().getUid();
             DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
 
-            // Add flashlet ID to the user's joinedFlashlets field
+            // Add flashlet ID to the user's createdFlashlets field
             DocumentReference userRef = db.collection("users").document(userId);
-            userRef.update("joinedFlashlets", FieldValue.arrayUnion(scannedFlashletId))
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Flashlet ID added to joinedFlashlets successfully"))
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding flashlet ID to joinedFlashlets", e));
+            userRef.update("createdFlashlets", FieldValue.arrayUnion(scannedFlashletId))
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Flashlet ID added to createdFlashlets successfully"))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding flashlet ID to createdFlashlets", e));
 
             // Add user ID to the flashlet's creatorID field
             flashletRef.update("creatorID", FieldValue.arrayUnion(userId))

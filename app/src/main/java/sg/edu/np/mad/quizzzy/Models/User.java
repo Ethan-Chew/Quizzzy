@@ -8,14 +8,12 @@ public class User {
     private String username;
     private String email;
     private ArrayList<String> createdFlashlets;
-    private ArrayList<String> joinedFlashlets;
 
     // Getter
     public String getId() { return this.id; }
     public String getUsername() { return this.username; }
     public String getEmail() {return this.email;}
     public ArrayList<String> getCreatedFlashlets() { return this.createdFlashlets; }
-    public ArrayList<String> getJoinedFlashlets() { return this.joinedFlashlets; }
 
 
     // Setter
@@ -34,17 +32,13 @@ public class User {
     public void setCreatedFlashlets(ArrayList<String> createdFlashlets) {
         this.createdFlashlets = createdFlashlets;
     }
-    public void setJoinedFlashlets(ArrayList<String> joinedFlashlets) {
-        this.joinedFlashlets = joinedFlashlets;
-    }
 
     // Constructor
-    public User(String id, String username, String email, ArrayList<String> createdFlashlets, ArrayList<String> joinedFlashlets) {
+    public User(String id, String username, String email, ArrayList<String> createdFlashlets) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.createdFlashlets = createdFlashlets;
-        this.joinedFlashlets = joinedFlashlets;
     }
 }
 

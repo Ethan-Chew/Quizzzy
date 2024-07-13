@@ -30,7 +30,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
     private static final String CREATED_FLASHLETS = "createdflashlets";
-    private static final String JOINED_FLASHLETS = "joinedflashlets";
     private static final String RECENTLY_VIEWED_FLASHLETS = "recentlyviewedflashlets";
     private static final String STATISTICS_FLASHCARD = "flashcardUsageTime";
     private static final String STATISTICS_FLASHLET = "flashletUsageTime";
@@ -51,7 +50,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 + USERNAME + " TEXT, "
                 + EMAIL + " TEXT, "
                 + CREATED_FLASHLETS + " TEXT, "
-                + JOINED_FLASHLETS + " TEXT, "
                 + RECENTLY_VIEWED_FLASHLETS + " TEXT, "
                 + STATISTICS_FLASHCARD + " TEXT, "
                 + STATISTICS_FLASHLET + " TEXT, "
@@ -75,7 +73,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         // Covert ArrayList to String joined with ;
         contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
-        contentValues.put(JOINED_FLASHLETS, convertArrayToString(userWithoutRecents.getJoinedFlashlets()));
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         // Add usage statistics values
@@ -100,10 +97,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     String email = result.getString(2);
 
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
-                    ArrayList<String> joinedFlashlets = convertStringToArray(result.getString(4));
                     ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
 
-                    user = new User(id, username, email, createdFlashlets, joinedFlashlets);
+                    user = new User(id, username, email, createdFlashlets);
                     userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
             }
@@ -166,7 +162,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         // Covert ArrayList to String joined with ;
         contentValues.put(CREATED_FLASHLETS, convertArrayToString(userWithoutRecents.getCreatedFlashlets()));
-        contentValues.put(JOINED_FLASHLETS, convertArrayToString(userWithoutRecents.getJoinedFlashlets()));
         contentValues.put(RECENTLY_VIEWED_FLASHLETS, convertArrayToString(user.getRecentlyOpenedFlashlets()));
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{String.valueOf((userWithoutRecents.getId()))});
@@ -271,13 +266,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
     }
-    public void updateJoinedFlashcards(String id, ArrayList<String> joinedFlashlets) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(JOINED_FLASHLETS, convertArrayToString(joinedFlashlets));
 
-        db.update(TABLE_NAME, contentValues, ID + " =? ", new String[]{id});
-    }
     public void updateRecentlyViewed(String id, ArrayList<String> recentlyOpenedFlashcards) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
