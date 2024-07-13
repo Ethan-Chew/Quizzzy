@@ -3,8 +3,10 @@ package sg.edu.np.mad.quizzzy;
 import static sg.edu.np.mad.quizzzy.Classes.TOTPUtil.verifyTOTP;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -210,9 +212,26 @@ public class UserProfileActivity extends AppCompatActivity {
                         String account = currentUser.getEmail();
                         String totpUri = TOTPUtil.getTOTPURI(secret, issuer, account);
 
+                        qrCodeImageView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                PackageManager manager = UserProfileActivity.this.getPackageManager();
+                                Intent i = manager.getLaunchIntentForPackage("com.google.android.apps.authenticator2");
+                                if (i == null) {
+                                    try {
+                                        UserProfileActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(totpUri)));
+                                    } catch (android.content.ActivityNotFoundException e) {
+                                        UserProfileActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2")));
+                                    }
+                                    return;
+                                }
+                                i.addCategory(Intent.CATEGORY_LAUNCHER);
+                                UserProfileActivity.this.startActivity(i);
+                            }
+                        });
+
 
                         try {
-                            Log.d("debug", totpUri);
                             Bitmap qrCodeBitmap = QRCodeUtil.generateQRCode(totpUri);
                             qrCodeImageView.setImageBitmap(qrCodeBitmap);
                         } catch (WriterException e) {
