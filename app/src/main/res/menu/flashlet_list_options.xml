@@ -6,11 +6,9 @@
 
     <item
         android:id="@+id/fLODelete"
-        android:title="Delete Flashlet"
-        android:visible="false"/>
+        android:title="Delete Flashlet" />
 
     <item
         android:id="@+id/fLOLeave"
-        android:title="Leave Flashlet"
-        android:visible="false" />
+        android:title="Leave Flashlet" />
 </menu>
