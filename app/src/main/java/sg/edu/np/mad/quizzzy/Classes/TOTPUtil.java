@@ -18,21 +18,16 @@ public class TOTPUtil {
     private static final int TIME_STEP = 30; // 30 seconds time step
     private static final int TOTP_DIGITS = 6; // 6 digit TOTP
 
-    public static String generateTOTP(String secretKey) {
-        long timeIndex = System.currentTimeMillis() / 1000 / TIME_STEP;
-        return generateHOTP(secretKey, timeIndex);
-    }
-
     public static boolean verifyTOTP(String secretKey, String totpCode) {
         long timeIndex = System.currentTimeMillis() / 1000 / TIME_STEP;
-        String generatedCode = generateHOTP(secretKey, timeIndex);
+        String generatedCode = generateTOTP(secretKey, timeIndex);
         Log.d("fddsafadfdasfds", generatedCode);
         return totpCode.equals(generatedCode);
 
 
     }
 
-    private static String generateHOTP(String secretKey, long counter) {
+    private static String generateTOTP(String secretKey, long counter) {
         try {
             Base32 base32 = new Base32();
             byte[] key = base32.decode(secretKey);
