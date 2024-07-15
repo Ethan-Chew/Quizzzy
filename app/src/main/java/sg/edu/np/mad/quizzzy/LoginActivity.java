@@ -23,9 +23,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -33,6 +35,9 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 public class LoginActivity extends AppCompatActivity {
 
     Gson gson = new Gson();
+    FirebaseAuth mAuth;
+    FirebaseFirestore firebase;
+    String flashletId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +51,16 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Configure Firebase Authenticator
-        FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
+        firebase = FirebaseFirestore.getInstance();
+
+        // Get the FLASHLET_ID from the intent if it exists
+        flashletId = getIntent().getStringExtra("FLASHLET_ID");
 
         // Get Respective Text Items on screen
         View loginBtn = findViewById(R.id.loginBtnLoginAct);
         EditText usernameView = findViewById(R.id.usernameField);
         EditText passwordView = findViewById(R.id.passwordField);
-        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
 
         // Detect when the user has pressed the Login Button
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -85,24 +92,50 @@ public class LoginActivity extends AppCompatActivity {
                                                     String userJson = gson.toJson(document.getData());
                                                     User user = gson.fromJson(userJson, User.class);
                                                     localDB.addUser(new UserWithRecents(user));
-                                                    // Send User to Home Screen
-                                                    Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                    startActivity(homeScreenIntent);
+
+                                                    // Check if there's a FLASHLET_ID in the intent
+                                                    String flashletId = getIntent().getStringExtra("FLASHLET_ID");
+                                                    if (flashletId != null) {
+                                                        handleFlashletAddition(flashletId, currentUser.getUid());
+                                                    } else {
+                                                        // Normal login, send user to Home Screen
+                                                        Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                        startActivity(homeScreenIntent);
+                                                        finish();
+                                                    }
                                                 } else {
                                                     Log.d(TAG, "Get user failed with ", task.getException());
                                                 }
                                             }
                                         });
-                                    } else if (!task.getException().toString().isEmpty()) {
-                                        Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "Login failed.", task.getException());
+                                        Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
                 }
             }
         });
+    }
 
+    private void handleFlashletAddition(String flashletId, String userId) {
+        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
+        DocumentReference userRef = firebase.collection("users").document(userId);
+
+        userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
+                .addOnSuccessListener(aVoid -> {})
+                .addOnFailureListener(e -> {});
+
+        flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener(aVoid -> {
+                    // Return to MainActivity with the FLASHLET_ID
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("FLASHLET_ID", flashletId);
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
+                })
+                .addOnFailureListener(e -> {});
     }
 }
+

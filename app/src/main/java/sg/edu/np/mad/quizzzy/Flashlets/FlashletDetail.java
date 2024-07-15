@@ -315,15 +315,19 @@ public class FlashletDetail extends AppCompatActivity {
         });
     }
 
-    private void generateQrCode(String id, ImageView imageView){
+
+    private void generateQrCode(String flashletId, ImageView imageView) {
         QRCodeWriter writer = new QRCodeWriter();
         try {
-            Bitmap bitmap = toBitmap(writer.encode(id, BarcodeFormat.QR_CODE, 512, 512));
+            // Create a URL with a custom scheme for the QR code
+            String qrContent = "quizzzy://flashlet/?id=" + flashletId;
+            Bitmap bitmap = toBitmap(writer.encode(qrContent, BarcodeFormat.QR_CODE, 512, 512));
             imageView.setImageBitmap(bitmap);
         } catch (WriterException e) {
             e.printStackTrace();
         }
     }
+
 
     private Bitmap toBitmap(com.google.zxing.common.BitMatrix matrix){
         int width = matrix.getWidth();
