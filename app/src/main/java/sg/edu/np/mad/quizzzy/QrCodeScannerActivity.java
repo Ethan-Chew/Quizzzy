@@ -35,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
@@ -59,7 +60,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     TextView textViewResult;
     TextView scanComplete;
     LinearLayout bottomPart;
-    Button openFlashletButton;
+    Button joinFlashletButton;
     String scannedFlashletId;
     FirebaseFirestore db;
     FirebaseAuth auth;
@@ -82,17 +83,17 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         textViewResult = findViewById(R.id.textViewResult);
         scanComplete = findViewById(R.id.scancomplete);
         bottomPart = findViewById(R.id.bottomPart);
-        openFlashletButton = findViewById(R.id.openFlashletButton);
+        joinFlashletButton = findViewById(R.id.joinFlashletButton);
 
         // Initialize Firebase Firestore and Auth
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
         textViewResult.setText("Scanning...");
-        openFlashletButton.setOnClickListener(new View.OnClickListener() {
+        joinFlashletButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openFlashlet();
+                joinFlashlet();
             }
         });
 
@@ -170,13 +171,22 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             Reader reader = new MultiFormatReader();
             try {
                 Result result = reader.decode(bitmap);
-                Log.d(TAG, "QR Code scanned successfully: " + result.getText());
+                String scannedContent = result.getText();
+                Log.d(TAG, "QR Code scanned successfully: " + scannedContent);
+
                 runOnUiThread(() -> {
                     textViewResult.setVisibility(View.GONE);
                     scanComplete.setVisibility(View.VISIBLE);
                     bottomPart.setVisibility(View.VISIBLE);
                     scanComplete.setText("Scanning complete");
-                    scannedFlashletId = result.getText();
+
+                    // Extract flashlet ID from the scanned content
+                    scannedFlashletId = extractFlashletId(scannedContent);
+                    if (scannedFlashletId != null) {
+                        joinFlashletButton.setEnabled(true);
+                    } else {
+                        Toast.makeText(QrCodeScannerActivity.this, "Invalid QR code scanned.", Toast.LENGTH_SHORT).show();
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "No QR code found", e);
@@ -186,31 +196,44 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         }
     }
 
-    private void openFlashlet() {
+    private String extractFlashletId(String scannedContent) {
+        // Ensure the scanned content matches the expected format
+        if (scannedContent != null && scannedContent.startsWith("quizzzy://flashlet/?id=")) {
+            return scannedContent.substring("quizzzy://flashlet/?id=".length());
+        }
+        return null;
+    }
+
+
+    private void joinFlashlet() {
         if (scannedFlashletId != null) {
             String userId = auth.getCurrentUser().getUid();
             DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
-
-            // Add flashlet ID to the user's createdFlashlets field
             DocumentReference userRef = db.collection("users").document(userId);
-            userRef.update("createdFlashlets", FieldValue.arrayUnion(scannedFlashletId))
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Flashlet ID added to createdFlashlets successfully"))
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding flashlet ID to createdFlashlets", e));
 
-            // Add user ID to the flashlet's creatorID field
-            flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
+            // Use a batch to ensure atomic updates
+            WriteBatch batch = db.batch();
+            batch.update(userRef, "createdFlashlets", FieldValue.arrayUnion(scannedFlashletId));
+            batch.update(flashletRef, "creatorID", FieldValue.arrayUnion(userId));
+
+            batch.commit()
                     .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "User ID added to creatorID successfully");
+                        Log.d(TAG, "Flashlet and user updated successfully");
+                        Toast.makeText(this, "Flashlet opened successfully", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(this, FlashletDetail.class);
                         intent.putExtra("FLASHLET_ID", scannedFlashletId);
                         startActivity(intent);
                     })
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding user ID to creatorID", e));
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error updating flashlet and user", e);
+                        Toast.makeText(this, "Error opening flashlet. Please try again.", Toast.LENGTH_SHORT).show();
+                    });
         } else {
             Log.d(TAG, "No scanned flashlet ID found");
             Toast.makeText(this, "No Flashlet ID found. Please scan a valid QR code.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

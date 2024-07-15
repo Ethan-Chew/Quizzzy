@@ -83,10 +83,10 @@
             android:visibility="gone"/>
 
         <Button
-            android:id="@+id/openFlashletButton"
+            android:id="@+id/joinFlashletButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open Flashlet"
+            android:text="Join Flashlet"
             android:layout_margin="20dp"
             android:backgroundTint="?attr/colorPrimary"
             android:textColor="@android:color/white"/>
