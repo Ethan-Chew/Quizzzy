@@ -1,6 +1,7 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +24,8 @@ import sg.edu.np.mad.quizzzy.Models.User;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String flashletId = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +44,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), LoginActivity.class);
-                startActivity(intent);
+                if (flashletId != null) {
+                    intent.putExtra("FLASHLET_ID", flashletId);
+                }
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -49,35 +55,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), SignupActivity.class);
-                startActivity(intent);
+                if (flashletId != null) {
+                    intent.putExtra("FLASHLET_ID", flashletId);
+                }
+                startActivityForResult(intent, 2);
             }
         });
 
-        // Handle intent if the app is opened via a deep link
         handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent); // Update the intent
+        setIntent(intent);
         handleIntent(intent);
     }
 
     private void handleIntent(Intent intent) {
         Uri data = intent.getData();
         if (data != null && data.isHierarchical()) {
-            String flashletId = data.getQueryParameter("id");
+            flashletId = data.getQueryParameter("id");
 
             if (flashletId != null) {
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    // User is already logged in, handle the flashlet addition directly
                     handleFlashletAddition(flashletId);
-                } else {
-                    // User is not logged in, redirect to LoginActivity
-                    Intent loginIntent = new Intent(this, LoginActivity.class);
-                    loginIntent.putExtra("FLASHLET_ID", flashletId);
-                    startActivityForResult(loginIntent, 1); // Use startActivityForResult to get result from LoginActivity
                 }
             }
         }
@@ -86,8 +88,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            // Get the FLASHLET_ID from the returned data
+        if ((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK) {
             String flashletId = data.getStringExtra("FLASHLET_ID");
             if (flashletId != null) {
                 handleFlashletAddition(flashletId);
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
         flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(aVoid -> {
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class); // Navigate to HomeActivity
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                     intent.putExtra("FLASHLET_ID", flashletId);
                     startActivity(intent);
                 })

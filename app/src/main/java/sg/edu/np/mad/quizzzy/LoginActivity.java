@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -50,30 +51,23 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Configure Firebase Authenticator
         mAuth = FirebaseAuth.getInstance();
         firebase = FirebaseFirestore.getInstance();
-
-        // Get the FLASHLET_ID from the intent if it exists
         flashletId = getIntent().getStringExtra("FLASHLET_ID");
 
-        // Get Respective Text Items on screen
         View loginBtn = findViewById(R.id.loginBtnLoginAct);
         EditText usernameView = findViewById(R.id.usernameField);
         EditText passwordView = findViewById(R.id.passwordField);
 
-        // Detect when the user has pressed the Login Button
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = usernameView.getText().toString();
                 String password = passwordView.getText().toString();
 
-                // Ensures that the user's email and password field is not empty
                 if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Username or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Send an Authentication request to Firebase Authentication
                     mAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -81,24 +75,19 @@ public class LoginActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                         DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
-                                        // Get the User's Data from Firebase under the 'Users' collection
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
-                                                    // Save the User to our SQLite (Local) Database
                                                     DocumentSnapshot document = task.getResult();
                                                     SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
                                                     String userJson = gson.toJson(document.getData());
                                                     User user = gson.fromJson(userJson, User.class);
                                                     localDB.addUser(new UserWithRecents(user));
 
-                                                    // Check if there's a FLASHLET_ID in the intent
-                                                    String flashletId = getIntent().getStringExtra("FLASHLET_ID");
                                                     if (flashletId != null) {
                                                         handleFlashletAddition(flashletId, currentUser.getUid());
                                                     } else {
-                                                        // Normal login, send user to Home Screen
                                                         Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                         startActivity(homeScreenIntent);
                                                         finish();
@@ -129,7 +118,6 @@ public class LoginActivity extends AppCompatActivity {
 
         flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(aVoid -> {
-                    // Return to MainActivity with the FLASHLET_ID
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("FLASHLET_ID", flashletId);
                     setResult(RESULT_OK, resultIntent);
@@ -138,4 +126,3 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {});
     }
 }
-
