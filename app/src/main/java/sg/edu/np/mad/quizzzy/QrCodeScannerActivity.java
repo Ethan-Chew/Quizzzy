@@ -89,8 +89,12 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         textViewResult.setText("Scanning...");
-
-        openFlashletButton.setOnClickListener(v -> openFlashlet());
+        openFlashletButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFlashlet();
+            }
+        });
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
