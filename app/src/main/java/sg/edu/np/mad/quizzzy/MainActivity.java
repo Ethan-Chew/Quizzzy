@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -97,15 +99,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleFlashletAddition(String flashletId) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e("MainActivity", "User is not authenticated.");
+            return;
+        }
+        String userId = currentUser.getUid();
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
 
         DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
         DocumentReference userRef = firebase.collection("users").document(userId);
 
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
-                .addOnSuccessListener(aVoid -> {})
-                .addOnFailureListener(e -> {});
+                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Flashlet added to user successfully."))
+                .addOnFailureListener(e -> Log.e("MainActivity", "Error updating user", e));
 
         flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(aVoid -> {
@@ -113,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("FLASHLET_ID", flashletId);
                     startActivity(intent);
                 })
-                .addOnFailureListener(e -> {});
+                .addOnFailureListener(e -> Log.e("MainActivity", "Error updating flashlet", e));
     }
+
 }
 

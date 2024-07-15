@@ -131,7 +131,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, "Camera initialization failed", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -172,7 +171,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             try {
                 Result result = reader.decode(bitmap);
                 String scannedContent = result.getText();
-                Log.d(TAG, "QR Code scanned successfully: " + scannedContent);
 
                 runOnUiThread(() -> {
                     textViewResult.setVisibility(View.GONE);
@@ -189,10 +187,8 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
-                Log.e(TAG, "No QR code found", e);
             }
         } else {
-            Log.d(TAG, "No planes available in ImageProxy");
         }
     }
 
@@ -219,17 +215,15 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             batch.commit()
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Flashlet and user updated successfully");
-                        Toast.makeText(this, "Flashlet opened successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(this, FlashletDetail.class);
                         intent.putExtra("FLASHLET_ID", scannedFlashletId);
                         startActivity(intent);
                     })
                     .addOnFailureListener(e -> {
-                        Log.w(TAG, "Error updating flashlet and user", e);
                         Toast.makeText(this, "Error opening flashlet. Please try again.", Toast.LENGTH_SHORT).show();
                     });
         } else {
-            Log.d(TAG, "No scanned flashlet ID found");
             Toast.makeText(this, "No Flashlet ID found. Please scan a valid QR code.", Toast.LENGTH_SHORT).show();
         }
     }

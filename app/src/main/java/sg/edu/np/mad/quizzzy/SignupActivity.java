@@ -135,10 +135,8 @@ public class SignupActivity extends AppCompatActivity {
         DocumentReference userRef = firebase.collection("users").document(userId);
 
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
-                .addOnSuccessListener(aVoid -> {})
-                .addOnFailureListener(e -> {
-                    Log.e("SignupActivity", "Failed to update user createdFlashlets", e);
-                });
+                .addOnSuccessListener(aVoid -> Log.d("SignupActivity", "User flashlets updated successfully"))
+                .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update user createdFlashlets", e));
 
         flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(aVoid -> {
@@ -148,8 +146,7 @@ public class SignupActivity extends AppCompatActivity {
                     startActivity(resultIntent);
                     finish(); // End SignupActivity
                 })
-                .addOnFailureListener(e -> {
-                    Log.e("SignupActivity", "Failed to update flashlet creatorID", e);
-                });
+                .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update flashlet creatorID", e));
     }
+
 }
