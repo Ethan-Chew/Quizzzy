@@ -18,6 +18,7 @@ public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
     // Attribute Names
     private static final String ID = "id";
     private static final String SEARCH_QUERY = "search";
+    private static final String SEARCH_TIMESTAMP = "timestamp";
 
     public SQLiteRecentSearchesManager(Context context) { super (context, DATABASE_NAME, null, DATABASE_VERSION); }
 
@@ -33,7 +34,8 @@ public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String createQuery = "CREATE TABLE " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY, "
-                + SEARCH_QUERY + " TEXT UNIQUE) ";
+                + SEARCH_QUERY + " TEXT UNIQUE, "
+                + SEARCH_TIMESTAMP + " BIGINT)";
         db.execSQL(createQuery);
     }
 
@@ -47,7 +49,8 @@ public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ArrayList<String> searchQueries = new ArrayList<String>();
 
-        try (Cursor result = db.rawQuery("SELECT * FROM " + TABLE_NAME, null)) {
+        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + SEARCH_TIMESTAMP + " DESC";
+        try (Cursor result = db.rawQuery(query, null)) {
             if (result.getCount() != 0) {
                 while (result.moveToNext()) {
                     searchQueries.add(result.getString(1));
@@ -58,13 +61,22 @@ public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
         return searchQueries;
     }
 
-    public void addSearchQueries(String query) {
+    public void addSearchQueries(String query, Long timestamp) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(SEARCH_QUERY, query);
+        contentValues.put(SEARCH_TIMESTAMP, timestamp);
 
         db.insert(TABLE_NAME, null, contentValues);
+    }
+
+    public void updateSearchQueryTimestamp(String query, Long timestamp) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(SEARCH_TIMESTAMP, timestamp);
+        db.update(TABLE_NAME, contentValues, SEARCH_QUERY + " =? ", new String[]{ query });
     }
 
     public void dropSearchQuery(String query) {

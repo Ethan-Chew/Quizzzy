@@ -176,7 +176,9 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
             public boolean onQueryTextSubmit(String query) {
                 // Add the Search Query to the local SQLite database and update the Recent Searches list
                 if (!localSearchesDB.getSearchQueries().contains(query)) {
-                    localSearchesDB.addSearchQueries(query);
+                    localSearchesDB.addSearchQueries(query, System.currentTimeMillis() / 1000L);
+                } else {
+                    localSearchesDB.updateSearchQueryTimestamp(query, System.currentTimeMillis() / 1000L);
                 }
                 onResume();
 

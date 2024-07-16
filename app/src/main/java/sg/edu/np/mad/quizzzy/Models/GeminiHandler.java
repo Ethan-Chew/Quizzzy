@@ -11,7 +11,9 @@ import com.google.ai.client.generativeai.type.GenerateContentResponse;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.ai.client.generativeai.type.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +94,14 @@ public class GeminiHandler {
 
             @Override
             public void onFailure(Throwable t) {
-                callback.onError(new Exception(t));
+                if (t instanceof UnknownException) {
+                    callback.onError(new Exception("We cannot generate an answer... Please check your internet connection and try again."));
+                } else if (t instanceof ResponseStoppedException) {
+                    callback.onError(new Exception("Your prompt is invalid or inappropriate. Please re-enter your prompt"));
+                } else {
+                    System.out.println(new Exception(t).getLocalizedMessage());
+                    callback.onError(new Exception(t));
+                }
             }
         }, executor);
     }

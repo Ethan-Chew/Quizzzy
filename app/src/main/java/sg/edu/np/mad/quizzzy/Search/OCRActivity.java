@@ -189,6 +189,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        System.out.println(err.getLocalizedMessage());
                                         Toast.makeText(OCRActivity.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                                         // Enable the Button
                                         generateBtn.setText("Generate Flashlet");
