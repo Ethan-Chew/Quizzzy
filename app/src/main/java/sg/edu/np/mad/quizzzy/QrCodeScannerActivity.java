@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Reader;
 import com.google.zxing.Result;
@@ -131,6 +132,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
+                Log.e(TAG, "Camera provider error: ", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -171,6 +173,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             try {
                 Result result = reader.decode(bitmap);
                 String scannedContent = result.getText();
+                Log.d(TAG, "Scanned content: " + scannedContent);
 
                 runOnUiThread(() -> {
                     textViewResult.setVisibility(View.GONE);
@@ -182,13 +185,16 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     scannedFlashletId = extractFlashletId(scannedContent);
                     if (scannedFlashletId != null) {
                         joinFlashletButton.setEnabled(true);
+                        Log.d(TAG, "Extracted Flashlet ID: " + scannedFlashletId);
                     } else {
                         Toast.makeText(QrCodeScannerActivity.this, "Invalid QR code scanned.", Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (Exception e) {
+                Log.e(TAG, "Error decoding barcode: ", e);
             }
         } else {
+            Log.e(TAG, "No planes available in image");
         }
     }
 
@@ -199,7 +205,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         }
         return null;
     }
-
 
     private void joinFlashlet() {
         if (scannedFlashletId != null) {
@@ -221,13 +226,13 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                         startActivity(intent);
                     })
                     .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error joining flashlet: ", e);
                         Toast.makeText(this, "Error opening flashlet. Please try again.", Toast.LENGTH_SHORT).show();
                     });
         } else {
             Toast.makeText(this, "No Flashlet ID found. Please scan a valid QR code.", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
