@@ -37,7 +37,8 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/newFlashcardKeywordInput"
         android:layout_width="match_parent"
-        android:layout_height="48sp"
+        android:inputType="textMultiLine"
+        android:layout_height="wrap_content"
         android:hint="Keyword for the Flashcard" />
 
     <Space
@@ -56,6 +57,7 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/newFlashcardDefinitionInput"
         android:layout_width="match_parent"
-        android:layout_height="48sp"
+        android:inputType="textMultiLine"
+        android:layout_height="wrap_content"
         android:hint="Flashcard Definition" />
 </LinearLayout>

@@ -155,9 +155,9 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
 
     @Override
     public void onItemClick(int position) {
-        Log.d("item click", String.valueOf(position));
         String flashletJson = gson.toJson(flashlets.get(position));
         Intent sendToFlashletDetail = new Intent(UserProfileActivity.this, FlashletDetail.class);
         sendToFlashletDetail.putExtra("flashletJSON", flashletJson);
+        startActivity(sendToFlashletDetail);
     }
 }
