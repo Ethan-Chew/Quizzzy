@@ -45,6 +45,7 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
@@ -209,30 +210,47 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     private void joinFlashlet() {
         if (scannedFlashletId != null) {
             String userId = auth.getCurrentUser().getUid();
-            DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
             DocumentReference userRef = db.collection("users").document(userId);
 
-            // Use a batch to ensure atomic updates
-            WriteBatch batch = db.batch();
-            batch.update(userRef, "createdFlashlets", FieldValue.arrayUnion(scannedFlashletId));
-            batch.update(flashletRef, "creatorID", FieldValue.arrayUnion(userId));
+            userRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    List<String> createdFlashlets = (List<String>) documentSnapshot.get("createdFlashlets");
 
-            batch.commit()
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "Flashlet and user updated successfully");
-                        Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(this, FlashletDetail.class);
-                        intent.putExtra("FLASHLET_ID", scannedFlashletId);
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error joining flashlet: ", e);
-                        Toast.makeText(this, "Error opening flashlet. Please try again.", Toast.LENGTH_SHORT).show();
-                    });
+                    if (createdFlashlets != null && createdFlashlets.contains(scannedFlashletId)) {
+                        Toast.makeText(this, "You have already joined this flashlet.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Proceed with joining the flashlet
+                        DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
+
+                        WriteBatch batch = db.batch();
+                        batch.update(userRef, "createdFlashlets", FieldValue.arrayUnion(scannedFlashletId));
+                        batch.update(flashletRef, "creatorID", FieldValue.arrayUnion(userId));
+
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "Flashlet and user updated successfully");
+                                    Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(this, FlashletDetail.class);
+                                    intent.putExtra("FLASHLET_ID", scannedFlashletId);
+                                    startActivity(intent);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error joining flashlet: ", e);
+                                    Toast.makeText(this, "Error opening flashlet. Please try again.", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                } else {
+                    Toast.makeText(this, "User data not found. Please try again.", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> {
+                Log.e(TAG, "Error fetching user data: ", e);
+                Toast.makeText(this, "Error fetching user data. Please try again.", Toast.LENGTH_SHORT).show();
+            });
         } else {
             Toast.makeText(this, "No Flashlet ID found. Please scan a valid QR code.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

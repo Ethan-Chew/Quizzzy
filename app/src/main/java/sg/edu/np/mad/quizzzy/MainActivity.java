@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +17,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -107,21 +111,49 @@ public class MainActivity extends AppCompatActivity {
         String userId = currentUser.getUid();
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
 
-        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
         DocumentReference userRef = firebase.collection("users").document(userId);
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
+                        Log.d("MainActivity", "Flashlet already exists in user createdFlashlets.");
+                        Toast.makeText(MainActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
+                        navigateToHome(flashletId);
+                    } else {
+                        updateUserAndFlashlet(userRef, flashletId);
+                    }
+                }
+            } else {
+                Log.e("MainActivity", "Error checking user document", task.getException());
+            }
+        });
+    }
+
+    private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
 
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
-                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Flashlet added to user successfully."))
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("MainActivity", "Flashlet added to user successfully.");
+                    Toast.makeText(MainActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
+                })
                 .addOnFailureListener(e -> Log.e("MainActivity", "Error updating user", e));
 
-        flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
-                .addOnSuccessListener(aVoid -> {
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    intent.putExtra("FLASHLET_ID", flashletId);
-                    startActivity(intent);
-                })
+        flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
+                .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
                 .addOnFailureListener(e -> Log.e("MainActivity", "Error updating flashlet", e));
     }
+
+
+    private void navigateToHome(String flashletId) {
+        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        intent.putExtra("FLASHLET_ID", flashletId);
+        startActivity(intent);
+    }
+
 
 }
 

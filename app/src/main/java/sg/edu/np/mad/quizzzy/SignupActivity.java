@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -131,22 +132,51 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void handleFlashletAddition(String flashletId, String userId) {
-        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
 
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
+                        Log.d("SignupActivity", "Flashlet already exists in user createdFlashlets.");
+                        Toast.makeText(SignupActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
+                        navigateToHome(flashletId);
+                    } else {
+                        updateUserAndFlashlet(userRef, flashletId);
+                    }
+                }
+            } else {
+                Log.e("SignupActivity", "Error checking user document", task.getException());
+            }
+        });
+    }
+
+    private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
+
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
-                .addOnSuccessListener(aVoid -> Log.d("SignupActivity", "User flashlets updated successfully"))
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("SignupActivity", "User flashlets updated successfully");
+                    Toast.makeText(SignupActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
+                })
                 .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update user createdFlashlets", e));
 
-        flashletRef.update("creatorID", FieldValue.arrayUnion(userId))
-                .addOnSuccessListener(aVoid -> {
-                    Intent resultIntent = new Intent(SignupActivity.this, HomeActivity.class);
-                    resultIntent.putExtra("FLASHLET_ID", flashletId);
-                    setResult(RESULT_OK, resultIntent);
-                    startActivity(resultIntent);
-                    finish(); // End SignupActivity
-                })
+        flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
+                .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
                 .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update flashlet creatorID", e));
     }
+
+
+    private void navigateToHome(String flashletId) {
+        Intent resultIntent = new Intent(SignupActivity.this, HomeActivity.class);
+        resultIntent.putExtra("FLASHLET_ID", flashletId);
+        startActivity(resultIntent);
+        finish();
+    }
+
 
 }

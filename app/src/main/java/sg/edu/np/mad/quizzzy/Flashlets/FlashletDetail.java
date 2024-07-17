@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -37,11 +38,14 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
+import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
@@ -58,9 +62,12 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
-    ImageView shareFlashletbtn;
+    TextView optionbtn;
     TextView flashletNameTextView;
     ImageView dialogQrCodeImageView;
+    UserWithRecents userWithRecents;
+    SQLiteManager localDB;
+    UsageStatistic usage;
 
 
     @Override
@@ -73,6 +80,14 @@ public class FlashletDetail extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Get User from SQLite DB
+        localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+        userWithRecents = localDB.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, userWithRecents.getUser().getId());
 
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
@@ -279,17 +294,54 @@ public class FlashletDetail extends AppCompatActivity {
             }
         });
 
-        // sharing qr code
-        shareFlashletbtn = findViewById(R.id.shareqrcodebtn);
-        shareFlashletbtn.setOnClickListener(new View.OnClickListener() {
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(FlashletDetail.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 1 because this is a Flashlet Activity
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
+
+            startActivity(returnToLoginIntent);
+        }
+
+
+        // sharing qr code and download flashlet
+        optionbtn = findViewById(R.id.fDOptionbtn);
+
+        optionbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String flashletId = flashlet.getId();
-                if (flashletId != null && !flashletId.isEmpty()) {
-                    showDialog(flashletId);
-                } else {
-                    Toast.makeText(FlashletDetail.this, "Flashlet ID is invalid.", Toast.LENGTH_SHORT).show();
-                }
+                PopupMenu popupMenu = new PopupMenu(FlashletDetail.this, v);
+                popupMenu.inflate(R.menu.flashlet_detail_options);
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
+
+                        // Save statistics to SQLite DB before changing Activity.
+                        // timeType of 1 because this is a Flashlet Activity
+                        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                        // Kills updateStatisticsLoop as we are switching to another activity.
+                        usage.setActivityChanged(true);
+
+                        if (itemId == R.id.fDOShare) {
+                            String flashletId = flashlet.getId();
+                            if (flashletId != null && !flashletId.isEmpty()) {
+                                showDialog(flashletId);
+                            } else {
+                                Toast.makeText(FlashletDetail.this, "Flashlet ID is invalid.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (itemId == R.id.fDODownload) {
+//                            startActivity(new Intent(FlashletDetail.this, QrCodeScannerActivity.class));
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
     }
