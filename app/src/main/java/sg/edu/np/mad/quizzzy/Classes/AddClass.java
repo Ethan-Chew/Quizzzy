@@ -165,6 +165,21 @@ public class AddClass extends AppCompatActivity {
                 newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
 
                 EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
+                memberUsernameInput.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (s.toString().equals(userId)) {
+                            memberUsernameInput.setError("You cannot add yourself as a member.");
+                        }
+                    }
+                });
+
                 usernameInputs.add(memberUsernameInput);
 
                 ImageView deleteMember = newMemberView.findViewById(R.id.acmDelete);
@@ -199,7 +214,9 @@ public class AddClass extends AppCompatActivity {
                 }
                 ArrayList<String> newMemberUsernames = new ArrayList<>();
                 for (EditText editText : usernameInputs) {
-                    newMemberUsernames.add(editText.getText().toString());
+                    if (!editText.getText().toString().equals(userId)) {
+                        newMemberUsernames.add(editText.getText().toString());
+                    }
                 }
 
                 // Check if there is at least one new member
@@ -228,7 +245,7 @@ public class AddClass extends AppCompatActivity {
                                 String classId = UUID.randomUUID().toString();
                                 ArrayList<String> creatorId = new ArrayList<>();
                                 creatorId.add(userId);
-                                newMemberIds.add(userId);
+                                newMemberIds.add(0, userId);
 
                                 UserClass userClass = new UserClass(classId, title, creatorId, newMemberIds, System.currentTimeMillis() / 1000L);
                                 db.collection("class").document(classId).set(userClass).addOnSuccessListener(new OnSuccessListener<Void>() {
