@@ -41,6 +41,7 @@ import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class ClassList extends AppCompatActivity implements RecyclerViewInterface {
@@ -92,10 +93,8 @@ public class ClassList extends AppCompatActivity implements RecyclerViewInterfac
                 if (itemId == R.id.home) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -104,6 +103,7 @@ public class ClassList extends AppCompatActivity implements RecyclerViewInterfac
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;

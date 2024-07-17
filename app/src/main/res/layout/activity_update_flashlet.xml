@@ -55,12 +55,10 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="25dp"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/list_item_background"
                 android:orientation="vertical"
-                android:paddingLeft="15sp"
-                android:paddingTop="15sp"
-                android:paddingRight="15sp"
-                android:paddingBottom="15sp"
+                android:padding="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/uFTitle">
@@ -81,6 +79,36 @@
                     android:hint="Enter an Appropriate Title..."
                     android:textColor="@color/black"
                     android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cFCheckPublicContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/list_item_background"
+                android:orientation="horizontal"
+                android:paddingLeft="15sp"
+                android:paddingTop="15sp"
+                android:paddingRight="15sp"
+                android:paddingBottom="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cFTitle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="17dp"
+                    android:text="Make this flashlet public?" />
+
+                <Switch
+                    android:id="@+id/uFIsPublicSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -125,6 +153,8 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="25dp"
+                android:showDividers="middle"
+                android:divider="@drawable/empty_list_divider"
                 android:gravity="top">
 
             </LinearLayout>
