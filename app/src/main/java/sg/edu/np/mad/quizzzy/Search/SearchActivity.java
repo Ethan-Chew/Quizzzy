@@ -67,12 +67,13 @@ interface OnSearchEventListener {
     void onError(Exception err);
 }
 
-public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnEmptyListener {
+public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnResultChangeListener {
 
     // Search Result Items
     private TabLayout searchResultTabs;
     private ViewPager2 searchResultViewPager;
     private ScrollView recentsListContainer;
+    private RecentSearchesAdapter searchesAdapter;
     private LinearLayout noRecentsContainer;
     private RecyclerView recentsContainer;
     private SearchAdapter searchAdapter;
@@ -139,6 +140,14 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
         searchResultTabs.setVisibility(View.GONE);
         searchResultViewPager.setVisibility(View.GONE);
+        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+
+        // Bind the RecyclerView
+        searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches, this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        recentsContainer.setLayoutManager(layoutManager);
+        recentsContainer.setItemAnimator(new DefaultItemAnimator());
+        recentsContainer.setAdapter(searchesAdapter);
 
         // Display list of Recent Searches or container showing No Recent Searches
         onResume();
@@ -259,22 +268,19 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         // Update Recent RecyclerView with Items
         SQLiteRecentSearchesManager localSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
         recentSearches = localSearchesDB.getSearchQueries();
+        Log.d("Searches", "onResume: " + recentSearches.toString());
 
         noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+
+        searchesAdapter.updateAdapterData(recentSearches);
+
         if (recentSearches.isEmpty()) {
             noRecentsContainer.setVisibility(View.VISIBLE);
             recentsContainer.setVisibility(View.GONE);
         } else {
             noRecentsContainer.setVisibility(View.GONE);
         }
-
-        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
-        RecentSearchesAdapter searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches, this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
-        recentsContainer.setLayoutManager(layoutManager);
-        recentsContainer.setItemAnimator(new DefaultItemAnimator());
-        recentsContainer.setAdapter(searchesAdapter);
     }
 
     // Handle Search Results
@@ -367,10 +373,12 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
     @Override
-    public void isRecentsEmpty(Boolean isEmpty) {
+    public void handleChange(Boolean isEmpty) {
         if (isEmpty) {
             noRecentsContainer.setVisibility(View.VISIBLE);
             recentsContainer.setVisibility(View.GONE);
+        } else {
+            onResume();
         }
     }
 
