@@ -138,8 +138,6 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         recentsListContainer = findViewById(R.id.aSRecentsListContainer);
         searchResultTabs = findViewById(R.id.aSResultsTabBar);
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
-        searchResultTabs.setVisibility(View.GONE);
-        searchResultViewPager.setVisibility(View.GONE);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
 
         // Bind the RecyclerView
@@ -279,6 +277,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
             noRecentsContainer.setVisibility(View.VISIBLE);
             recentsContainer.setVisibility(View.GONE);
         } else {
+            recentsContainer.setVisibility(View.VISIBLE);
             noRecentsContainer.setVisibility(View.GONE);
         }
     }

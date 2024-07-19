@@ -222,7 +222,12 @@ public class HomeActivity extends AppCompatActivity  {
                 startActivity(showclassintent);
             }
         });
+
+        // Reset Data
         horiRecentlyViewed.removeAllViews(); // Clear the Recently Viewed List
+        createdFlashletsContainer.removeAllViews(); // Clear the List of Created Flashlets
+        recentlyViewedFlashlets.clear();
+        createdFlashlets.clear();
 
         // If there are no Recently Viewed, display text
         recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
@@ -250,7 +255,6 @@ public class HomeActivity extends AppCompatActivity  {
                                 if (recentlyViewedFlashlets.isEmpty()) {
                                     recentlyOpenedFlashletsIds.clear();
                                     localDB.updateRecentlyViewed(userWithRecents.getUser().getId(), recentlyOpenedFlashletsIds);
-                                    onResume();
                                 }
 
                                 // Display Recently Viewed Flashlet and Display on Screen

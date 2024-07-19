@@ -284,6 +284,7 @@ public class FlashletDetail extends AppCompatActivity {
         if (!recentlyViewed.contains(flashlet.getId())) {
             recentlyViewed.add(flashlet.getId());
             localDB.updateRecentlyViewed(userId, recentlyViewed);
+            Log.d("Updated Recently Viewed", flashlet.getId());
         }
 
         // Update UI based on Flashlet Info
