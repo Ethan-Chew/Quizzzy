@@ -1,10 +1,20 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +45,15 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
@@ -336,7 +354,7 @@ public class FlashletDetail extends AppCompatActivity {
                                 Toast.makeText(FlashletDetail.this, "Flashlet ID is invalid.", Toast.LENGTH_SHORT).show();
                             }
                         } else if (itemId == R.id.fDODownload) {
-//                            startActivity(new Intent(FlashletDetail.this, QrCodeScannerActivity.class));
+                            showDownloadPdfDialog();
                         }
                         return true;
                     }
@@ -391,6 +409,127 @@ public class FlashletDetail extends AppCompatActivity {
             }
         }
         return bmp;
+    }
+
+    private void showDownloadPdfDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Download PDF")
+                .setMessage("Do you want to download a PDF version of the flashlet?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        createPdf();
+                    }
+                })
+                .setNegativeButton("No", null);
+        builder.show();
+    }
+
+    private void createPdf() {
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(40);
+
+        int x = pageInfo.getPageWidth() / 2;
+        int y = 40;
+
+        // Flashlet Title
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        canvas.drawText(flashlet.getTitle().toUpperCase(), x, y, paint);
+
+        // Flashcard Count
+        paint.setTextSize(20);
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        y += 21;  // Increase space after the title
+        canvas.drawText(flashlet.getFlashcards().size() + " Total Flashcards", x, y, paint);
+
+        // Flashcards
+        y += 40;  // Increase space before the flashcards
+        paint.setTextAlign(Paint.Align.LEFT);
+        for (Flashcard flashcard : flashlet.getFlashcards()) {
+            paint.setTextSize(24);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            canvas.drawText("Keyword:", 40, y, paint);
+            paint.setTextSize(20);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+            canvas.drawText(flashcard.getKeyword(), 150, y, paint);
+
+            y += 40;  // Increase space between keyword and description
+            paint.setTextSize(24);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            canvas.drawText("Description:", 40, y, paint);
+            paint.setTextSize(20);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+            canvas.drawText(flashcard.getDefinition(), 150, y, paint);
+
+            y += 60;  // Increase space between flashcards
+        }
+
+        // Date and Time
+        String dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(dateTime, x, pageInfo.getPageHeight() - 40, paint);
+
+        document.finishPage(page);
+
+        // Write the document content to a file in the Downloads directory
+        String fileName = flashlet.getTitle().toUpperCase() + ".pdf";
+        OutputStream outputStream = null;
+        Uri pdfUri = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+            pdfUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+
+            if (pdfUri != null) {
+                try {
+                    outputStream = getContentResolver().openOutputStream(pdfUri);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+            try {
+                outputStream = new FileOutputStream(filePath);
+                pdfUri = Uri.fromFile(filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (outputStream != null) {
+            try {
+                document.writeTo(outputStream);
+                Toast.makeText(this, "PDF downloaded: " + fileName, Toast.LENGTH_LONG).show();
+
+                // Open the PDF file
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(pdfUri, "application/pdf");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error creating PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } finally {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        document.close();
     }
 
     // To re-initialize the DB update loop when returning to the screen
