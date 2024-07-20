@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -295,15 +296,15 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
         flashletColRef
-                .whereGreaterThanOrEqualTo("title", searchQuery)
-                .whereLessThanOrEqualTo("title", searchQuery + "\uf8ff")
+                .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery)
+                .whereLessThanOrEqualTo("insensitiveTitle", searchQuery + "\uf8ff")
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Convert the Flashlets from JSON to a Flashlet Object, and if it's public, add it to the list
-                        ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
+                        ArrayList<FlashletWithInsensitive> flashletList = new ArrayList<FlashletWithInsensitive>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String flashletJson = gson.toJson(document.getData());
-                            Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
+                            FlashletWithInsensitive flashlet = gson.fromJson(flashletJson, FlashletWithInsensitive.class);
                             if (flashlet.getIsPublic()) {
                                 flashletList.add(flashlet);
                             }
@@ -311,8 +312,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
                         // Retrieve Users with Usernames similar to the searchQuery
                         usersColRef
-                                .whereGreaterThanOrEqualTo("username", searchQuery)
-                                .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                .whereGreaterThanOrEqualTo("insensitiveUsername", searchQuery)
+                                .whereLessThanOrEqualTo("insensitiveUsername", searchQuery + "\uf8ff")
                                 .get().addOnCompleteListener(userTask -> {
                                     if (userTask.isSuccessful()) {
                                         // Convert the Users from JSON to a User Object, only if the User is not the currently logged in user
@@ -340,7 +341,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                                             }
 
                                                             ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
-                                                            for (Flashlet flashlet : flashletList) {
+                                                            for (FlashletWithInsensitive flashlet : flashletList) {
                                                                 User owner = userMap.get(flashlet.getCreatorID());
                                                                 if (owner != null) {
                                                                     flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
