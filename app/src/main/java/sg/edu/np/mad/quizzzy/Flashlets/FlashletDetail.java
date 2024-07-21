@@ -435,7 +435,7 @@ public class FlashletDetail extends AppCompatActivity {
         paint.setTextSize(40);
 
         int x = pageInfo.getPageWidth() / 2;
-        int y = 40;
+        int y = 60;
 
         // Flashlet Title
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
@@ -444,11 +444,11 @@ public class FlashletDetail extends AppCompatActivity {
         // Flashcard Count
         paint.setTextSize(20);
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        y += 21;  // Increase space after the title
+        y += 40;  // Increase space after the title
         canvas.drawText(flashlet.getFlashcards().size() + " Total Flashcards", x, y, paint);
 
         // Flashcards
-        y += 40;  // Increase space before the flashcards
+        y += 60;  // Increase space before the flashcards
         paint.setTextAlign(Paint.Align.LEFT);
         for (Flashcard flashcard : flashlet.getFlashcards()) {
             paint.setTextSize(24);
@@ -464,9 +464,9 @@ public class FlashletDetail extends AppCompatActivity {
             canvas.drawText("Description:", 40, y, paint);
             paint.setTextSize(20);
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-            canvas.drawText(flashcard.getDefinition(), 150, y, paint);
+            canvas.drawText(flashcard.getDefinition(), 180, y, paint);
 
-            y += 60;  // Increase space between flashcards
+            y += 70;  // Increase space between flashcards
         }
 
         // Date and Time
