@@ -52,3 +52,4 @@ public class Flashlet {
         this.isPublic = isPublic;
     }
 }
+

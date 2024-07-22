@@ -16,19 +16,19 @@ import sg.edu.np.mad.quizzzy.R;
 
 public class RecentSearchesAdapter extends RecyclerView.Adapter<RecentSearchesViewHolder> {
     private final RecyclerViewInterface recyclerViewInterface;
-    private OnEmptyListener onEmptyListener;
+    private OnResultChangeListener onResultChangeListener;
 
     private ArrayList<String> recentSearches;
     private SQLiteRecentSearchesManager db;
 
-    public interface OnEmptyListener {
-        void isRecentsEmpty(Boolean isEmpty);
+    public interface OnResultChangeListener {
+        void handleChange(Boolean isEmpty);
     }
 
-    public RecentSearchesAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<String> recentSearches, OnEmptyListener onEmptyListener) {
+    public RecentSearchesAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<String> recentSearches, OnResultChangeListener onResultChangeListener) {
         this.recyclerViewInterface = recyclerViewInterface;
         this.recentSearches = recentSearches;
-        this.onEmptyListener = onEmptyListener;
+        this.onResultChangeListener = onResultChangeListener;
     }
 
     @NonNull
@@ -56,11 +56,20 @@ public class RecentSearchesAdapter extends RecyclerView.Adapter<RecentSearchesVi
                 notifyItemRemoved(holder.getAdapterPosition());
                 notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
-                if (recentSearches.size() == 0) {
-                    onEmptyListener.isRecentsEmpty(true);
+                Log.d("Searches", "Removed Search: " + recentSearches.toString());
+                if (recentSearches.isEmpty()) {
+                    onResultChangeListener.handleChange(true);
+                } else {
+                    onResultChangeListener.handleChange(false);
                 }
             }
         });
+    }
+
+    public void updateAdapterData(ArrayList<String> recentSearches) {
+        this.recentSearches = recentSearches;
+
+        notifyDataSetChanged();
     }
 
     @Override

@@ -104,6 +104,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.oAViewToolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

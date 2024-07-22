@@ -86,7 +86,7 @@ public class SignupActivity extends AppCompatActivity {
                                         // Create user in Firebase
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-                                        User userInfo = new User(currentUser.getUid(), usernameView.getText().toString(), email, new ArrayList<>());
+                                        User userInfo = new User(currentUser.getUid(), usernameView.getText().toString(), usernameView.getText().toString().toLowerCase(), email, new ArrayList<>());
                                         firebase.collection("users").document(currentUser.getUid()).set(userInfo);
                                         DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
                                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
