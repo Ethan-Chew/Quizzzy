@@ -7,12 +7,23 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.PowerManager;
 import android.util.Log;
 
 public class AppLifecycleObserver implements DefaultLifecycleObserver {
     Context context;
+    boolean appInForeground;
+    boolean screenOn;
+
+    // Setters
+    public void setAppInForeground(boolean appInForeground) { this.appInForeground = appInForeground; }
+    public void setScreenOn(boolean screenOn) { this.screenOn = screenOn; }
+
+    // Getters
+    public boolean getAppInForeground() { return this.appInForeground; }
+    public boolean getScreenOn() { return this.screenOn; }
 
     // Setter for context
     public void setContext(Context context) { this.context = context; }
@@ -20,25 +31,33 @@ public class AppLifecycleObserver implements DefaultLifecycleObserver {
     // This method is called when the app comes into the foreground
     @Override
     public void onStart(LifecycleOwner owner) {
-        boolean screenOn = isScreenOn(context);
+        appInForeground = true;
 
         Log.d("AppLifecycleObserver", "App moved to foreground");
-        Log.d("AppLifecycleObserver", "Screen is on: " + screenOn);
+        Log.d("AppLifecycleObserver", "App in foreground: " + appInForeground);
+        Log.d("AppLifecycleObserver", "Screen is on: " + isScreenOn(context));
     }
 
     // This method is called when the app goes into the background
     @Override
     public void onStop(LifecycleOwner owner) {
-        boolean screenOn = isScreenOn(context);
+        appInForeground = false;
 
         Log.d("AppLifecycleObserver", "App moved to background");
-        Log.d("AppLifecycleObserver", "Screen is on: " + screenOn);
+        Log.d("AppLifecycleObserver", "App in foreground: " + appInForeground);
+        Log.d("AppLifecycleObserver", "Screen is on: " + isScreenOn(context));
+    }
+
+    public AppLifecycleObserver() {
+        appInForeground = true;
+        screenOn = true;
     }
 
     // Uses power manager to check if the screen is on, and return a boolean value
     public boolean isScreenOn(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        return pm.isInteractive();
+        screenOn = pm.isInteractive();
+        return screenOn;
     }
 }
 
