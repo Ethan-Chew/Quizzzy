@@ -12,7 +12,10 @@ import android.os.PowerManager;
 import android.util.Log;
 
 public class AppLifecycleObserver implements DefaultLifecycleObserver {
-    public static Context context;
+    Context context;
+
+    // Setter for context
+    public void setContext(Context context) { this.context = context; }
 
     // This method is called when the app comes into the foreground
     @Override

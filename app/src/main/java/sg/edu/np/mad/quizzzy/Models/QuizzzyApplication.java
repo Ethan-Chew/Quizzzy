@@ -8,14 +8,12 @@ import android.util.Log;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 public class QuizzzyApplication extends Application {
-
-    private PowerManager pm;
     @Override
     public void onCreate() {
         super.onCreate();
 
         AppLifecycleObserver appLifecycleObserver = new AppLifecycleObserver();
-        AppLifecycleObserver.context = getApplicationContext();
+        appLifecycleObserver.setContext(getApplicationContext());
         ProcessLifecycleOwner.get().getLifecycle().addObserver(appLifecycleObserver);
     }
 }
