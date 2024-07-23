@@ -74,7 +74,7 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
         UserWithRecents currentUser = localDB.getUser();
 
         FlashletWithUsername flashlet = flashlets.get(position);
-        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
+        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
         sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());
 
         startActivity(sendToFlashletDetail);
