@@ -165,20 +165,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
         //Adding data for barchart into an ArrayList
         ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, sunFlashletUsage));
-        entries.add(new BarEntry(1, monFlashletUsage));
-        entries.add(new BarEntry(2, tueFlashletUsage));
-        entries.add(new BarEntry(3, wedFlashletUsage));
-        entries.add(new BarEntry(4, thuFlashletUsage));
-        entries.add(new BarEntry(5, friFlashletUsage));
-        entries.add(new BarEntry(6, satFlashletUsage));
-
-        BarDataSet barDataSet = new BarDataSet(entries, "Usage");
-        barDataSet.setColor(ColorTemplate.MATERIAL_COLORS[0]);
-        barDataSet.setValueTextColor(Color.BLACK);
-        BarData barData = new BarData(barDataSet);
-        barChart.setData(barData);
-        barChart.getDescription().setText("Weekly Flashlet Usage");
 
         final List<String> daysOfWeek = new ArrayList<>();
         daysOfWeek.add("Sun");
@@ -188,6 +174,20 @@ public class StatisticsActivity extends AppCompatActivity {
         daysOfWeek.add("Thu");
         daysOfWeek.add("Fri");
         daysOfWeek.add("Sat");
+
+        //Change null data to zero
+        for (int i = 0; i < daysOfWeek.size(); i++) {
+            String day = daysOfWeek.get(i);
+            Integer value = statistics.get(day);
+            entries.add(new BarEntry(i, value != null ? value : 0)); // Replace null with 0
+        }
+
+        BarDataSet barDataSet = new BarDataSet(entries, "Usage");
+        barDataSet.setColor(ColorTemplate.MATERIAL_COLORS[0]);
+        barDataSet.setValueTextColor(Color.BLACK);
+        BarData barData = new BarData(barDataSet);
+        barChart.setData(barData);
+        barChart.getDescription().setText("Weekly Flashlet Usage");
 
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new StatisticsActivity.DayAxisValueFormatter(daysOfWeek));
