@@ -21,6 +21,7 @@ import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 import java.util.HashMap;
 
@@ -60,7 +61,9 @@ public class StatisticsActivity extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
                     startActivity(new Intent(getApplicationContext(), FlashletList.class));

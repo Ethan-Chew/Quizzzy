@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -61,6 +62,17 @@ public class SignupActivity extends AppCompatActivity {
         EditText passwordView = findViewById(R.id.passwordFieldSignupAct);
         EditText usernameView = findViewById(R.id.usernameFieldSignupAct);
         EditText confirmPassword = findViewById(R.id.confirmPassword);
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(SignupActivity.this);
+
+        //Handle Back Navigation
+        Toolbar toolbar = findViewById(R.id.signUpToolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignupActivity.this.getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +90,9 @@ public class SignupActivity extends AppCompatActivity {
                             .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
+
                                     if (task.isSuccessful()) {
+                                        // Create user in Firebase
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                         if (currentUser != null) {
                                             User userInfo = new User(currentUser.getUid(), username, email, new ArrayList<>());

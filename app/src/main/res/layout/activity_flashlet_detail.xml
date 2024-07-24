@@ -80,6 +80,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     app:srcCompat="@drawable/pencil" />
+
+                <ImageView
+                    android:id="@+id/fDCloneOption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/clone_icon" />
             </LinearLayout>
 
             <TextView

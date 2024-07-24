@@ -30,6 +30,7 @@ import android.widget.ViewFlipper;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
@@ -38,8 +39,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -54,17 +58,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.PushNotificationService;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class FlashletDetail extends AppCompatActivity {
@@ -87,6 +98,7 @@ public class FlashletDetail extends AppCompatActivity {
     SQLiteManager localDB;
     UsageStatistic usage;
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +122,12 @@ public class FlashletDetail extends AppCompatActivity {
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
         flashlet = gson.fromJson(receiveIntent.getStringExtra("flashletJSON"), Flashlet.class);
-        String userId = receiveIntent.getStringExtra("userId");
         ArrayList<Flashcard> flashcards = flashlet.getFlashcards();
 
         // Update SQLite with Recently Opened
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
         ArrayList<String> recentlyViewed = localDB.getUser().getRecentlyOpenedFlashlets();
+        String userId = localDB.getUser().getUser().getId();
 
         // Create new UsageStatistic class and start the update loop
         UsageStatistic usage = new UsageStatistic();
@@ -141,10 +153,8 @@ public class FlashletDetail extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -153,6 +163,7 @@ public class FlashletDetail extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
@@ -196,21 +207,94 @@ public class FlashletDetail extends AppCompatActivity {
 
         // Handle Edit Button Pressed
         ImageView editFlashletBtn = findViewById(R.id.fDEditOption);
-        editFlashletBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
-                sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
+        ImageView cloneFlashletBtn = findViewById(R.id.fDCloneOption);
 
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 1 because this is a Flashlet Activity
-                localDB.updateStatistics(usage, 1, userId);
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
+        /// If User ID does not match the Owner of the Flashlet, disable editing
+        if (!flashlet.getCreatorID().contains(userId)) {
+            editFlashletBtn.setVisibility(View.GONE);
+            /// Handle clone onClick
+            cloneFlashletBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(FlashletDetail.this);
+                    builder.setTitle("Clone Flashlet")
+                            .setMessage("Do you want to clone this flashlet?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                final String id = UUID.randomUUID().toString();
+                                final ArrayList<String> originalCreatorId = flashlet.getCreatorID();
+                                Flashlet newFlashlet = flashlet;
+                                newFlashlet.setId(id);
+                                newFlashlet.setCreatorID(new ArrayList<String>(Arrays.asList(userId)));
+                                db.collection("flashlets")
+                                        .document(id)
+                                        .set(newFlashlet)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+                                                ArrayList<String> createdFlashlets = localDB.getUser().getUser().getCreatedFlashlets();
+                                                createdFlashlets.add(id);
+                                                localDB.updateCreatedFlashcards(localDB.getUser().getUser().getId(), createdFlashlets);
 
-                startActivity(sendToEdit);
-            }
-        });
+                                                // Save Flashlet ID to User's Firebase
+                                                db.collection("users").document(userId).update("createdFlashlets", createdFlashlets)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
+                                                                // Send Message via Firebase FCM notifying the each Owner of the flashlet their flashlet was cloned
+                                                                PushNotificationService pushNotificationService = new PushNotificationService();
+                                                                for (String creatorId : originalCreatorId) {
+                                                                    pushNotificationService.sendFlashletCloneMessage(creatorId, flashlet.getTitle());
+                                                                }
+
+                                                                // Send User to their cloned flashlet
+                                                                Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
+                                                                flashletCloneIntent.putExtra("flashletJSON", gson.toJson(newFlashlet));
+                                                                flashletCloneIntent.putExtra("userId", userId);
+
+                                                                startActivity(flashletCloneIntent);
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), "Failed to Clone Flashlet", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getApplicationContext(), "Failed to Clone Flashlet", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                            })
+                            .setNegativeButton("Cancel", ((dialog, which) -> {}))
+                            .setCancelable(false);
+                    builder.create().show(); // Show Alert
+                }
+            });
+        } else {
+            cloneFlashletBtn.setVisibility(View.GONE);
+            /// Handle edit onClick
+            editFlashletBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sendToEdit = new Intent(FlashletDetail.this, UpdateFlashlet.class);
+                    sendToEdit.putExtra("flashletJSON", gson.toJson(flashlet));
+
+                    // Save statistics to SQLite DB before changing Activity.
+                    // timeType of 1 because this is a Flashlet Activity
+                    localDB.updateStatistics(usage, 1, userId);
+                    // Kills updateStatisticsLoop as we are switching to another activity.
+                    usage.setActivityChanged(true);
+
+                    startActivity(sendToEdit);
+                }
+            });
+        }
 
         // Find View Components
         flashletTitleLbl = findViewById(R.id.fDFlashletTitle);

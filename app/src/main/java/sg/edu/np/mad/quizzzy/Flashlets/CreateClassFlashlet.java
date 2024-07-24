@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -41,6 +42,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -54,6 +56,7 @@ import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class CreateClassFlashlet extends AppCompatActivity {
@@ -71,7 +74,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
     private LinearLayout flashcardListView;
     private View newFlashcardView;
     private EditText createFlashletTitle;
-
+    private Switch isFlashletPublicSwitch;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -135,7 +138,6 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
         // Bottom Navigation View
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.create);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 
@@ -154,7 +156,9 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
                     startActivity(new Intent(getApplicationContext(), FlashletList.class));
@@ -162,6 +166,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
@@ -212,19 +217,12 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
                 // Add Inflated View to LinearLayout Container
                 flashcardListView.addView(newFlashcardView);
-
-                // Add Spacer View
-                View spacerView = new View(CreateClassFlashlet.this);
-                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        20
-                );
-                flashcardListView.addView(spacerView, spacerParams);
             }
         });
 
         // Handle Flashlet creation submission
         createFlashletTitle = findViewById(R.id.cFNewTitle);
+        isFlashletPublicSwitch = findViewById(R.id.cFIsPublicSwitch);
         createFlashletBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,11 +233,15 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     return;
                 }
 
+                /// Ensure that there is at least one Flashcard
+                if (flashcards.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "You need to create at least one flashcard!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                ArrayList<String> creatorId = new ArrayList<>();
-                creatorId.add(userId);
-                newFlashlet = new Flashlet(id, title, "", creatorId, null, flashcards, System.currentTimeMillis() / 1000L); // Initialise Flashlet with Empty Description
+                newFlashlet = new Flashlet(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);

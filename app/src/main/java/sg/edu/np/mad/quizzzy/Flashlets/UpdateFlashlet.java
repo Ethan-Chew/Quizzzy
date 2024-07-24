@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,6 +41,7 @@ import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.R;
+import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
 public class UpdateFlashlet extends AppCompatActivity {
@@ -54,6 +56,7 @@ public class UpdateFlashlet extends AppCompatActivity {
     Button addNewFlashcard;
     Button updateFlashletBtn;
     EditText updateFlashletTitle;
+    Switch isFlashletPublicSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,10 +96,8 @@ public class UpdateFlashlet extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     overridePendingTransition(0,0);
                     return true;
-                } else if (itemId == R.id.create) {
-                    Intent createFlashletIntent = new Intent(getApplicationContext(), CreateFlashlet.class);
-                    createFlashletIntent.putExtra("userId", "");
-                    startActivity(createFlashletIntent);
+                } else if (itemId == R.id.search) {
+                    startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.flashlets) {
@@ -105,6 +106,7 @@ public class UpdateFlashlet extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.stats) {
                     startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
@@ -153,6 +155,8 @@ public class UpdateFlashlet extends AppCompatActivity {
         // Update UI Fields according to Loaded Flashlet
         updateFlashletTitle = findViewById(R.id.uFTitle);
         updateFlashletTitle.setText(flashlet.getTitle());
+        isFlashletPublicSwitch = findViewById(R.id.uFIsPublicSwitch);
+        isFlashletPublicSwitch.setChecked(flashlet.getIsPublic());
 
         /// Populate existing list of Flashcards in Flashlet
         flashcardListView = findViewById(R.id.uFFlashcardList);
@@ -175,21 +179,17 @@ public class UpdateFlashlet extends AppCompatActivity {
             deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    flashcards.remove(flashcard);
-                    flashcardListView.removeView(updateFlashcardView);
+                    if (flashcards.size() == 1) {
+                        Toast.makeText(UpdateFlashlet.this, "You cannot have a Flashlet with no flashcards!", Toast.LENGTH_LONG).show();
+                    } else {
+                        flashcards.remove(flashcard);
+                        flashcardListView.removeView(updateFlashcardView);
+                    }
                 }
             });
 
             // Add Flashcard View to Container
             flashcardListView.addView(updateFlashcardView);
-
-            // Add Empty Padding
-            View spacerView = new View(UpdateFlashlet.this);
-            LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    20
-            );
-            flashcardListView.addView(spacerView, spacerParams);
         }
 
         /// Create new Flashcard View when button clicked
@@ -213,18 +213,14 @@ public class UpdateFlashlet extends AppCompatActivity {
                 deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        flashcards.remove(flashcard);
-                        flashcardListView.removeView(updateFlashcardView);
+                        if (flashcards.size() == 1) {
+                            Toast.makeText(UpdateFlashlet.this, "You cannot have a Flashlet with no flashcards!", Toast.LENGTH_LONG).show();
+                        } else {
+                            flashcards.remove(flashcard);
+                            flashcardListView.removeView(updateFlashcardView);
+                        }
                     }
                 });
-
-                // Add Empty Padding
-                View spacerView = new View(UpdateFlashlet.this);
-                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        20
-                );
-                flashcardListView.addView(spacerView, spacerParams);
 
                 // Add Flashcard to Flashlet
                 flashlet.addFlashcard(flashcard);
@@ -239,14 +235,20 @@ public class UpdateFlashlet extends AppCompatActivity {
                 /// Disable Button
                 updateFlashletBtn.setEnabled(false);
                 updateFlashletBtn.setText("Loading...");
+
+                /// Update Flashlet Attributes
+                flashlet.setTitle(updateFlashletTitle.getText().toString());
+                flashlet.setIsPublic(isFlashletPublicSwitch.isChecked());
                 flashlet.setLastUpdatedUnix(System.currentTimeMillis() / 1000L);
+
+                // Update the Firebase Database
                 db.collection("flashlets").document(flashlet.getId())
                         .set(flashlet)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                updateFlashletBtn.setText("Update Flashlet");
                                 Toast.makeText(UpdateFlashlet.this, "Updated Successfully!", Toast.LENGTH_LONG).show();
+                                updateFlashletBtn.setText("Update Flashlet");
 
                                 // Save statistics to SQLite DB before changing Activity.
                                 // timeType of 1 because this is a Flashlet Activity

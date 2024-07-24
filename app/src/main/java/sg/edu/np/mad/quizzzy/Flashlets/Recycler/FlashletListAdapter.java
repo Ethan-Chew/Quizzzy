@@ -13,6 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,17 +47,24 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     private final User user;
     private FlashletList activity;
     boolean flashletOptionsOnClick = false;
+    private FlashletCountListener flashletCountListener;
 
-    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, RecyclerViewInterface recyclerViewInterface, User user) {
+    public interface FlashletCountListener {
+        void flashletCount(Integer count);
+    }
+
+    public FlashletListAdapter(ArrayList<Flashlet> userFlashlets, FlashletList activity, RecyclerViewInterface recyclerViewInterface, User user, FlashletCountListener flashletCountListener) {
         this.userFlashlets = userFlashlets;
         this.activity = activity;
         this.recyclerViewInterface = recyclerViewInterface;
         this.user = user;
+        this.flashletCountListener = flashletCountListener;
     }
 
     @NonNull
     public FlashletListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.flashlet_list_item, parent, false);
+
         return new FlashletListViewHolder(view, recyclerViewInterface);
     }
 
@@ -115,36 +126,52 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                 String flashletJson = gson.toJson(listItem);
                 String userJson = gson.toJson(user);
 
-                Intent intent = new Intent(activity, UpdateFlashlet.class);
-                intent.putExtra("flashletJSON", flashletJson);
-                intent.putExtra("userJSON", userJson);
-                activity.startActivity(intent);
-                return true;
-            } else if (itemId == R.id.fLODelete) {
-                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(activity);
-                // Display Alert to confirm before deletion of Flashlet
-                String confirmationMessage = "Confirm you want to delete Flashlet: " + listItem.getTitle() + "? This process is irreversible.";
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Are you sure?")
-                        .setMessage(confirmationMessage)
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            // Confirmed Delete
-                            db.collection("flashlets").document(listItem.getId())
-                                    .delete()
-                                    .addOnSuccessListener(unused -> {
-                                        User user = localDB.getUser().getUser();
-                                        ArrayList<String> createdFlashlets = user.getCreatedFlashlets();
-                                        createdFlashlets.remove(listItem.getId());
-                                        localDB.updateCreatedFlashcards(user.getId(), createdFlashlets);
-                                        notifyItemRemoved(holder.getAdapterPosition());
-                                        notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
+                    Intent intent = new Intent(activity, UpdateFlashlet.class);
+                    intent.putExtra("flashletJSON", flashletJson);
+                    intent.putExtra("userJSON", userJson);
+                    activity.startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.fLODelete) {
+                    SQLiteManager localDB = SQLiteManager.instanceOfDatabase(activity);
+                    // Display Alert to confirm before deletion of Flashlet
+                    String confirmationMessage = "Confirm you want to delete Flashlet: " + listItem.getTitle() + "? This process is irreversible.";
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("Are you sure?")
+                            .setMessage(confirmationMessage)
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                // Confirmed Delete
+                                db.collection("flashlets").document(listItem.getId())
+                                        .delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                User user = localDB.getUser().getUser();
+                                                userFlashlets.remove(listItem);
+                                                ArrayList<String> createdFlashletsId = user.getCreatedFlashlets();
+                                                createdFlashletsId.remove(listItem.getId());
+                                                // Update User's Created Flashlet List in Firebase
+                                                db.collection("users").document(user.getId()).update("createdFlashlets", createdFlashletsId).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            localDB.updateCreatedFlashcards(user.getId(), createdFlashletsId);
+                                                            notifyItemRemoved(holder.getAdapterPosition());
+                                                            notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
-                                        Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Delete Flashlet", e.toString());
-                                        Toast.makeText(activity.getApplicationContext(), "Failed to Delete!", Toast.LENGTH_LONG).show();
-                                    });
+                                                            Toast.makeText(activity.getApplicationContext(), "Deleted Successfully!", Toast.LENGTH_LONG).show();
+                                                            flashletCountListener.flashletCount(getItemCount());
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.e("Delete Flashlet", e.toString());
+                                                Toast.makeText(activity.getApplicationContext(), "Failed to Delete!", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
 
                         })
                         .setNegativeButton("Cancel", ((dialog, which) -> {

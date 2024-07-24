@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
@@ -63,28 +66,35 @@ public class EditFlashcard extends AppCompatActivity {
         // Retrieve the index and flashcard data from the Intent
         arrayIndex = getIntent().getIntExtra("Array_Index", -1);
         flashlet = gson.fromJson(getIntent().getStringExtra("flashletJson"), Flashlet.class);
-        Flashcard currFlashcard = flashlet.getFlashcards().get(arrayIndex);
+        ArrayList<Flashcard> flashcardList = flashlet.getFlashcards();
         tvFLName.setText(flashlet.getTitle());
 
         // Set the EditTexts with the flashcard data
         if (arrayIndex != -1) {
-            etKeyword.setText(currFlashcard.getKeyword());
-            etDefinition.setText(currFlashcard.getDefinition());
+            etKeyword.setText(flashcardList.get(arrayIndex).getKeyword());
+            etDefinition.setText(flashcardList.get(arrayIndex).getDefinition());
         }
 
         //Save changes
         btnSave.setOnClickListener(v -> {
             Toast.makeText(EditFlashcard.this, "Updated!", Toast.LENGTH_LONG).show();
-            flashlet.getFlashcards().get(arrayIndex).setKeyword(etKeyword.getText().toString());
-            flashlet.getFlashcards().get(arrayIndex).setDefinition(etDefinition.getText().toString());
+            flashcardList.get(arrayIndex).setKeyword(etKeyword.getText().toString());
+            flashcardList.get(arrayIndex).setDefinition(etDefinition.getText().toString());
 
-            db.collection("flashlets").document(flashlet.getId()).update("flashcards", flashlet.getFlashcards())
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    finish();
-                                }
-                            });
+            flashlet.setFlashcards(flashcardList);
+
+            db.collection("flashlets").document(flashlet.getId()).update("flashcards", flashcardList)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Intent backToFlashletDetails = new Intent(EditFlashcard.this, FlashletDetail.class);
+                            backToFlashletDetails.putExtra("userId", "");
+                            backToFlashletDetails.putExtra("flashletJSON", gson.toJson(flashlet));
+                            backToFlashletDetails.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            backToFlashletDetails.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(backToFlashletDetails);
+                        }
+                    });
 
         });
 

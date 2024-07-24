@@ -26,6 +26,7 @@ import java.util.List;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 if (flashletId != null) {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
+                // TODO: startActivtyForResult is deprecated, replace with another function
                 startActivityForResult(intent, 1);
             }
         });
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 if (flashletId != null) {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
+                // TODO: startActivtyForResult is deprecated, replace with another function
                 startActivityForResult(intent, 2);
             }
         });
@@ -154,6 +157,22 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        // Check if the User is Signed in to Quizzzy
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(this);
+
+        UserWithRecents userWithRecents = localDB.getUser();
+        if (userWithRecents != null) {
+            User user = userWithRecents.getUser();
+            if (!user.getEmail().isEmpty() && !user.getUsername().isEmpty()) {
+                // User is Logged in, send to Home Screen
+                Intent homeScreenIntent = new Intent(MainActivity.this, HomeActivity.class);
+                startActivity(homeScreenIntent);
+            }
+        }
+    }
 }
 

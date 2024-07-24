@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.any" />
-
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -20,86 +23,105 @@
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".Classes.UpdateClass"
+            android:name=".Search.OCRActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"  />
+        <activity
+            android:name=".UserProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".Search.SearchActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Quizzzy"
+            android:screenOrientation="portrait"  />
+        <activity
+            android:name=".Classes.UpdateClass"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.ClassDetail"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.AddClass"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.ClassList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.EditFlashcard"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.FlashcardList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".StatisticsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".HomeActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".SignupActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Flashlets.FlashletList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Flashlets.FlashletDetail"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Flashlets.UpdateFlashlet"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Flashlets.CreateFlashlet"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Flashlets.CreateClassFlashlet"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".SplashActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="quizzzy" android:host="flashlet" />
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.FlashletList"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.FlashletDetail"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.UpdateFlashlet"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.CreateFlashlet"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Flashlets.CreateClassFlashlet"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".Models.PushNotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data android:name="GEMINI_API_KEY" android:value="${GEMINI_API_KEY}" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr, ocr_chinese" />
     </application>
 
 </manifest>
