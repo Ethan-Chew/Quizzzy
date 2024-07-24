@@ -1,6 +1,7 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +24,17 @@ import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.components.XAxis;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class StatisticsActivity extends AppCompatActivity {
 
@@ -88,6 +99,7 @@ public class StatisticsActivity extends AppCompatActivity {
         int totalFlashcardUsage = statistics.get("totalFlashcardUsage");
         int averageFlashcardUsage = statistics.get("averageFlashcardUsage");
 
+
         int totalFlashletUsage = statistics.get("totalFlashletUsage");
         int averageFlashletUsage = statistics.get("averageFlashletUsage");
 
@@ -97,6 +109,14 @@ public class StatisticsActivity extends AppCompatActivity {
         int flashcardsViewedToday = statistics.get("flashcardsViewedToday");
         int flashcardsViewedTotal = statistics.get("flashcardsViewedTotal");
         int flashcardsViewedAverage = statistics.get("flashcardsViewedAverage");
+
+        int sunFlashletUsage = statistics.get("sundayFlashletUsage");
+        int monFlashletUsage = statistics.get("mondayFlshletUsage");
+        int tueFlashletUsage = statistics.get("tuesdayFlashletUsage");
+        int wedFlashletUsage = statistics.get("wednesdayFlashletUsage");
+        int thuFlashletUsage = statistics.get("thursdayFlashletUsage");
+        int friFlashletUsage = statistics.get("fridayFlashletUsage");
+        int satFlashletUsage = statistics.get("saturdayFlashletUsage");
 
         // Update text details into relevant TextViews
         TextView todayTotal = findViewById(R.id.statsTodayTotal);
@@ -139,5 +159,59 @@ public class StatisticsActivity extends AppCompatActivity {
         weekFlashcardAvg.setText(String.valueOf(averageFlashcardUsage));
         weekFlashletAvg.setText(String.valueOf(averageFlashletUsage));
         weekClassAvg.setText(String.valueOf(averageClassUsage));
+
+        //BarChart
+        BarChart barChart = findViewById(R.id.barChart);
+
+        //Adding data for barchart into an ArrayList
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        entries.add(new BarEntry(0, sunFlashletUsage));
+        entries.add(new BarEntry(1, monFlashletUsage));
+        entries.add(new BarEntry(2, tueFlashletUsage));
+        entries.add(new BarEntry(3, wedFlashletUsage));
+        entries.add(new BarEntry(4, thuFlashletUsage));
+        entries.add(new BarEntry(5, friFlashletUsage));
+        entries.add(new BarEntry(6, satFlashletUsage));
+
+        BarDataSet barDataSet = new BarDataSet(entries, "Usage");
+        barDataSet.setColor(ColorTemplate.MATERIAL_COLORS[0]);
+        barDataSet.setValueTextColor(Color.BLACK);
+        BarData barData = new BarData(barDataSet);
+        barChart.setData(barData);
+        barChart.getDescription().setText("Weekly Flashlet Usage");
+
+        final List<String> daysOfWeek = new ArrayList<>();
+        daysOfWeek.add("Sun");
+        daysOfWeek.add("Mon");
+        daysOfWeek.add("Tue");
+        daysOfWeek.add("Wed");
+        daysOfWeek.add("Thu");
+        daysOfWeek.add("Fri");
+        daysOfWeek.add("Sat");
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new StatisticsActivity.DayAxisValueFormatter(daysOfWeek));
+        xAxis.setGranularity(1f); //interval
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelRotationAngle(-45f);
+
+        barChart.getAxisLeft().setGranularity(1f); //interval
+        barChart.getAxisRight().setEnabled(false); //remove right y-axis
+
+        barChart.setFitBars(true);
+        barChart.invalidate(); //refresh the chart
+    }
+
+    private static class DayAxisValueFormatter extends ValueFormatter{
+        private final List<String> daysOfWeek;
+
+        public DayAxisValueFormatter(List<String> daysOfWeek) {
+            this.daysOfWeek = daysOfWeek;
+        }
+
+        @Override
+        public String getFormattedValue(float value) {
+            return daysOfWeek.get((int) value % daysOfWeek.size());
+        }
     }
 }

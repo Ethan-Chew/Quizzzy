@@ -291,6 +291,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
         usageStats.put("todayFlashletUsage", statistics.get("flashletUsage")[today]);
         usageStats.put("todayClassUsage", statistics.get("classUsage")[today]);
 
+        usageStats.put("sundayFlashletUsage", statistics.get("flashletUsage")[0]);
+        usageStats.put("mondayFlashletUsage", statistics.get("flashletUsage")[1]);
+        usageStats.put("tuesdayFlashletUsage", statistics.get("flashletUsage")[2]);
+        usageStats.put("wednesdayFlashletUsage", statistics.get("flashletUsage")[3]);
+        usageStats.put("thursdayFlashletUsage", statistics.get("flashletUsage")[4]);
+        usageStats.put("fridayFlashletUsage", statistics.get("flashletUsage")[5]);
+        usageStats.put("saturdayFlashletUsage", statistics.get("flashletUsage")[6]);
+
+
         // Using IntStream so that IntStream.sum() can be used to get weekly total and average
         usageStats.put("totalFlashcardUsage", IntStream.of(statistics.get("flashcardUsage")).sum());
         usageStats.put("averageFlashcardUsage", Math.floorDiv(IntStream.of(statistics.get("flashcardUsage")).sum(), 7));
