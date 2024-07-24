@@ -14,16 +14,16 @@ import android.util.Log;
 
 public class AppLifecycleObserver implements DefaultLifecycleObserver {
     Context context;
-    boolean appInForeground;
-    boolean screenOn;
+    static boolean appInForeground;
+    static boolean screenOn;
 
     // Setters
-    public void setAppInForeground(boolean appInForeground) { this.appInForeground = appInForeground; }
-    public void setScreenOn(boolean screenOn) { this.screenOn = screenOn; }
+    public static void setAppInForeground(boolean isAppInForeground) { appInForeground = isAppInForeground; }
+    public static void setScreenOn(boolean isScreenOn) { screenOn = isScreenOn; }
 
     // Getters
-    public boolean getAppInForeground() { return this.appInForeground; }
-    public boolean getScreenOn() { return this.screenOn; }
+    public static boolean getAppInForeground() { return appInForeground; }
+    public static boolean getScreenOn() { return screenOn; }
 
     // Setter for context
     public void setContext(Context context) { this.context = context; }
@@ -46,11 +46,6 @@ public class AppLifecycleObserver implements DefaultLifecycleObserver {
         Log.d("AppLifecycleObserver", "App moved to background");
         Log.d("AppLifecycleObserver", "App in foreground: " + appInForeground);
         Log.d("AppLifecycleObserver", "Screen is on: " + isScreenOn(context));
-    }
-
-    public AppLifecycleObserver() {
-        appInForeground = true;
-        screenOn = true;
     }
 
     // Uses power manager to check if the screen is on, and return a boolean value

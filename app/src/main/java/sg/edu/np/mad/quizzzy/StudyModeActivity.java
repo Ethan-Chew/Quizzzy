@@ -27,7 +27,6 @@ import sg.edu.np.mad.quizzzy.Models.AppLifecycleObserver;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 public class StudyModeActivity extends AppCompatActivity {
-    AppLifecycleObserver applicationState = new AppLifecycleObserver();
     private int studyDuration = 0;
     private boolean studyTimerRunning = false;
     private boolean wasStudyTimerRunning = false;
@@ -43,7 +42,7 @@ public class StudyModeActivity extends AppCompatActivity {
             return insets;
         });
 
-        Log.d("TAG", "run: " + applicationState.getAppInForeground() + applicationState.getScreenOn());
+        Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
 
         // Configure Back Button
         Toolbar toolbar = findViewById(R.id.studyToolbar);
@@ -118,9 +117,10 @@ public class StudyModeActivity extends AppCompatActivity {
                 String studyDurationFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
                 studyTime.setText(studyDurationFormatted);
 
-                if (!applicationState.getAppInForeground()) {
-                    Log.d("TAG", "run: " + applicationState.getAppInForeground() + applicationState.getScreenOn());
-                    if (applicationState.getScreenOn()) {
+                Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
+                if (!AppLifecycleObserver.getAppInForeground()) {
+                    Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
+                    if (AppLifecycleObserver.getScreenOn()) {
                         studyTimerRunning = false;
                         Log.d("Study", "run: " + studyTimerRunning);
                     }
