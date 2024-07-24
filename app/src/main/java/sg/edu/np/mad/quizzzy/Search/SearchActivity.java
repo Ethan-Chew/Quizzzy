@@ -294,6 +294,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         SearchResult searchResult = new SearchResult();
 
+        Log.d("Result", searchQuery);
         // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
         flashletColRef
                 .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery)
@@ -304,6 +305,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                         ArrayList<FlashletWithInsensitive> flashletList = new ArrayList<FlashletWithInsensitive>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String flashletJson = gson.toJson(document.getData());
+                            Log.d("Search Result", flashletJson);
                             FlashletWithInsensitive flashlet = gson.fromJson(flashletJson, FlashletWithInsensitive.class);
                             if (flashlet.getIsPublic()) {
                                 flashletList.add(flashlet);
@@ -330,7 +332,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                         // If there were any Flashlets found, get the Username of the Owner
                                         if (!flashletList.isEmpty()) {
                                             usersColRef
-                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID()).collect(Collectors.toList()))
+                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID().get(0)).collect(Collectors.toList()))
                                                     .get().addOnCompleteListener(ownerTask -> {
                                                         if (ownerTask.isSuccessful()) {
                                                             Map<String, User> userMap = new HashMap<>();
@@ -342,7 +344,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
                                                             ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
                                                             for (FlashletWithInsensitive flashlet : flashletList) {
-                                                                User owner = userMap.get(flashlet.getCreatorID());
+                                                                User owner = userMap.get(flashlet.getCreatorID().get(0));
                                                                 if (owner != null) {
                                                                     flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
                                                                 }

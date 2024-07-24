@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -169,7 +170,7 @@ public class FlashletDetail extends AppCompatActivity {
         ImageView cloneFlashletBtn = findViewById(R.id.fDCloneOption);
 
         /// If User ID does not match the Owner of the Flashlet, disable editing
-        if (!Objects.equals(userId, flashlet.getCreatorID())) {
+        if (!flashlet.getCreatorID().contains(userId)) {
             editFlashletBtn.setVisibility(View.GONE);
             /// Handle clone onClick
             cloneFlashletBtn.setOnClickListener(new View.OnClickListener() {
@@ -180,10 +181,10 @@ public class FlashletDetail extends AppCompatActivity {
                             .setMessage("Do you want to clone this flashlet?")
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 final String id = UUID.randomUUID().toString();
-                                final String originalCreatorId = flashlet.getCreatorID();
+                                final ArrayList<String> originalCreatorId = flashlet.getCreatorID();
                                 Flashlet newFlashlet = flashlet;
                                 newFlashlet.setId(id);
-                                newFlashlet.setCreatorID(userId);
+                                newFlashlet.setCreatorID(new ArrayList<String>(Arrays.asList(userId)));
                                 db.collection("flashlets")
                                         .document(id)
                                         .set(newFlashlet)
@@ -201,9 +202,11 @@ public class FlashletDetail extends AppCompatActivity {
                                                             @Override
                                                             public void onSuccess(Void unused) {
                                                                 Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
-                                                                // Send Message via Firebase FCM notifying the Owner of the flashlet their flashlet was cloned
+                                                                // Send Message via Firebase FCM notifying the each Owner of the flashlet their flashlet was cloned
                                                                 PushNotificationService pushNotificationService = new PushNotificationService();
-                                                                pushNotificationService.sendFlashletCloneMessage(originalCreatorId, flashlet.getTitle());
+                                                                for (String creatorId : originalCreatorId) {
+                                                                    pushNotificationService.sendFlashletCloneMessage(creatorId, flashlet.getTitle());
+                                                                }
 
                                                                 // Send User to their cloned flashlet
                                                                 Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
