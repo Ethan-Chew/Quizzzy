@@ -188,7 +188,7 @@ public class HomeActivity extends AppCompatActivity  {
                     public boolean onMenuItemClick(MenuItem item) {
                         int itemId = item.getItemId();
                         if (itemId == R.id.logout) {
-                            localDB.dropUser(FirebaseAuth.getInstance().getUid());
+                            localDB.dropUser(userWithRecents.getUser().getId());
                             recentSearchesDB.dropAllSearchQuery();
                             FirebaseAuth.getInstance().signOut();
                             // Unsubscribe from Firebase FCM

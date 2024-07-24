@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -510,46 +511,83 @@ public class FlashletDetail extends AppCompatActivity {
     private void createPdf() {
         PdfDocument document = new PdfDocument();
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
-        PdfDocument.Page page = document.startPage(pageInfo);
+        int margin = 40; // Margin at the top of the page
+        int topMargin = 60; // Extra space at the top of each new page
+        int lineHeight = 30;
+        int pageHeight = pageInfo.getPageHeight();
+        int rightMargin = 10; // Right margin for text wrapping
 
+        // Starting the first page
+        PdfDocument.Page page = document.startPage(pageInfo);
         Canvas canvas = page.getCanvas();
         Paint paint = new Paint();
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(40);
 
         int x = pageInfo.getPageWidth() / 2;
-        int y = 60;
+        int y = topMargin;
+        int remainingHeight = pageHeight - y - margin;
 
         // Flashlet Title
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         canvas.drawText(flashlet.getTitle().toUpperCase(), x, y, paint);
+        y += 40; // Increase space after the title
+        remainingHeight -= 40;
 
         // Flashcard Count
         paint.setTextSize(20);
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        y += 40;  // Increase space after the title
         canvas.drawText(flashlet.getFlashcards().size() + " Total Flashcards", x, y, paint);
+        y += 60; // Increase space after the count
+        remainingHeight -= 60;
 
         // Flashcards
-        y += 60;  // Increase space before the flashcards
         paint.setTextAlign(Paint.Align.LEFT);
         for (Flashcard flashcard : flashlet.getFlashcards()) {
+            // Check if we have enough space on the current page, otherwise create a new page
+            if (remainingHeight < lineHeight * 2 + 70) { // Adjust based on the content to be added
+                document.finishPage(page);
+                page = document.startPage(pageInfo);
+                canvas = page.getCanvas();
+                y = margin + topMargin; // Add extra space at the top of the new page
+                remainingHeight = pageHeight - y - margin;
+            }
+
             paint.setTextSize(24);
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             canvas.drawText("Keyword:", 40, y, paint);
+            y += lineHeight;
+            remainingHeight -= lineHeight;
+
             paint.setTextSize(20);
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-            canvas.drawText(flashcard.getKeyword(), 150, y, paint);
+            String wrappedKeyword = wrapText(flashcard.getKeyword(), pageInfo.getPageWidth() - 80, rightMargin, paint);
+            for (String line : wrappedKeyword.split("\n")) {
+                canvas.drawText(line, 40, y, paint);
+                y += lineHeight;
+                remainingHeight -= lineHeight;
+            }
 
-            y += 40;  // Increase space between keyword and description
+            y += 10;
+            remainingHeight -= 10;
+
             paint.setTextSize(24);
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             canvas.drawText("Description:", 40, y, paint);
+            y += lineHeight;
+            remainingHeight -= lineHeight;
+
             paint.setTextSize(20);
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-            canvas.drawText(flashcard.getDefinition(), 180, y, paint);
+            String wrappedDescription = wrapText(flashcard.getDefinition(), pageInfo.getPageWidth() - 80, rightMargin, paint);
+            for (String line : wrappedDescription.split("\n")) {
+                canvas.drawText(line, 40, y, paint);
+                y += lineHeight;
+                remainingHeight -= lineHeight;
+            }
 
-            y += 70;  // Increase space between flashcards
+            y += 70; // Increase space between flashcards
+            remainingHeight -= 70;
         }
 
         // Date and Time
@@ -614,6 +652,54 @@ public class FlashletDetail extends AppCompatActivity {
 
         document.close();
     }
+
+    private String wrapText(String text, int maxWidth, int rightMargin, Paint paint) {
+        // Adjust maxWidth to account for the right margin
+        int effectiveWidth = maxWidth - rightMargin;
+
+        String[] words = text.split(" ");
+        StringBuilder wrappedText = new StringBuilder();
+        StringBuilder line = new StringBuilder();
+
+        for (String word : words) {
+            // Measure the width of the current line with the next word
+            float lineWidthWithWord;
+            if (line.length() == 0) {
+                lineWidthWithWord = paint.measureText(word);
+            } else {
+                lineWidthWithWord = paint.measureText(line.toString() + " " + word);
+            }
+
+            if (lineWidthWithWord > effectiveWidth) {
+                // If the current line with the next word exceeds effectiveWidth, add the current line to wrappedText and start a new line
+                if (wrappedText.length() > 0) {
+                    wrappedText.append("\n");
+                }
+                wrappedText.append(line.toString().trim());
+                line = new StringBuilder(word);
+            } else {
+                // Otherwise, append the word to the current line
+                if (line.length() > 0) {
+                    line.append(" ");
+                }
+                line.append(word);
+            }
+        }
+
+        // Append the remaining line to wrappedText
+        if (line.length() > 0) {
+            if (wrappedText.length() > 0) {
+                wrappedText.append("\n");
+            }
+            wrappedText.append(line.toString().trim());
+        }
+
+        return wrappedText.toString();
+    }
+
+
+
+
 
     // To re-initialize the DB update loop when returning to the screen
     @Override
