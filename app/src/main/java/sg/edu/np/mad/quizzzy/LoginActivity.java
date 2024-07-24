@@ -114,7 +114,40 @@ public class LoginActivity extends AppCompatActivity {
                                                     DocumentSnapshot document = task.getResult();
 
                                                     if (flashletId != null) {
-                                                        handleFlashletAddition(flashletId, currentUser.getUid());
+                                                        String secret = document.getData().get("2faSecret").toString();
+                                                        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                                        View popupView = inflater.inflate(R.layout.login_2fa_popup, null);
+                                                        PopupWindow popupWindow = getPopupWindow(popupView);
+
+                                                        // Show the popup window at the center of the layout
+                                                        popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
+
+                                                        // Dim the background
+                                                        View container = popupWindow.getContentView().getRootView();
+                                                        if (container != null) {
+                                                            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+                                                            WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+                                                            p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                                                            p.dimAmount = 0.5f;
+                                                            if (wm != null) {
+                                                                wm.updateViewLayout(container, p);
+                                                            }
+                                                        }
+
+                                                        EditText pin1 = popupView.findViewById(R.id.loginPin1);
+                                                        EditText pin2 = popupView.findViewById(R.id.loginPin2);
+                                                        EditText pin3 = popupView.findViewById(R.id.loginPin3);
+                                                        EditText pin4 = popupView.findViewById(R.id.loginPin4);
+                                                        EditText pin5 = popupView.findViewById(R.id.loginPin5);
+                                                        EditText pin6 = popupView.findViewById(R.id.loginPin6);
+
+                                                        pin1.addTextChangedListener(new LoginActivity.TOTPWatcher(pin1, pin2, popupView, secret));
+                                                        pin2.addTextChangedListener(new LoginActivity.TOTPWatcher(pin2, pin3, popupView, secret));
+                                                        pin3.addTextChangedListener(new LoginActivity.TOTPWatcher(pin3, pin4, popupView, secret));
+                                                        pin4.addTextChangedListener(new LoginActivity.TOTPWatcher(pin4, pin5, popupView, secret));
+                                                        pin5.addTextChangedListener(new LoginActivity.TOTPWatcher(pin5, pin6, popupView, secret));
+                                                        pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
+
                                                     } else {
                                                         if (document.getData().get("2faSecret") != null) {
                                                             String secret = document.getData().get("2faSecret").toString();
@@ -189,10 +222,11 @@ public class LoginActivity extends AppCompatActivity {
                     List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
                     if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
                         Log.d("LoginActivity", "Flashlet already exists in user createdFlashlets.");
-                        Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                         navigateToHome(flashletId);
+                        Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }
             } else {
@@ -291,6 +325,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String userJson = gson.toJson(document.getData());
                                 User user = gson.fromJson(userJson, User.class);
                                 localDB.addUser(new UserWithRecents(user));
+                                handleFlashletAddition(flashletId, currentUser.getUid());
                                 // Send User to Home Screen
                                 Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                 startActivity(homeScreenIntent);
