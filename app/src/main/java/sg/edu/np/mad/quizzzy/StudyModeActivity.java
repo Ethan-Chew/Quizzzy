@@ -1,6 +1,10 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,10 +30,12 @@ import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.AppLifecycleObserver;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
-public class StudyModeActivity extends AppCompatActivity {
+public class StudyModeActivity extends AppCompatActivity implements SensorEventListener {
     private int studyDuration = 0;
     private boolean studyTimerRunning = false;
     private boolean wasStudyTimerRunning = false;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +91,16 @@ public class StudyModeActivity extends AppCompatActivity {
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
 
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Log.d("Gyroscope", "Connected");
+        }
+
+        if (accelerometer == null) {
+            Log.e("Gyroscope", "No accelerometer sensor found");
+        }
+
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +116,40 @@ public class StudyModeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float z = event.values[2]; // Acceleration in the Z-axis
+
+            if (z < -9.0) {
+                Log.d("Gyroscope", "Screen is face down");
+                // Additional logic for when the screen is face down
+            } else if (z > 9.0) {
+                Log.d("Gyroscope", "Screen is face up");
+                // Additional logic for when the screen is face up
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do nothing for now
     }
 
     private void runTimer() {
