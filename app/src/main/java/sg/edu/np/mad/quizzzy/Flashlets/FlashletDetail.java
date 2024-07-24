@@ -1,6 +1,5 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;

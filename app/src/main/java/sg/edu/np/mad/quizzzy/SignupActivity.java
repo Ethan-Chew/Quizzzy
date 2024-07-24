@@ -95,7 +95,7 @@ public class SignupActivity extends AppCompatActivity {
                                         // Create user in Firebase
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                         if (currentUser != null) {
-                                            User userInfo = new User(currentUser.getUid(), username, email, new ArrayList<>());
+                                            User userInfo = new User(currentUser.getUid(), username, username.toLowerCase() ,email, new ArrayList<>());
                                             firebase.collection("users").document(currentUser.getUid()).set(userInfo)
                                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                         @Override

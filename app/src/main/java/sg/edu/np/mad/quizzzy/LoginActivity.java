@@ -112,10 +112,6 @@ public class LoginActivity extends AppCompatActivity {
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
-                                                    SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                    String userJson = gson.toJson(document.getData());
-                                                    User user = gson.fromJson(userJson, User.class);
-                                                    localDB.addUser(new UserWithRecents(user));
 
                                                     if (flashletId != null) {
                                                         handleFlashletAddition(flashletId, currentUser.getUid());
