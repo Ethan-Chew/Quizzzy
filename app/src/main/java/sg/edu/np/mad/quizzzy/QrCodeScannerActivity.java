@@ -45,6 +45,7 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -217,6 +218,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         if (scannedFlashletId != null) {
             String userId = auth.getCurrentUser().getUid();
             DocumentReference userRef = db.collection("users").document(userId);
+            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(QrCodeScannerActivity.this);
 
             userRef.get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
@@ -234,6 +236,9 @@ public class QrCodeScannerActivity extends AppCompatActivity {
 
                         batch.commit()
                                 .addOnSuccessListener(aVoid -> {
+                                    ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                                    createdFlashletIds.add(scannedFlashletId);
+                                    localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                                     Log.d(TAG, "Flashlet and user updated successfully");
                                     Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(this, FlashletDetail.class);

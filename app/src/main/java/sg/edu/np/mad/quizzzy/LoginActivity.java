@@ -40,6 +40,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -184,6 +185,7 @@ public class LoginActivity extends AppCompatActivity {
     private void handleFlashletAddition(String flashletId, String userId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
 
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -196,6 +198,9 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                        createdFlashletIds.add(flashletId);
+                        localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                         Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }

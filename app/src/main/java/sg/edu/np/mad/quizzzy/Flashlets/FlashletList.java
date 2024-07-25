@@ -210,6 +210,9 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
         RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
         LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
 
+        /// Get the latest user from the localDB
+        userWithRecents = localDB.getUser();
+
         /// Update User Interface with Updated Data
         ArrayList<String> userFlashletIDs = new ArrayList<>();
         userFlashletIDs.addAll(userWithRecents.getUser().getCreatedFlashlets());
@@ -262,6 +265,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    userFlashlets.clear();
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String flashletJson = gson.toJson(document.getData());
                         userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));
