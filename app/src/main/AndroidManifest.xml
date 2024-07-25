@@ -30,17 +30,18 @@
             android:exported="false" />
         <activity
             android:name=".Search.OCRActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" 
+            android:exported="false" />
         <activity
             android:name=".UserProfileActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Search.SearchActivity"
-            android:exported="false"
             android:theme="@style/Theme.Quizzzy"
-            android:screenOrientation="portrait"  />
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.UpdateClass"
             android:screenOrientation="portrait"
@@ -74,7 +75,7 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:launchMode="singleTask">
-            <intent-filter>-->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
