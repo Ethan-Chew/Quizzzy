@@ -22,17 +22,31 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.AppLifecycleObserver;
+import sg.edu.np.mad.quizzzy.Models.FirebaseRTDBHelper;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 public class StudyModeActivity extends AppCompatActivity implements SensorEventListener {
-    private int studyDuration = 0;
+    FirebaseDatabase firebaseDB;
+    DatabaseReference firebaseReference;
+    private String userId = "test";
+    private int studyDuration;
     private boolean studyTimerRunning = false;
     private boolean wasStudyTimerRunning = false;
     private SensorManager sensorManager;
@@ -89,6 +103,42 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
             }
         });
 
+        firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        firebaseReference = firebaseDB.getReference("studyDuration");
+
+        FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", "100");
+        Map<String, Object> a = new HashMap<>();
+        a.put("text", "aaaaaaaaaaaa");
+        firebaseReference.push().setValue(a).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                }
+                else {
+                    Log.d("firebase", String.valueOf(task.getResult()));
+                }
+            }
+        });
+
+        //studyDuration = Integer.parseInt(firebaseReference.child(userId).getKey());
+
+        firebaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Object value = dataSnapshot.getValue();
+                Log.d("Firebase", "Value is: " + value.toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w("Firebase", "Failed to read value.", error.toException());
+            }
+        });
+
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
 
@@ -101,6 +151,19 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", "100");
+                firebaseReference.setValue("test").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        }
+                        else {
+                            Log.d("firebase", String.valueOf(task.getResult()));
+                        }
+                    }
+                });
+
                 if (!studyTimerRunning) {
                     studyTimerRunning = true;
 
@@ -166,16 +229,12 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
     private void runTimer() {
         TextView studyTime = findViewById(R.id.studyTime);
         Handler handler = new Handler();
+        FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", Integer.toString(studyDuration));
 
         handler.post(new Runnable() {
             @Override
             public void run() {
-                int hours = studyDuration / 3600;
-                int minutes = (studyDuration % 3600) / 60;
-                int seconds = studyDuration % 60;
-
-                // Formatted in Hours:Minutes:Seconds, with leading 0 if there is only 1 digit in the value
-                String studyDurationFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+                String studyDurationFormatted = formatStudyTime(studyDuration);
                 studyTime.setText(studyDurationFormatted);
 
                 // Check if app is in the background while the screen is on and pauses the timer
@@ -183,10 +242,23 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                     studyTimerRunning = false;
                     Log.d("Study", "run: " + studyTimerRunning);
                 }
-                if (studyTimerRunning) { studyDuration++; }
+                if (studyTimerRunning) {
+                    studyDuration++;
+                    firebaseReference.child("test").push();
+                }
 
                 handler.postDelayed(this, 1000);
             }
         });
+    }
+
+    // Formats time to Hours:Minutes:Seconds, with leading 0 if there is only 1 digit in the value
+    private String formatStudyTime(int studyDuration) {
+        return String.format(
+                Locale.getDefault(), "%02d:%02d:%02d",
+                studyDuration / 3600,
+                (studyDuration % 3600) / 60,
+                studyDuration % 60
+        );
     }
 }

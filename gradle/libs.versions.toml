@@ -21,6 +21,7 @@ textRecognition = "16.0.0"
 cameraCamera2 = "1.4.0-beta02"
 lifecycleExtensions = "2.2.0"
 zxingAndroidEmbedded = "4.2.0"
+firebaseDatabase = "21.0.0"
 
 [libraries]
 fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
@@ -43,6 +44,7 @@ text-recognition = { group = "com.google.mlkit", name = "text-recognition", vers
 camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraCamera2" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
 lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensions", version.ref = "lifecycleExtensions" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
