@@ -18,15 +18,13 @@ public class AppLifecycleObserver implements DefaultLifecycleObserver {
     static boolean screenOn;
 
     // Setters
+    public void setContext(Context context) { this.context = context; }
     public static void setAppInForeground(boolean isAppInForeground) { appInForeground = isAppInForeground; }
     public static void setScreenOn(boolean isScreenOn) { screenOn = isScreenOn; }
 
     // Getters
     public static boolean getAppInForeground() { return appInForeground; }
     public static boolean getScreenOn() { return screenOn; }
-
-    // Setter for context
-    public void setContext(Context context) { this.context = context; }
 
     // This method is called when the app comes into the foreground
     @Override

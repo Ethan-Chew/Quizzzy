@@ -92,13 +92,10 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
 
+        // Manager for gyroscope tracking
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        }
-
-        if (accelerometer == null) {
-            Log.e("Gyroscope", "No accelerometer sensor found");
         }
 
         pause.setOnClickListener(new View.OnClickListener() {
@@ -181,13 +178,10 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                 String studyDurationFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
                 studyTime.setText(studyDurationFormatted);
 
-                Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
-                if (!AppLifecycleObserver.getAppInForeground()) {
-                    Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
-                    if (AppLifecycleObserver.getScreenOn()) {
-                        studyTimerRunning = false;
-                        Log.d("Study", "run: " + studyTimerRunning);
-                    }
+                // Check if app is in the background while the screen is on and pauses the timer
+                if (!AppLifecycleObserver.getAppInForeground() && AppLifecycleObserver.getScreenOn()) {
+                    studyTimerRunning = false;
+                    Log.d("Study", "run: " + studyTimerRunning);
                 }
                 if (studyTimerRunning) { studyDuration++; }
 
