@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
@@ -180,6 +181,8 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Add the Flashcard to the Screen
                 createFlashcardItem(newFlashcard);
+
+                flashcards.add(newFlashcard);
             }
         });
 
@@ -211,7 +214,7 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                newFlashlet = new FlashletWithInsensitive(id, title, "", userId, null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked(), title.toLowerCase()); // Initialise Flashlet with Empty Description
+                newFlashlet = new FlashletWithInsensitive(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked(), title.toLowerCase()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);

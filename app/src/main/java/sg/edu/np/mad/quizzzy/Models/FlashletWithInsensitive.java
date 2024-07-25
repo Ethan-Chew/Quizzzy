@@ -16,7 +16,7 @@ public class FlashletWithInsensitive extends Flashlet {
     }
 
     // Constructor
-    public FlashletWithInsensitive(String id, String title, String description, String creatorID, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix, Boolean isPublic, String insensitiveTitle) {
+    public FlashletWithInsensitive(String id, String title, String description, ArrayList<String> creatorID, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix, Boolean isPublic, String insensitiveTitle) {
         super(id, title, description, creatorID, classId, flashcards, lastUpdatedUnix, isPublic);
 
         this.insensitiveTitle = insensitiveTitle;

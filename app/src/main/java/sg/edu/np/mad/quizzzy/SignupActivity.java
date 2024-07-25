@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,10 +22,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -33,6 +36,10 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 public class SignupActivity extends AppCompatActivity {
 
     Gson gson = new Gson();
+    FirebaseAuth mAuth;
+    FirebaseFirestore firebase;
+    SQLiteManager localDB;
+    String flashletId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +52,10 @@ public class SignupActivity extends AppCompatActivity {
             return insets;
         });
 
-        FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
+        firebase = FirebaseFirestore.getInstance();
+        localDB = SQLiteManager.instanceOfDatabase(SignupActivity.this);
+        flashletId = getIntent().getStringExtra("FLASHLET_ID");
 
         View signupBtn = findViewById(R.id.signupBtnSignupAct);
         EditText emailView = findViewById(R.id.emailFieldSignupAct);
@@ -70,12 +79,12 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = emailView.getText().toString();
                 String password = passwordView.getText().toString();
-                String username = passwordView.getText().toString();
+                String username = usernameView.getText().toString();
 
                 if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
-                    Toast.makeText(SignupActivity.this, "Email or Password is blank.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignupActivity.this, "Email, Username, or Password is blank.", Toast.LENGTH_SHORT).show();
                 } else if (!confirmPassword.getText().toString().equals(password)) {
-                    Toast.makeText(SignupActivity.this, "Passwords does not match.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignupActivity.this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
                 } else {
                     mAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
@@ -85,38 +94,104 @@ public class SignupActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         // Create user in Firebase
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
+                                        if (currentUser != null) {
+                                            User userInfo = new User(currentUser.getUid(), username, username.toLowerCase() ,email, new ArrayList<>());
+                                            firebase.collection("users").document(currentUser.getUid()).set(userInfo)
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
+                                                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            DocumentSnapshot document = task.getResult();
+                                                                            if (document != null) {
+                                                                                String userJson = gson.toJson(document.getData());
+                                                                                User user = gson.fromJson(userJson, User.class);
+                                                                                localDB.addUser(new UserWithRecents(user));
 
-                                        User userInfo = new User(currentUser.getUid(), usernameView.getText().toString(), usernameView.getText().toString().toLowerCase(), email, new ArrayList<>());
-                                        firebase.collection("users").document(currentUser.getUid()).set(userInfo);
-                                        DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
-                                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot document = task.getResult();
-                                                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                                                    String userJson = gson.toJson(document.getData());
-                                                    User user = gson.fromJson(userJson, User.class);
-                                                    firebase.collection("users").document(currentUser.getUid()).set(user);
-                                                    // Save user into SQLite Local DB
-                                                    localDB.addUser(new UserWithRecents(user));
-                                                    // Send user to Home Screen
-                                                    Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
-                                                    startActivity(homeScreenIntent);
-                                                } else if (!task.getException().toString().isEmpty()) {
-                                                    Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                                                }
-
-                                            }
-                                        });
+                                                                                if (flashletId != null) {
+                                                                                    handleFlashletAddition(flashletId, currentUser.getUid());
+                                                                                    finish();
+                                                                                } else {
+                                                                                    Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
+                                                                                    startActivity(homeScreenIntent);
+                                                                                    finish(); // End SignupActivity
+                                                                                }
+                                                                            } else {
+                                                                                Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
+                                                                            }
+                                                                        } else {
+                                                                            Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                Toast.makeText(SignupActivity.this, "Failed to create user in Firestore.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            Toast.makeText(SignupActivity.this, "User is null after signup.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        Toast.makeText(SignupActivity.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
                 }
             }
         });
-
     }
+
+    private void handleFlashletAddition(String flashletId, String userId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference userRef = firebase.collection("users").document(userId);
+
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
+                        Log.d("SignupActivity", "Flashlet already exists in user createdFlashlets.");
+                        Toast.makeText(SignupActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
+                        navigateToHome(flashletId);
+                    } else {
+                        updateUserAndFlashlet(userRef, flashletId);
+                    }
+                }
+            } else {
+                Log.e("SignupActivity", "Error checking user document", task.getException());
+            }
+        });
+    }
+
+    private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
+
+        userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("SignupActivity", "User flashlets updated successfully");
+                    Toast.makeText(SignupActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update user createdFlashlets", e));
+
+        flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
+                .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
+                .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update flashlet creatorID", e));
+    }
+
+
+    private void navigateToHome(String flashletId) {
+        Intent resultIntent = new Intent(SignupActivity.this, HomeActivity.class);
+        resultIntent.putExtra("FLASHLET_ID", flashletId);
+        startActivity(resultIntent);
+        finish();
+    }
+
+
 }

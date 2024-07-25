@@ -42,6 +42,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -240,7 +241,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                newFlashlet = new Flashlet(id, title, "", userId, null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
+                newFlashlet = new Flashlet(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);

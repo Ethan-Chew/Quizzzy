@@ -50,6 +50,7 @@ import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.OCRActivity;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
@@ -121,9 +122,6 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
-        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
-
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.fLViewToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -194,6 +192,8 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                             startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
                         } else if (itemId == R.id.cFOAutogenerate) {
                             handleBottomDialogView();
+                        } else if (itemId == R.id.cFOJoinFlashlet) {
+                            startActivity(new Intent(FlashletList.this, QrCodeScannerActivity.class));
                         }
                         return true;
                     }
@@ -201,9 +201,18 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                 popupMenu.show();
             }
         });
+    }
 
-        // Update User Interface with Updated Data
-        ArrayList<String> userFlashletIDs = userWithRecents.getUser().getCreatedFlashlets();
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
+        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
+
+        /// Update User Interface with Updated Data
+        ArrayList<String> userFlashletIDs = new ArrayList<>();
+        userFlashletIDs.addAll(userWithRecents.getUser().getCreatedFlashlets());
 
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
         String flashletCountStr = "You have " + userFlashletIDs.size() + " Total Flashlet" + (userFlashletIDs.size() == 1 ? "" : "s");
@@ -232,6 +241,8 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                                 startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
                             } else if (itemId == R.id.cFOAutogenerate) {
                                 handleBottomDialogView();
+                            } else if (itemId == R.id.cFOJoinFlashlet) {
+                                startActivity(new Intent(FlashletList.this, QrCodeScannerActivity.class));
                             }
                             return true;
                         }
