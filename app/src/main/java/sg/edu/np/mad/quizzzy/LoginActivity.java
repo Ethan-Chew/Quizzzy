@@ -291,6 +291,7 @@ public class LoginActivity extends AppCompatActivity {
                                 localDB.addUser(new UserWithRecents(user));
                                 if (flashletId != null) {
                                     handleFlashletAddition(flashletId, currentUser.getUid());
+                                    finish();
                                 }
                                 else {
                                     // Send User to Home Screen

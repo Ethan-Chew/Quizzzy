@@ -54,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 if (flashletId != null) {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
-                // TODO: startActivtyForResult is deprecated, replace with another function
-                startActivityForResult(intent, 1);
+                startActivity(intent);
             }
         });
 
@@ -66,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 if (flashletId != null) {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
-                // TODO: startActivtyForResult is deprecated, replace with another function
-                startActivityForResult(intent, 2);
+                startActivity(intent);
             }
         });
 
