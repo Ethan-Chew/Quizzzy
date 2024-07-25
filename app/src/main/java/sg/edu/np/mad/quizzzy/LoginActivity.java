@@ -149,14 +149,20 @@ public class LoginActivity extends AppCompatActivity {
                                                             pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
 
                                                         } else {
-                                                            // Save the User to our SQLite (Local) Database
-                                                            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                            String userJson = gson.toJson(document.getData());
-                                                            User user = gson.fromJson(userJson, User.class);
-                                                            localDB.addUser(new UserWithRecents(user));
-                                                            // Send User to Home Screen
-                                                            Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                            startActivity(homeScreenIntent);
+                                                            if (flashletId != null) {
+                                                                handleFlashletAddition(flashletId, currentUser.getUid());
+                                                                finish();
+                                                            }
+                                                            else {
+                                                                // Save the User to our SQLite (Local) Database
+                                                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                                String userJson = gson.toJson(document.getData());
+                                                                User user = gson.fromJson(userJson, User.class);
+                                                                localDB.addUser(new UserWithRecents(user));
+                                                                // Send User to Home Screen
+                                                                Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                                startActivity(homeScreenIntent);
+                                                            }
                                                         }
 
                                                 } else {
