@@ -17,12 +17,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -68,16 +71,60 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
     public void onBindViewHolder(FlashletListViewHolder holder, int position) {
         Flashlet listItem = userFlashlets.get(holder.getAdapterPosition());
 
+        // Fetch creator IDs from Firebase if not already fetched
+        if (listItem.getCreatorID() == null || listItem.getCreatorID().isEmpty()) {
+            db.collection("flashlets").document(listItem.getId())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            List<String> creatorIdList = (List<String>) documentSnapshot.get("creatorID");
+                            listItem.setCreatorID((ArrayList<String>) creatorIdList);
+
+                            // Update UI based on creator ID
+                            updateOptionsMenu(holder, listItem);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("FlashletListAdapter", "Failed to fetch creator IDs", e));
+        } else {
+            // Update UI based on creator ID
+            updateOptionsMenu(holder, listItem);
+        }
+
+        // Set Text of Elements on UI
+        holder.titleLabel.setText(listItem.getTitle());
+
+        String flashcardCountTxt = listItem.getFlashcards().size() + " Keyword" + (listItem.getFlashcards().size() > 1 ? "s" : "");
+        holder.flashcardCountLabel.setText(flashcardCountTxt);
+
+        Date lastUpdated = new Date(listItem.getLastUpdatedUnix() * 1000L);
+        String lastUpdatedStr = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(lastUpdated);
+        holder.lastUpdatedLabel.setText(lastUpdatedStr);
+    }
+
+    private void updateOptionsMenu(FlashletListViewHolder holder, Flashlet listItem) {
         // Create Drop Down Options Menu
         PopupMenu popup = new PopupMenu(activity, holder.optionsMenu);
         popup.inflate(R.menu.flashlet_list_options);
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.fLOUpdate) {
-                    String flashletJson = gson.toJson(listItem);
-                    String userJson = gson.toJson(user);
+
+        // Check if the user's ID matches the first creatorId in the flashlet
+        List<String> creatorIdList = listItem.getCreatorID();
+        String firstCreatorId = creatorIdList != null && !creatorIdList.isEmpty() ? creatorIdList.get(0) : null;
+
+        MenuItem deleteItem = popup.getMenu().findItem(R.id.fLODelete);
+        MenuItem leaveItem = popup.getMenu().findItem(R.id.fLOLeave);
+        if (user.getId().equals(firstCreatorId)) {
+            deleteItem.setVisible(true);
+            leaveItem.setVisible(false);
+        } else {
+            deleteItem.setVisible(false);
+            leaveItem.setVisible(true);
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.fLOUpdate) {
+                String flashletJson = gson.toJson(listItem);
+                String userJson = gson.toJson(user);
 
                     Intent intent = new Intent(activity, UpdateFlashlet.class);
                     intent.putExtra("flashletJSON", flashletJson);
@@ -126,38 +173,62 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                                             }
                                         });
 
-                            })
-                            .setNegativeButton("Cancel", ((dialog, which) -> {
-                                // Handle Cancel Delete
-                            }))
-                            .setCancelable(true);
+                        })
+                        .setNegativeButton("Cancel", ((dialog, which) -> {
+                            // Handle Cancel Delete
+                        }))
+                        .setCancelable(true);
 
-                    builder.create().show(); // Show Alert
-                    return true;
-                }
-                return false;
+                builder.create().show(); // Show Alert
+                return true;
+            } else if (itemId == R.id.fLOLeave) {
+                // Handle leave flashlet logic
+                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle("Are you sure?")
+                        .setMessage("Confirm you want to leave Flashlet: " + listItem.getTitle() + "?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Confirmed Leave
+                            db.collection("flashlets").document(listItem.getId())
+                                    .update("creatorID", FieldValue.arrayRemove(user.getId()))
+                                    .addOnSuccessListener(unused -> {
+                                        db.collection("users").document(user.getId())
+                                                .update("createdFlashlets", FieldValue.arrayRemove(listItem.getId()))
+                                                .addOnSuccessListener(unused1 -> {
+                                                    notifyItemRemoved(holder.getAdapterPosition());
+                                                    notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
+                                                    Toast.makeText(activity.getApplicationContext(), "Left Flashlet Successfully!", Toast.LENGTH_LONG).show();
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Log.e("Leave Flashlet", e.toString());
+                                                    Toast.makeText(activity.getApplicationContext(), "Failed to Leave Flashlet!", Toast.LENGTH_LONG).show();
+                                                });
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Leave Flashlet", e.toString());
+                                        Toast.makeText(activity.getApplicationContext(), "Failed to Leave Flashlet!", Toast.LENGTH_LONG).show();
+                                    });
+                        })
+                        .setNegativeButton("Cancel", ((dialog, which) -> {
+                            // Handle Cancel Leave
+                        }))
+                        .setCancelable(true);
+
+                builder.create().show(); // Show Alert
+                return true;
+            }
+            return false;
+        });
+
+        holder.optionsMenu.setOnClickListener(v -> {
+            flashletOptionsOnClick = !flashletOptionsOnClick;
+            if (flashletOptionsOnClick) {
+                popup.show();
             }
         });
-        holder.optionsMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                flashletOptionsOnClick = !flashletOptionsOnClick;
-                if (flashletOptionsOnClick) {
-                    popup.show();
-                }
-            }
-        });
-
-        // Set Text of Elements on UI
-        holder.titleLabel.setText(listItem.getTitle());
-
-        String flashcardCountTxt = listItem.getFlashcards().size() + " Keyword" + (listItem.getFlashcards().size() > 1 ? "s" : "");
-        holder.flashcardCountLabel.setText(flashcardCountTxt);
-
-        Date lastUpdated = new Date(listItem.getLastUpdatedUnix() * 1000L);
-        String lastUpdatedStr = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(lastUpdated);
-        holder.lastUpdatedLabel.setText(lastUpdatedStr);
     }
 
-    public int getItemCount() { return userFlashlets.size(); }
+    public int getItemCount() {
+        return userFlashlets.size();
+    }
 }

@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="?attr/homeAsUpIndicator"/>
+        app:navigationIcon="?attr/homeAsUpIndicator" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -88,21 +88,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="15sp" />
 
-            <TextView
-                android:id="@+id/acMember"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginBottom="20dp"
-                android:text="Add Members"
-                android:textColor="@color/black"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/cFNewTitleContainer"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginEnd="25dp">
+
+                <TextView
+                    android:id="@+id/acMember"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Add Members"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/acadd_membersbtn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <Button
+                    android:id="@+id/acadd_membersbtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="+"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/acaddmembers"
@@ -111,24 +129,6 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginEnd="25dp"
                 android:orientation="vertical"></LinearLayout>
-
-            <Button
-                android:id="@+id/acadd_membersbtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginEnd="25dp"
-                android:backgroundTint="@color/listGray"
-                android:text="+"
-                android:textColor="#000000"
-                android:textColorLink="#737373"
-                android:textSize="20dp"
-                tools:layout_editor_absoluteX="62dp"
-                tools:layout_editor_absoluteY="216dp" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15sp" />
 
             <Button
                 android:id="@+id/accreate_class"

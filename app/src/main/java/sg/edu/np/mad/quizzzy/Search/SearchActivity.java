@@ -296,8 +296,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
         flashletColRef
-                .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery)
-                .whereLessThanOrEqualTo("insensitiveTitle", searchQuery + "\uf8ff")
+                .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase())
+                .whereLessThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase() + "\uf8ff")
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Convert the Flashlets from JSON to a Flashlet Object, and if it's public, add it to the list
@@ -312,8 +312,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
                         // Retrieve Users with Usernames similar to the searchQuery
                         usersColRef
-                                .whereGreaterThanOrEqualTo("insensitiveUsername", searchQuery)
-                                .whereLessThanOrEqualTo("insensitiveUsername", searchQuery + "\uf8ff")
+                                .whereGreaterThanOrEqualTo("insensitiveUsername", searchQuery.toLowerCase())
+                                .whereLessThanOrEqualTo("insensitiveUsername", searchQuery.toLowerCase() + "\uf8ff")
                                 .get().addOnCompleteListener(userTask -> {
                                     if (userTask.isSuccessful()) {
                                         // Convert the Users from JSON to a User Object, only if the User is not the currently logged in user
@@ -330,7 +330,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                         // If there were any Flashlets found, get the Username of the Owner
                                         if (!flashletList.isEmpty()) {
                                             usersColRef
-                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID()).collect(Collectors.toList()))
+                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID().get(0)).collect(Collectors.toList()))
                                                     .get().addOnCompleteListener(ownerTask -> {
                                                         if (ownerTask.isSuccessful()) {
                                                             Map<String, User> userMap = new HashMap<>();
@@ -342,11 +342,13 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
                                                             ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
                                                             for (FlashletWithInsensitive flashlet : flashletList) {
-                                                                User owner = userMap.get(flashlet.getCreatorID());
+                                                                User owner = userMap.get(flashlet.getCreatorID().get(0));
+
                                                                 if (owner != null) {
                                                                     flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
                                                                 }
                                                             }
+
                                                             searchResult.setFlashlets(flashletWithUsernames);
                                                             callback.onSearchResult(searchResult);
                                                         } else {
