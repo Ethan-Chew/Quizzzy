@@ -114,6 +114,7 @@ public class SignupActivity extends AppCompatActivity {
 
                                                                                 if (flashletId != null) {
                                                                                     handleFlashletAddition(flashletId, currentUser.getUid());
+                                                                                    finish();
                                                                                 } else {
                                                                                     Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
                                                                                     startActivity(homeScreenIntent);

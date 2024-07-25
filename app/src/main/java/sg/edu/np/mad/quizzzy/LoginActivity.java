@@ -113,9 +113,6 @@ public class LoginActivity extends AppCompatActivity {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
 
-                                                    if (flashletId != null) {
-                                                        handleFlashletAddition(flashletId, currentUser.getUid());
-                                                    } else {
                                                         if (document.getData().get("2faSecret") != null) {
                                                             String secret = document.getData().get("2faSecret").toString();
                                                             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -161,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
                                                             Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                             startActivity(homeScreenIntent);
                                                         }
-                                                    }
+
                                                 } else {
                                                     Log.d(TAG, "Get user failed with ", task.getException());
                                                 }
@@ -189,10 +186,11 @@ public class LoginActivity extends AppCompatActivity {
                     List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
                     if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
                         Log.d("LoginActivity", "Flashlet already exists in user createdFlashlets.");
-                        Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                         navigateToHome(flashletId);
+                        Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }
             } else {
@@ -291,9 +289,15 @@ public class LoginActivity extends AppCompatActivity {
                                 String userJson = gson.toJson(document.getData());
                                 User user = gson.fromJson(userJson, User.class);
                                 localDB.addUser(new UserWithRecents(user));
-                                // Send User to Home Screen
-                                Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                startActivity(homeScreenIntent);
+                                if (flashletId != null) {
+                                    handleFlashletAddition(flashletId, currentUser.getUid());
+                                    finish();
+                                }
+                                else {
+                                    // Send User to Home Screen
+                                    Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(homeScreenIntent);
+                                }
                             }
                         }
                     });

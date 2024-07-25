@@ -160,6 +160,12 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void scanBarcode(ImageProxy image) {
+        // Show scanning message
+        runOnUiThread(() -> {
+            textViewResult.setVisibility(View.VISIBLE);
+            textViewResult.setText("Scanning...");
+        });
+
         ImageProxy.PlaneProxy[] planes = image.getPlanes();
         if (planes.length > 0) {
             ByteBuffer buffer = planes[0].getBuffer();
