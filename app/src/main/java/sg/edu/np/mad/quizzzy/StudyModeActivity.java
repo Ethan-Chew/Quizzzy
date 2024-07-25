@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -94,7 +95,6 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Log.d("Gyroscope", "Connected");
         }
 
         if (accelerometer == null) {
@@ -107,6 +107,7 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                 if (!studyTimerRunning) {
                     studyTimerRunning = true;
 
+                    // Prevents creating more timer instances
                     if (!wasStudyTimerRunning) {
                         runTimer();
                         wasStudyTimerRunning = true;
@@ -137,19 +138,32 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float z = event.values[2]; // Acceleration in the Z-axis
 
+            // If gyroscope is face down
             if (z < -9.0) {
                 Log.d("Gyroscope", "Screen is face down");
-                // Additional logic for when the screen is face down
-            } else if (z > 9.0) {
-                Log.d("Gyroscope", "Screen is face up");
-                // Additional logic for when the screen is face up
+                dimScreen();
+            } else {
+                restoreScreenBrightness();
             }
         }
     }
 
+    // Required method for SensorEventListener
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Do nothing for now
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    // Method to dim the screen
+    private void dimScreen() {
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.screenBrightness = 0; // Value range from 0 (dark) to 1 (bright)
+        getWindow().setAttributes(params);
+    }
+
+    // Method to restore screen brightness
+    private void restoreScreenBrightness() {
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.screenBrightness = -1; // Use default brightness
+        getWindow().setAttributes(params);
     }
 
     private void runTimer() {
