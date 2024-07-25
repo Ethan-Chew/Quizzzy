@@ -110,14 +110,6 @@ public class StatisticsActivity extends AppCompatActivity {
         int flashcardsViewedTotal = statistics.get("flashcardsViewedTotal");
         int flashcardsViewedAverage = statistics.get("flashcardsViewedAverage");
 
-        int sunFlashletUsage = statistics.get("sundayFlashletUsage");
-        int monFlashletUsage = statistics.get("mondayFlshletUsage");
-        int tueFlashletUsage = statistics.get("tuesdayFlashletUsage");
-        int wedFlashletUsage = statistics.get("wednesdayFlashletUsage");
-        int thuFlashletUsage = statistics.get("thursdayFlashletUsage");
-        int friFlashletUsage = statistics.get("fridayFlashletUsage");
-        int satFlashletUsage = statistics.get("saturdayFlashletUsage");
-
         // Update text details into relevant TextViews
         TextView todayTotal = findViewById(R.id.statsTodayTotal);
         todayTotal.setText(String.valueOf(todayFlashcardUsage + todayFlashletUsage + todayClassUsage));
