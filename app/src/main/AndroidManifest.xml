@@ -22,18 +22,12 @@
         tools:targetApi="31">
         <activity
             android:name=".StudyModeActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:screenOrientation="portrait" 
+            android:exported="false" />
         <activity
             android:name=".QrCodeScannerActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Search.OCRActivity"
             android:exported="false"
@@ -80,18 +74,18 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:launchMode="singleTask">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.VIEW" />-->
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--                <category android:name="android.intent.category.BROWSABLE" />-->
-<!--                <data android:scheme="quizzzy" android:host="flashlet" />-->
-<!--            </intent-filter>-->
+            <intent-filter>-->
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="quizzzy" android:host="flashlet" />
+            </intent-filter>
 
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".HomeActivity"
