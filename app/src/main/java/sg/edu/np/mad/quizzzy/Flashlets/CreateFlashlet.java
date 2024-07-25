@@ -181,6 +181,8 @@ public class CreateFlashlet extends AppCompatActivity {
 
                 // Add the Flashcard to the Screen
                 createFlashcardItem(newFlashcard);
+
+                flashcards.add(newFlashcard);
             }
         });
 

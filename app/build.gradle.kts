@@ -16,6 +16,9 @@ android {
         versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        renderscriptTargetApi = 21
+        renderscriptSupportModeEnabled = true
     }
 
     buildTypes {
@@ -42,6 +45,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.gson)
     implementation(libs.firebase.auth)
+    implementation(libs.fragment)
+    implementation(libs.zxing.android.embedded)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.firebase.messaging)
@@ -51,6 +56,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-firestore")
+    coreLibraryDesugaring("com.android.tools.desugar_jdk_libs:2.0.2")
+    implementation("androidx.multidex:multidex:2.0.0")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition-chinese:16.0.0")
     implementation ("com.google.guava:guava:31.0.1-android")

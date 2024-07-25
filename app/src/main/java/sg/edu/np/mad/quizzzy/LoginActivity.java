@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -35,12 +36,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -48,6 +52,9 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 public class LoginActivity extends AppCompatActivity {
 
     Gson gson = new Gson();
+    FirebaseAuth mAuth;
+    FirebaseFirestore firebase;
+    String flashletId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +68,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Configure Firebase Authenticator
-        FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
+        firebase = FirebaseFirestore.getInstance();
+        flashletId = getIntent().getStringExtra("FLASHLET_ID");
 
         // Get Respective Text Items on screen
         View loginBtn = findViewById(R.id.loginBtnLoginAct);
@@ -105,67 +113,110 @@ public class LoginActivity extends AppCompatActivity {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
 
-                                                    if (document.getData().get("2faSecret") != null) {
-                                                        String secret = document.getData().get("2faSecret").toString();
-                                                        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                                                        View popupView = inflater.inflate(R.layout.login_2fa_popup, null);
-                                                        PopupWindow popupWindow = getPopupWindow(popupView);
+                                                        if (document.getData().get("2faSecret") != null) {
+                                                            String secret = document.getData().get("2faSecret").toString();
+                                                            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                                            View popupView = inflater.inflate(R.layout.login_2fa_popup, null);
+                                                            PopupWindow popupWindow = getPopupWindow(popupView);
 
-                                                        // Show the popup window at the center of the layout
-                                                        popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
+                                                            // Show the popup window at the center of the layout
+                                                            popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
 
-                                                        // Dim the background
-                                                        View container = popupWindow.getContentView().getRootView();
-                                                        if (container != null) {
-                                                            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-                                                            WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
-                                                            p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-                                                            p.dimAmount = 0.5f;
-                                                            if (wm != null) {
-                                                                wm.updateViewLayout(container, p);
+                                                            // Dim the background
+                                                            View container = popupWindow.getContentView().getRootView();
+                                                            if (container != null) {
+                                                                WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+                                                                WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+                                                                p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                                                                p.dimAmount = 0.5f;
+                                                                if (wm != null) {
+                                                                    wm.updateViewLayout(container, p);
+                                                                }
                                                             }
+
+                                                            EditText pin1 = popupView.findViewById(R.id.loginPin1);
+                                                            EditText pin2 = popupView.findViewById(R.id.loginPin2);
+                                                            EditText pin3 = popupView.findViewById(R.id.loginPin3);
+                                                            EditText pin4 = popupView.findViewById(R.id.loginPin4);
+                                                            EditText pin5 = popupView.findViewById(R.id.loginPin5);
+                                                            EditText pin6 = popupView.findViewById(R.id.loginPin6);
+
+                                                            pin1.addTextChangedListener(new LoginActivity.TOTPWatcher(pin1, pin2, popupView, secret));
+                                                            pin2.addTextChangedListener(new LoginActivity.TOTPWatcher(pin2, pin3, popupView, secret));
+                                                            pin3.addTextChangedListener(new LoginActivity.TOTPWatcher(pin3, pin4, popupView, secret));
+                                                            pin4.addTextChangedListener(new LoginActivity.TOTPWatcher(pin4, pin5, popupView, secret));
+                                                            pin5.addTextChangedListener(new LoginActivity.TOTPWatcher(pin5, pin6, popupView, secret));
+                                                            pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
+
+                                                        } else {
+                                                            // Save the User to our SQLite (Local) Database
+                                                            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                            String userJson = gson.toJson(document.getData());
+                                                            User user = gson.fromJson(userJson, User.class);
+                                                            localDB.addUser(new UserWithRecents(user));
+                                                            // Send User to Home Screen
+                                                            Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                            startActivity(homeScreenIntent);
                                                         }
 
-                                                        EditText pin1 = popupView.findViewById(R.id.loginPin1);
-                                                        EditText pin2 = popupView.findViewById(R.id.loginPin2);
-                                                        EditText pin3 = popupView.findViewById(R.id.loginPin3);
-                                                        EditText pin4 = popupView.findViewById(R.id.loginPin4);
-                                                        EditText pin5 = popupView.findViewById(R.id.loginPin5);
-                                                        EditText pin6 = popupView.findViewById(R.id.loginPin6);
-
-                                                        pin1.addTextChangedListener(new LoginActivity.TOTPWatcher(pin1, pin2, popupView, secret));
-                                                        pin2.addTextChangedListener(new LoginActivity.TOTPWatcher(pin2, pin3, popupView, secret));
-                                                        pin3.addTextChangedListener(new LoginActivity.TOTPWatcher(pin3, pin4, popupView, secret));
-                                                        pin4.addTextChangedListener(new LoginActivity.TOTPWatcher(pin4, pin5, popupView, secret));
-                                                        pin5.addTextChangedListener(new LoginActivity.TOTPWatcher(pin5, pin6, popupView, secret));
-                                                        pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
-
-                                                    } else {
-                                                        // Save the User to our SQLite (Local) Database
-                                                        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                        String userJson = gson.toJson(document.getData());
-                                                        User user = gson.fromJson(userJson, User.class);
-                                                        localDB.addUser(new UserWithRecents(user));
-                                                        // Send User to Home Screen
-                                                        Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                        startActivity(homeScreenIntent);
-                                                    }
                                                 } else {
                                                     Log.d(TAG, "Get user failed with ", task.getException());
                                                 }
                                             }
                                         });
-                                    } else if (!task.getException().toString().isEmpty()) {
-                                        Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "Login failed.", task.getException());
+                                        Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
                 }
             }
         });
+    }
 
+    private void handleFlashletAddition(String flashletId, String userId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference userRef = firebase.collection("users").document(userId);
+
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
+                        Log.d("LoginActivity", "Flashlet already exists in user createdFlashlets.");
+                        navigateToHome(flashletId);
+                        Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        updateUserAndFlashlet(userRef, flashletId);
+                        Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else {
+                Log.e("LoginActivity", "Error checking user document", task.getException());
+            }
+        });
+    }
+
+    private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
+        FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
+
+        userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
+                .addOnSuccessListener(aVoid -> Log.d("LoginActivity", "User flashlets updated successfully"))
+                .addOnFailureListener(e -> Log.e("LoginActivity", "Failed to update user createdFlashlets", e));
+
+        flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
+                .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
+                .addOnFailureListener(e -> Log.e("LoginActivity", "Failed to update flashlet creatorID", e));
+    }
+
+    private void navigateToHome(String flashletId) {
+        Intent resultIntent = new Intent(LoginActivity.this, HomeActivity.class);
+        resultIntent.putExtra("FLASHLET_ID", flashletId);
+        startActivity(resultIntent);
+        finish();
     }
 
     @NonNull
@@ -238,9 +289,15 @@ public class LoginActivity extends AppCompatActivity {
                                 String userJson = gson.toJson(document.getData());
                                 User user = gson.fromJson(userJson, User.class);
                                 localDB.addUser(new UserWithRecents(user));
-                                // Send User to Home Screen
-                                Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                startActivity(homeScreenIntent);
+                                if (flashletId != null) {
+                                    handleFlashletAddition(flashletId, currentUser.getUid());
+                                    finish();
+                                }
+                                else {
+                                    // Send User to Home Screen
+                                    Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(homeScreenIntent);
+                                }
                             }
                         }
                     });

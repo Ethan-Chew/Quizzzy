@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -52,6 +55,7 @@ public class UpdateClass extends AppCompatActivity {
     UserClass userClass;
     ArrayList<EditText> newUNList = new ArrayList<>();
     ArrayList<User> users = new ArrayList<>();
+    Set<String> existingUsernames = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,22 +168,8 @@ public class UpdateClass extends AppCompatActivity {
                             }
 
                             for (User user : users) {
-                                View listItem = LayoutInflater.from(UpdateClass.this).inflate(R.layout.add_class_members, null, false);
-                                EditText listItemEdit = listItem.findViewById(R.id.acmusername);
-                                listItemEdit.setText(user.getUsername());
-                                listItemEdit.setInputType(0); // Disable Text Editing
-                                newUNList.add(listItemEdit);
-
-                                ImageView deleteMember = listItem.findViewById(R.id.acmDelete);
-                                deleteMember.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        memberList.removeView(listItem);
-                                        newUNList.remove(listItemEdit);
-                                    }
-                                });
-
-                                memberList.addView(listItem);
+                                addUsernameItem(user.getUsername(), memberList, userClass.getCreatorId().contains(user.getId()));
+                                existingUsernames.add(user.getUsername());
                             }
                         }
                     }
@@ -190,28 +180,7 @@ public class UpdateClass extends AppCompatActivity {
         addMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View newMemberView = LayoutInflater.from(UpdateClass.this).inflate(R.layout.add_class_members, null, false);
-
-                EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
-                newUNList.add(memberUsernameInput);
-
-                ImageView deleteMember = newMemberView.findViewById(R.id.acmDelete);
-                deleteMember.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        memberList.removeView(newMemberView);
-                        newUNList.remove(memberUsernameInput);
-                    }
-                });
-
-                memberList.addView(newMemberView);
-
-                View spacerView = new View(UpdateClass.this);
-                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        20
-                );
-                memberList.addView(spacerView, spacerParams);
+                addUsernameItem("", memberList, false);
             }
         });
 
@@ -226,8 +195,15 @@ public class UpdateClass extends AppCompatActivity {
                     usernames.add(textField.getText().toString());
                 }
 
+                // Check if there are duplicated usernames
+                Set<String> nonDuplicatedUsernames = new HashSet<>(usernames);
+                if (usernames.size() != nonDuplicatedUsernames.size()) {
+                    Toast.makeText(UpdateClass.this, "There is a duplicated member!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 // Check if Usernames Exist
-                ArrayList<String> usernameIds = new ArrayList<>();
+                Set<String> usernameIds = new HashSet<>();
                 db.collection("users").whereIn("username",usernames).get()
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
@@ -242,7 +218,7 @@ public class UpdateClass extends AppCompatActivity {
                                                 Toast.makeText(UpdateClass.this, "One or More Usernames do not exist!", Toast.LENGTH_LONG).show();
                                                 return;
                                             } else {
-                                                userClass.setMemberId(usernameIds);
+                                                userClass.setMemberId(new ArrayList<>(usernameIds)); // Updated
                                                 // Update Class
                                                 db.collection("class").document(userClass.getId()).set(userClass)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -259,6 +235,36 @@ public class UpdateClass extends AppCompatActivity {
                                 });
             }
         });
+    }
+
+    private void addUsernameItem(String username, LinearLayout memberList, boolean isCreator) {
+        // Prevent adding duplicate usernames
+        if (!username.isEmpty() && existingUsernames.contains(username)) {
+            Toast.makeText(this, "Username already exists!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View memberItem = inflater.inflate(R.layout.add_class_members, null);
+
+        EditText usernameField = memberItem.findViewById(R.id.acmusername);
+        usernameField.setText(username);
+
+        // Add Remove Functionality
+        ImageView removeIcon = memberItem.findViewById(R.id.acmDelete);
+        removeIcon.setVisibility(isCreator ? View.GONE : View.VISIBLE); // Updated
+        removeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                memberList.removeView(memberItem);
+                newUNList.remove(usernameField);
+                existingUsernames.remove(usernameField.getText().toString()); // Updated
+            }
+        });
+
+        memberList.addView(memberItem);
+        newUNList.add(usernameField);
+        existingUsernames.add(username);
     }
 
     // To re-initialize the DB update loop when returning to the screen
