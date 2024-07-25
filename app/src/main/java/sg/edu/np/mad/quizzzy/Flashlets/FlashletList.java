@@ -122,9 +122,6 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
-        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
-
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.fLViewToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -204,6 +201,14 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                 popupMenu.show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
+        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
 
         /// Update User Interface with Updated Data
         ArrayList<String> userFlashletIDs = new ArrayList<>();
