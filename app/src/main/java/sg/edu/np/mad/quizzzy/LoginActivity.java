@@ -36,6 +36,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -142,14 +143,20 @@ public class LoginActivity extends AppCompatActivity {
                                                             pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
 
                                                         } else {
-                                                            // Save the User to our SQLite (Local) Database
-                                                            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                            String userJson = gson.toJson(document.getData());
-                                                            User user = gson.fromJson(userJson, User.class);
-                                                            localDB.addUser(new UserWithRecents(user));
-                                                            // Send User to Home Screen
-                                                            Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                            startActivity(homeScreenIntent);
+                                                            if (flashletId != null) {
+                                                                handleFlashletAddition(flashletId, currentUser.getUid());
+                                                                finish();
+                                                            }
+                                                            else {
+                                                                // Save the User to our SQLite (Local) Database
+                                                                SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                                String userJson = gson.toJson(document.getData());
+                                                                User user = gson.fromJson(userJson, User.class);
+                                                                localDB.addUser(new UserWithRecents(user));
+                                                                // Send User to Home Screen
+                                                                Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                                                                startActivity(homeScreenIntent);
+                                                            }
                                                         }
 
                                                 } else {
@@ -171,6 +178,7 @@ public class LoginActivity extends AppCompatActivity {
     private void handleFlashletAddition(String flashletId, String userId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
 
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -183,6 +191,9 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                        createdFlashletIds.add(flashletId);
+                        localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                         Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }

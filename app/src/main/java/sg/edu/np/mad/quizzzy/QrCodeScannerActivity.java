@@ -17,6 +17,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -49,6 +50,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
@@ -90,6 +92,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         bottomPart = findViewById(R.id.bottomPart);
         joinFlashletButton = findViewById(R.id.joinFlashletButton);
 
+        // Initialize Firebase Firestore and Auth
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -102,9 +105,11 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             startCamera();
         }
 
+        // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.qcsViewToolbar);
         toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
 
+        // Handle Back Button Click
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -115,6 +120,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void handleBackNavigation() {
+        // Call the default back press behavior again to return to the previous screen
         previewView.setEnabled(false);
         QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
     }
@@ -160,6 +166,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void scanBarcode(ImageProxy image) {
+        // Show scanning message
         runOnUiThread(() -> {
             textViewResult.setVisibility(View.VISIBLE);
             textViewResult.setText("Scanning...");
@@ -186,6 +193,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     bottomPart.setVisibility(View.VISIBLE);
                     scanComplete.setText("Scanning complete");
 
+                    // Extract flashlet ID from the scanned content
                     scannedFlashletId = extractFlashletId(scannedContent);
                     if (scannedFlashletId != null) {
                         joinFlashletButton.setEnabled(true);
@@ -206,6 +214,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private String extractFlashletId(String scannedContent) {
+        // Ensure the scanned content matches the expected format
         if (scannedContent != null && scannedContent.startsWith("quizzzy://flashlet/?id=")) {
             return scannedContent.substring("quizzzy://flashlet/?id=".length());
         }
@@ -225,6 +234,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     if (createdFlashlets != null && createdFlashlets.contains(scannedFlashletId)) {
                         Toast.makeText(this, "You have already joined this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Proceed with joining the flashlet
                         DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
 
                         WriteBatch batch = db.batch();
@@ -259,6 +269,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -270,5 +281,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Release any resources used by the camera if necessary
     }
 }

@@ -67,3 +67,4 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
 ## Stage 2 Features
 For our Stage 2 Submission, every member on our team worked on an independent feature.
 1. [Global Search and Optical Character Recognition](./docs/features/GlobalSearch.md) - Ethan Chew (S10255990K)
+2. [Two Factor Authentication](./docs/features/2FA.md) - Hervin Sie (S10262115)

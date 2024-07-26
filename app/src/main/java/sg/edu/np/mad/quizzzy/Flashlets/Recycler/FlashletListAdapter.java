@@ -187,6 +187,7 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                 builder.setTitle("Are you sure?")
                         .setMessage("Confirm you want to leave Flashlet: " + listItem.getTitle() + "?")
                         .setPositiveButton("Yes", (dialog, which) -> {
+
                             // Confirmed Leave
                             db.collection("flashlets").document(listItem.getId())
                                     .update("creatorID", FieldValue.arrayRemove(user.getId()))
@@ -194,6 +195,10 @@ public class FlashletListAdapter extends RecyclerView.Adapter<FlashletListViewHo
                                         db.collection("users").document(user.getId())
                                                 .update("createdFlashlets", FieldValue.arrayRemove(listItem.getId()))
                                                 .addOnSuccessListener(unused1 -> {
+                                                    ArrayList<String> createdFlashletsId = localDB.getUser().getUser().getCreatedFlashlets();
+                                                    createdFlashletsId.remove(listItem.getId());
+                                                    localDB.updateCreatedFlashcards(user.getId(), createdFlashletsId);
+                                                    userFlashlets.remove(listItem);
                                                     notifyItemRemoved(holder.getAdapterPosition());
                                                     notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
                                                     Toast.makeText(activity.getApplicationContext(), "Left Flashlet Successfully!", Toast.LENGTH_LONG).show();

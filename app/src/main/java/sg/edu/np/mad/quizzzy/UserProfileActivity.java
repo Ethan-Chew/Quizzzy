@@ -183,20 +183,25 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
         // Handle OTP
         String secret = UserProfileActivity.secret.secret;
         Button register2FA = findViewById(R.id.register2FA);
+        Button unregister2FA = findViewById(R.id.unregister2FA);
         FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
+        //attempt to get the 2faSecret from firebase
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    //if the user has a 2faSecret, set the button to show that they are registered
                     if (document.getData().get("2faSecret") != null) {
                         register2FA.setText("2FA Registered");
                         register2FA.setEnabled(false);
+                    } else {
+                        unregister2FA.setEnabled(false);
                     }
 
                 } else if (!task.getException().toString().isEmpty()) {
@@ -204,6 +209,21 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                 } else {
                     Toast.makeText(UserProfileActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        unregister2FA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //set user's 2faSecret to null in firebase
+                Map<String, Object> firebaseSecret = new HashMap<>();
+                firebaseSecret.put("2faSecret", null);
+
+                firebase.collection("users").document(currentUser.getUid()).update(firebaseSecret);
+                Toast.makeText(UserProfileActivity.this, "Successfully unregistered from 2FA verification", Toast.LENGTH_SHORT).show();
+                register2FA.setText("Register for 2FA");
+                register2FA.setEnabled(true);
+                unregister2FA.setEnabled(false);
             }
         });
 
@@ -268,8 +288,10 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                         Intent i = manager.getLaunchIntentForPackage("com.google.android.apps.authenticator2");
                         if (i == null) {
                             try {
+                                //Open google authenticator if user has it installed
                                 UserProfileActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(totpUri)));
                             } catch (android.content.ActivityNotFoundException e) {
+                                //Open google play store if user does not have Google Authenticator installed
                                 UserProfileActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2")));
                             }
                             return;
@@ -278,7 +300,6 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                         UserProfileActivity.this.startActivity(i);
                     }
                 });
-
 
                 try {
                     Bitmap qrCodeBitmap = QRCodeUtil.generateQRCode(totpUri);
@@ -289,7 +310,7 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
             }
         });
     }
-
+    //Class makes it so that the cursor moves to the next EditText when the user types in a character
     private class TOTPWatcher implements TextWatcher {
 
         private View currentView;
@@ -320,6 +341,7 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
         @Override
         public void afterTextChanged(Editable s) {
             if (areAllPinFieldsFilled()) {
+                // if all fields are filled, verify the TOTP
                 String secret = UserProfileActivity.secret.secret;
                 EditText pin1 = popupView.findViewById(R.id.pin1);
                 EditText pin2 = popupView.findViewById(R.id.pin2);
@@ -327,6 +349,8 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                 EditText pin4 = popupView.findViewById(R.id.pin4);
                 EditText pin5 = popupView.findViewById(R.id.pin5);
                 EditText pin6 = popupView.findViewById(R.id.pin6);
+
+                //concatenate all the pin fields
                 String totp = pin1.getText().toString() +
                         pin2.getText().toString() +
                         pin3.getText().toString() +
@@ -335,7 +359,10 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                         pin6.getText().toString();
                 boolean isValid = verifyTOTP(secret, totp);
                 if (isValid) {
+
+                    //if the TOTP is valid, update the user's 2faSecret in firebase
                     Button register2FA = findViewById(R.id.register2FA);
+                    Button unregister2FA = findViewById(R.id.unregister2FA);
                     FirebaseAuth mAuth;
                     mAuth = FirebaseAuth.getInstance();
                     FirebaseFirestore firebase = FirebaseFirestore.getInstance();
@@ -347,6 +374,7 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
                     Toast.makeText(UserProfileActivity.this, "Successfully registered for 2FA verification", Toast.LENGTH_SHORT).show();
                     register2FA.setText("2FA Registered");
                     register2FA.setEnabled(false);
+                    unregister2FA.setEnabled(true);
 
                     popupWindow.dismiss();
                 } else {

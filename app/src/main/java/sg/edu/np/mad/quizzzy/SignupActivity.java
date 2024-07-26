@@ -149,6 +149,7 @@ public class SignupActivity extends AppCompatActivity {
     private void handleFlashletAddition(String flashletId, String userId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(SignupActivity.this);
 
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -161,6 +162,10 @@ public class SignupActivity extends AppCompatActivity {
                         navigateToHome(flashletId);
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                        createdFlashletIds.add(flashletId);
+                        localDB.updateCreatedFlashcards(userId, createdFlashletIds);
+                        Toast.makeText(SignupActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }
             } else {
@@ -176,7 +181,6 @@ public class SignupActivity extends AppCompatActivity {
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
                 .addOnSuccessListener(aVoid -> {
                     Log.d("SignupActivity", "User flashlets updated successfully");
-                    Toast.makeText(SignupActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update user createdFlashlets", e));
 
