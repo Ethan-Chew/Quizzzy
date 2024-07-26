@@ -227,6 +227,15 @@ public class HomeActivity extends AppCompatActivity  {
             }
         });
 
+        TextView openStudyMode = findViewById(R.id.hSStudyMode);
+        openStudyMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openStudyModeIntent = new Intent(getApplicationContext(), StudyModeActivity.class);
+                startActivity(openStudyModeIntent);
+            }
+        });
+
         // Reset Data
         horiRecentlyViewed.removeAllViews(); // Clear the Recently Viewed List
         createdFlashletsContainer.removeAllViews(); // Clear the List of Created Flashlets

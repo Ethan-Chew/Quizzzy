@@ -31,20 +31,24 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.AppLifecycleObserver;
+import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.StudyDurationHelper;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 public class StudyModeActivity extends AppCompatActivity implements SensorEventListener {
     FirebaseDatabase firebaseDB;
     DatabaseReference firebaseReference;
-    private String userId = "test";
+    private String userId;
     private int studyDuration;
     private boolean studyTimerRunning = false;
     private boolean wasStudyTimerRunning = false;
@@ -105,23 +109,34 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
         firebaseReference = firebaseDB.getReference("studyDuration");
 
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(StudyModeActivity.this);
+        userId = localDB.getUser().getUser().getId();
+
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
 
-        firebaseReference.child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        firebaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.isSuccessful()) {
                     DataSnapshot dataSnapshot = task.getResult();
-                    studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child("studyDuration").getValue()));
+
+                    if (dataSnapshot.hasChild(userId)) {
+                        studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child(userId).child("studyDuration").getValue()));
+                    } else {
+                        studyDuration = 0;
+                    }
                     studyTime.setText(formatStudyTime(studyDuration));
 
                     Log.d("Read Firebase", "StudyDuration: " + studyDuration);
                 } else {
+                    studyDuration = 0;
+
                     Log.d("firebase", String.valueOf(task.getResult().getValue()));
                 }
             }
         });
+        //studyTime.setText(formatStudyTime(studyDuration));
 
         // Manager for gyroscope tracking
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
