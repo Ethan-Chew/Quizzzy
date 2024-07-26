@@ -20,33 +20,45 @@ public class TOTPUtil {
 
     public static boolean verifyTOTP(String secretKey, String totpCode) {
         long timeIndex = System.currentTimeMillis() / 1000 / TIME_STEP;
+
+        //generate totp code using secret from firebase and compares with user input
         String generatedCode = generateTOTP(secretKey, timeIndex);
-        Log.d("fddsafadfdasfds", generatedCode);
         return totpCode.equals(generatedCode);
 
 
     }
 
-    private static String generateTOTP(String secretKey, long counter) {
+    private static String generateTOTP(String secretKey, long timeIndex) {
         try {
+
+            //decode the secretKey given into base32
             Base32 base32 = new Base32();
             byte[] key = base32.decode(secretKey);
+
+            //convert timeIndex to byte array
             byte[] data = new byte[8];
             for (int i = 7; i >= 0; i--) {
-                data[i] = (byte) (counter & 0xFF);
-                counter >>= 8;
+                data[i] = (byte) (timeIndex & 0xFF);
+                timeIndex >>= 8;
             }
+
+            //convert secretKey to secretKeySpec using SHA1 algorithm
             SecretKeySpec signKey = new SecretKeySpec(key, HMAC_ALGO);
             Mac mac = Mac.getInstance(HMAC_ALGO);
+
+            //generate hash using secretKeySpec and data
             mac.init(signKey);
             byte[] hash = mac.doFinal(data);
 
+            //get 31st bit of the hash
             int offset = hash[hash.length - 1] & 0xF;
             int truncatedHash = hash[offset] & 0x7F;
             for (int i = 1; i < 4; i++) {
                 truncatedHash <<= 8;
                 truncatedHash |= hash[offset + i] & 0xFF;
             }
+
+            //truncate hash to 6 digits
             truncatedHash %= Math.pow(10, TOTP_DIGITS);
             return String.format("%0" + TOTP_DIGITS + "d", truncatedHash);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
