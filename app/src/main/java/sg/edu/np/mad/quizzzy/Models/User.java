@@ -1,7 +1,6 @@
 package sg.edu.np.mad.quizzzy.Models;
 
 import java.util.ArrayList;
-import java.util.Queue;
 
 public class User {
     private String id; // Unique UUID

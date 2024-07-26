@@ -129,7 +129,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Create / Modify "
+                        android:text="Modify "
                         android:textColor="@color/black"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -141,6 +141,16 @@
                         android:text="Flashcards"
                         android:textColor="@color/black"
                         android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/uFAddNewFlashcardBtn"
+                        android:layout_width="30sp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textColor="@color/black"
+                        android:textSize="22sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -158,18 +168,6 @@
                 android:gravity="top">
 
             </LinearLayout>
-            <Button
-                android:id="@+id/uFAddNewFlashcardBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/listGray"
-                android:text="+"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                app:cornerRadius="10sp"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="25dp"/>
 
             <Button
                 android:id="@+id/uFUpdateFlashletButton"

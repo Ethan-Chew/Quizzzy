@@ -56,8 +56,15 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
     - Study Statistics will tracks the time that users spend on the app using Graphs. (in the different sections e.g. flashcards, notes)
 
 ## App Categories Stage 2 / Improvements Made
-1. Profile Screen - Ethan Chew
+1. Profile Screen and Bug Fixes - Ethan Chew
 2. Global Search for Flashlets and Users - Ethan Chew
     - Allow users to Clone Flashlets to their account
         - Owner of the Original Flashlet will get a notification that their Flashlet has been cloned
     - Optical Character Recognition (OCR) to detect text and search for it
+3. Flashlet Collaboration / Sharing - Charlotte Lee
+4. 2 Factor Authentication - Hervin Sie
+
+## Stage 2 Features
+For our Stage 2 Submission, every member on our team worked on an independent feature.
+1. [Global Search and Optical Character Recognition](./docs/features/GlobalSearch.md) - Ethan Chew (S10255990K)
+2. [Two Factor Authentication](./docs/features/2FA.md) - Hervin Sie (S10262115)

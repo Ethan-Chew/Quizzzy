@@ -2,12 +2,14 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.util.Log;
 
+import org.apache.commons.codec.binary.Base32;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base32;
-import java.security.SecureRandom;
 
 
 public class TOTPUtil {

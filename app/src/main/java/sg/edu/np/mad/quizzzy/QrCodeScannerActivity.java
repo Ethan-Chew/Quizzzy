@@ -1,5 +1,6 @@
 package sg.edu.np.mad.quizzzy;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.Manifest;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -17,11 +17,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
@@ -38,18 +41,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
-import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -58,6 +62,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     private static final String TAG = "QrCodeScannerActivity";
+    private final MultiFormatReader reader = new MultiFormatReader(); // Move this outside the scanBarcode method
     PreviewView previewView;
     TextView textViewResult;
     TextView scanComplete;
@@ -92,12 +97,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         textViewResult.setText("Scanning...");
-        joinFlashletButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                joinFlashlet();
-            }
-        });
+        joinFlashletButton.setOnClickListener(v -> joinFlashlet());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
@@ -146,14 +146,20 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
+        ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+                .setResolutionStrategy(new ResolutionStrategy(new Size(640, 480), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                .build();
+
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
+                .setResolutionSelector(resolutionSelector)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), image -> {
-            scanBarcode(image);
-            image.close();
+        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), new ImageAnalysis.Analyzer() {
+            @Override
+            public void analyze(@NonNull ImageProxy image) {
+                scanBarcode(image);
+            }
         });
 
         Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
@@ -176,7 +182,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     bytes, image.getWidth(), image.getHeight(), 0, 0, image.getWidth(), image.getHeight(), false);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
-            Reader reader = new MultiFormatReader();
             try {
                 Result result = reader.decode(bitmap);
                 String scannedContent = result.getText();
@@ -199,9 +204,12 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error decoding barcode: ", e);
+            } finally {
+                image.close(); // Ensure the image is closed after processing
             }
         } else {
             Log.e(TAG, "No planes available in image");
+            image.close();
         }
     }
 
@@ -217,6 +225,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         if (scannedFlashletId != null) {
             String userId = auth.getCurrentUser().getUid();
             DocumentReference userRef = db.collection("users").document(userId);
+            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(QrCodeScannerActivity.this);
 
             userRef.get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
@@ -234,6 +243,9 @@ public class QrCodeScannerActivity extends AppCompatActivity {
 
                         batch.commit()
                                 .addOnSuccessListener(aVoid -> {
+                                    ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                                    createdFlashletIds.add(scannedFlashletId);
+                                    localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                                     Log.d(TAG, "Flashlet and user updated successfully");
                                     Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(this, FlashletDetail.class);

@@ -2,11 +2,11 @@ package sg.edu.np.mad.quizzzy;
 
 import static sg.edu.np.mad.quizzzy.Classes.TOTPUtil.verifyTOTP;
 
-import android.net.Uri;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
