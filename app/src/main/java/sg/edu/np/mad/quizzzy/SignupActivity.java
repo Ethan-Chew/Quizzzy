@@ -114,7 +114,7 @@ public class SignupActivity extends AppCompatActivity {
 
                                                                                 if (flashletId != null) {
                                                                                     handleFlashletAddition(flashletId, currentUser.getUid());
-                                                                                    finish();
+                                                                                    flashletId = null;
                                                                                 } else {
                                                                                     Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
                                                                                     startActivity(homeScreenIntent);
@@ -167,6 +167,7 @@ public class SignupActivity extends AppCompatActivity {
                         localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                         Toast.makeText(SignupActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
+                    SignupActivity.this.flashletId = null;
                 }
             } else {
                 Log.e("SignupActivity", "Error checking user document", task.getException());

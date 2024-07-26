@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
                 startActivity(intent);
+                MainActivity.this.flashletId = null;
             }
         });
 
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
                 startActivity(intent);
+                MainActivity.this.flashletId = null;
             }
         });
 
@@ -131,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                         localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                         Toast.makeText(MainActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
+                    MainActivity.this.flashletId = null;
                 }
             } else {
                 Log.e("MainActivity", "Error checking user document", task.getException());
