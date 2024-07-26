@@ -17,11 +17,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
@@ -48,6 +51,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -59,6 +64,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     private static final String TAG = "QrCodeScannerActivity";
+    private final MultiFormatReader reader = new MultiFormatReader(); // Move this outside the scanBarcode method
     PreviewView previewView;
     TextView textViewResult;
     TextView scanComplete;
@@ -88,17 +94,11 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         bottomPart = findViewById(R.id.bottomPart);
         joinFlashletButton = findViewById(R.id.joinFlashletButton);
 
-        // Initialize Firebase Firestore and Auth
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
         textViewResult.setText("Scanning...");
-        joinFlashletButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                joinFlashlet();
-            }
-        });
+        joinFlashletButton.setOnClickListener(v -> joinFlashlet());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
@@ -106,11 +106,9 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             startCamera();
         }
 
-        // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.qcsViewToolbar);
         toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
 
-        // Handle Back Button Click
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -121,7 +119,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void handleBackNavigation() {
-        // Call the default back press behavior again to return to the previous screen
         previewView.setEnabled(false);
         QrCodeScannerActivity.this.getOnBackPressedDispatcher().onBackPressed();
     }
@@ -147,21 +144,26 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
+        ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+                .setResolutionStrategy(new ResolutionStrategy(new Size(640, 480), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                .build();
+
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
+                .setResolutionSelector(resolutionSelector)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), image -> {
-            scanBarcode(image);
-            image.close();
+        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), new ImageAnalysis.Analyzer() {
+            @Override
+            public void analyze(@NonNull ImageProxy image) {
+                scanBarcode(image);
+            }
         });
 
         Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
 
     private void scanBarcode(ImageProxy image) {
-        // Show scanning message
         runOnUiThread(() -> {
             textViewResult.setVisibility(View.VISIBLE);
             textViewResult.setText("Scanning...");
@@ -177,7 +179,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     bytes, image.getWidth(), image.getHeight(), 0, 0, image.getWidth(), image.getHeight(), false);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
-            Reader reader = new MultiFormatReader();
             try {
                 Result result = reader.decode(bitmap);
                 String scannedContent = result.getText();
@@ -189,7 +190,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     bottomPart.setVisibility(View.VISIBLE);
                     scanComplete.setText("Scanning complete");
 
-                    // Extract flashlet ID from the scanned content
                     scannedFlashletId = extractFlashletId(scannedContent);
                     if (scannedFlashletId != null) {
                         joinFlashletButton.setEnabled(true);
@@ -200,14 +200,16 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error decoding barcode: ", e);
+            } finally {
+                image.close(); // Ensure the image is closed after processing
             }
         } else {
             Log.e(TAG, "No planes available in image");
+            image.close();
         }
     }
 
     private String extractFlashletId(String scannedContent) {
-        // Ensure the scanned content matches the expected format
         if (scannedContent != null && scannedContent.startsWith("quizzzy://flashlet/?id=")) {
             return scannedContent.substring("quizzzy://flashlet/?id=".length());
         }
@@ -227,7 +229,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     if (createdFlashlets != null && createdFlashlets.contains(scannedFlashletId)) {
                         Toast.makeText(this, "You have already joined this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Proceed with joining the flashlet
                         DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
 
                         WriteBatch batch = db.batch();
@@ -262,7 +263,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -274,6 +274,5 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Release any resources used by the camera if necessary
     }
 }
