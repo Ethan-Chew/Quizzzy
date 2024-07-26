@@ -54,16 +54,17 @@
             android:layout_width="match_parent"
             android:layout_height="450dp"
             app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="#e699ff"
+            app:cardBackgroundColor="@color/lightPurple"
             >
 
             <TextView
                 android:id="@+id/tvFCDefinition"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="Definition"
                 android:textSize="40dp"
-                android:layout_gravity="center"
+                android:textAlignment="center"
                 />
 
         </androidx.cardview.widget.CardView>
@@ -72,7 +73,7 @@
             android:id="@+id/flashcard_front"
             android:layout_width="match_parent"
             android:layout_height="450dp"
-            app:cardBackgroundColor="#e699ff"
+            app:cardBackgroundColor="@color/lightPurple"
             app:cardCornerRadius="16dp"
             >
 
@@ -83,6 +84,7 @@
                 android:text="Keyword"
                 android:textSize="40dp"
                 android:layout_gravity="center"
+                android:textAlignment="center"
                 />
 
         </androidx.cardview.widget.CardView>
@@ -101,49 +103,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
-            android:id="@+id/btnBack"
-            android:layout_width="125dp"
-            android:layout_height="75dp"
-            android:layout_marginRight="16dp"
-            android:text="Back"
-            android:textSize="20dp" />
 
         <Button
             android:id="@+id/btnShuffle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Shuffle"
+            android:layout_marginEnd="40dp"
             app:icon="@drawable/shuffle" />
 
         <Button
-            android:id="@+id/btnNext"
-            android:layout_width="125dp"
-            android:layout_height="75dp"
-            android:layout_marginLeft="16dp"
-            android:text="Next"
-            android:textSize="20dp" />
+            android:id="@+id/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:text="Edit"
+            />
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/card_main"
-        android:layout_alignBottom="@id/card_main"
-        android:text="Edit"
-        app:layout_constraintBottom_toBottomOf="@id/card_main"
-        app:layout_constraintEnd_toEndOf="@id/card_main"/>
 
-    <Button
-        android:id="@+id/btnFlipper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/card_main"
-        android:layout_alignRight="@id/card_main"
-        android:text="flip"
-        app:layout_constraintTop_toTopOf="@+id/card_main"
-        app:layout_constraintEnd_toEndOf="@id/card_main"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

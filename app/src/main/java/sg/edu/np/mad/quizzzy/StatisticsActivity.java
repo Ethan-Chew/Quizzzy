@@ -170,8 +170,9 @@ public class StatisticsActivity extends AppCompatActivity {
         //Change null data to zero
         for (int i = 0; i < daysOfWeek.size(); i++) {
             String day = daysOfWeek.get(i);
+            statistics.putIfAbsent(day, 0);
             Integer value = statistics.get(day);
-            entries.add(new BarEntry(i, value != null ? value : 0)); // Replace null with 0
+            entries.add(new BarEntry(i, value)); // Replace null with 0
         }
 
         BarDataSet barDataSet = new BarDataSet(entries, "Usage");
