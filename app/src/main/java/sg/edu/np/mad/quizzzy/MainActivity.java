@@ -21,6 +21,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -110,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         }
         String userId = currentUser.getUid();
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(MainActivity.this);
+
 
         DocumentReference userRef = firebase.collection("users").document(userId);
         userRef.get().addOnCompleteListener(task -> {
@@ -119,10 +122,14 @@ public class MainActivity extends AppCompatActivity {
                     List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
                     if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
                         Log.d("MainActivity", "Flashlet already exists in user createdFlashlets.");
-                        Toast.makeText(MainActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                         navigateToHome(flashletId);
+                        Toast.makeText(MainActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
+                        createdFlashletIds.add(flashletId);
+                        localDB.updateCreatedFlashcards(userId, createdFlashletIds);
+                        Toast.makeText(MainActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
                 }
             } else {
@@ -130,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
