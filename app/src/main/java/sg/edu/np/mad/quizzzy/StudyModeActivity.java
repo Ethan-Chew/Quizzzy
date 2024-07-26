@@ -33,6 +33,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -115,6 +118,8 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
 
+        Log.d("date", "" + SimpleDateFormat.getDateInstance().format(new Date()));
+
         firebaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -123,6 +128,12 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
 
                     if (dataSnapshot.hasChild(userId)) {
                         studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child(userId).child("studyDuration").getValue()));
+
+                        if (dataSnapshot.child(userId).child("currentDate").getValue() != SimpleDateFormat.getDateInstance().format(new Date())){
+                            StudyDurationHelper helper = new StudyDurationHelper(userId, "0");
+                            firebaseReference.child(userId).setValue(helper);
+                            studyDuration = 0;
+                        }
                     } else {
                         studyDuration = 0;
                     }
@@ -212,7 +223,8 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
     private void runTimer() {
         TextView studyTime = findViewById(R.id.studyTime);
         Handler handler = new Handler();
-        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));;
+        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));
+        Log.d("date", "runTimer: " + helper.getCurrentDate());;
 
         handler.post(new Runnable() {
             @Override
