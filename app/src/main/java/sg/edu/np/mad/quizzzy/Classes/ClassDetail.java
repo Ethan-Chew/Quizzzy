@@ -36,6 +36,8 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import sg.edu.np.mad.quizzzy.ClassStudyActivity;
+import sg.edu.np.mad.quizzzy.ClassStudyAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
@@ -58,12 +60,13 @@ public class ClassDetail extends AppCompatActivity {
     TextView classtitle;
     TextView memberscount;
     Button createFlashlet;
+    Button studyDetails;
     ImageView editButton;
     LinearLayout memberscontainer;
     LinearLayout createdFlashletsContainer;
     ArrayList<String> createdFlashlets = new ArrayList<String>();
-
     ArrayList<User> users = new ArrayList<User>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +122,6 @@ public class ClassDetail extends AppCompatActivity {
             }
         });
 
-
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.fDViewToolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -158,6 +160,7 @@ public class ClassDetail extends AppCompatActivity {
         classtitle = findViewById(R.id.cdclasstitle);
         memberscount = findViewById(R.id.cdmembers);
         createFlashlet = findViewById(R.id.createFlashlet);
+        studyDetails = findViewById(R.id.classStudyButton);
         memberscontainer = findViewById(R.id.cdmemberscontainer);
         createdFlashletsContainer = findViewById(R.id.hPCFContainer);
         editButton = findViewById(R.id.cDEditOption);
@@ -166,6 +169,7 @@ public class ClassDetail extends AppCompatActivity {
         Intent receiveintent = getIntent();
         userClass = gson.fromJson(receiveintent.getStringExtra("classJson"), UserClass.class);
         ArrayList<String> members = userClass.getMemberId();
+        ArrayList<String> memberUsernames = new ArrayList<>();
         String classId = userClass.getId();
         String userId = receiveintent.getStringExtra("userId");
 
@@ -204,6 +208,23 @@ public class ClassDetail extends AppCompatActivity {
             }
         });
 
+        studyDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent viewClassStudyDetails = new Intent(getApplicationContext(), ClassStudyActivity.class);
+                viewClassStudyDetails.putExtra("classTitle", userClass.getClassTitle());
+                viewClassStudyDetails.putExtra("classMembers", memberUsernames);
+
+                // Save statistics to SQLite DB before changing Activity.
+                // timeType of 2 because this is a Class Activity
+                localDB.updateStatistics(usage, 2, user.getId());
+                // Kills updateStatisticsLoop as we are switching to another activity.
+                usage.setActivityChanged(true);
+
+                startActivity(viewClassStudyDetails);
+            }
+        });
+
         classtitle.setText(userClass.getClassTitle());
         String membercount = members.size() + " Total Member" + (members.size() == 1 ? "" : "s");
         memberscount.setText(membercount);
@@ -219,6 +240,8 @@ public class ClassDetail extends AppCompatActivity {
                             }
                             for (int i = 0; i < users.size(); i++) {
                                 User user = users.get(i);
+                                memberUsernames.add(user.getUsername());
+
                                 View memberView = LayoutInflater.from(ClassDetail.this).inflate(R.layout.member_list, null, false);
                                 TextView memberusername = memberView.findViewById(R.id.mlusername);
                                 memberusername.setText(user.getUsername());

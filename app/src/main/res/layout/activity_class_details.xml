@@ -131,6 +131,24 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:layout_editor_absoluteX="167dp" />
 
+            <Button
+                android:id="@+id/classStudyButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:text="View Class Study Time"
+                android:textAlignment="textStart"
+                android:textSize="18sp"
+                app:cornerRadius="15sp"
+                app:layout_constraintTop_toBottomOf="@+id/createFlashlet"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:layout_editor_absoluteX="167dp" />
+
             <TextView
                 android:id="@+id/cdmemberslist"
                 android:layout_width="match_parent"
@@ -144,7 +162,7 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/createFlashlet" />
+                app:layout_constraintTop_toBottomOf="@+id/classStudyButton" />
 
             <LinearLayout
                 android:id="@+id/cdmemberscontainer"
