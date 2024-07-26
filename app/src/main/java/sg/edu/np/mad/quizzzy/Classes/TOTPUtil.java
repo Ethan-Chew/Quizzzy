@@ -50,7 +50,7 @@ public class TOTPUtil {
             mac.init(signKey);
             byte[] hash = mac.doFinal(data);
 
-            //get 31st bit of the hash
+            //get last 4 bytes of hash
             int offset = hash[hash.length - 1] & 0xF;
             int truncatedHash = hash[offset] & 0x7F;
             for (int i = 1; i < 4; i++) {
