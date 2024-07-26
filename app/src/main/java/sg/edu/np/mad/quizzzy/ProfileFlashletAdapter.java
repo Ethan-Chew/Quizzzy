@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import sg.edu.np.mad.quizzzy.Flashlets.Recycler.FlashletListViewHolder;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 

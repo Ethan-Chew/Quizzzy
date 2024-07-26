@@ -1,8 +1,5 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-import androidx.appcompat.app.AlertDialog;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Flashlet {

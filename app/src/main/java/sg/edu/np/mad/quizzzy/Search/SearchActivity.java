@@ -2,14 +2,11 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -19,7 +16,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,15 +28,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -51,7 +44,6 @@ import java.util.stream.Collectors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
-import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
@@ -63,11 +55,15 @@ import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
+// Callback function to handle Searches; onSearchResult is called after the search result is returned from the Firebase Query
 interface OnSearchEventListener {
     void onSearchResult(SearchResult searchResult);
     void onError(Exception err);
 }
 
+/*
+ * SearchActivityis the main user-facing screen responsible for handling the Global Search for Flashlets and User
+ * */
 public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnResultChangeListener {
 
     // Search Result Items
@@ -267,7 +263,6 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         // Update Recent RecyclerView with Items
         SQLiteRecentSearchesManager localSearchesDB = SQLiteRecentSearchesManager.instanceOfDatabase(SearchActivity.this);
         recentSearches = localSearchesDB.getSearchQueries();
-        Log.d("Searches", "onResume: " + recentSearches.toString());
 
         noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);

@@ -2,6 +2,10 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,11 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,6 +26,10 @@ import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedUsersAdapter;
 import sg.edu.np.mad.quizzzy.UserProfileActivity;
 
+/*
+ * The SearchUsersFragment file takes in the searched Users from the SearchAdapter,
+ * and populates it into the RecyclerView
+ * */
 public class SearchUsersFragment extends Fragment implements RecyclerViewInterface {
     RecyclerView usersRecyclerView;
     LinearLayout noRelatedSearchesContainer;
@@ -63,6 +66,7 @@ public class SearchUsersFragment extends Fragment implements RecyclerViewInterfa
         usersRecyclerView.setAdapter(searchedUsersAdapter);
     }
 
+    // When the User taps on any User in the RecyclerView, the app would bring them to the related UserProfile page
     @Override
     public void onItemClick(int position) {
         Intent sendToUserIntent = new Intent(getActivity(), UserProfileActivity.class);
