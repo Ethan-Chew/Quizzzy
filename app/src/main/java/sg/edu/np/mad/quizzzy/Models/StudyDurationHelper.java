@@ -1,6 +1,6 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-public class FirebaseRTDBHelper {
+public class StudyDurationHelper {
     String userId;
     String studyDuration;
 
@@ -14,7 +14,7 @@ public class FirebaseRTDBHelper {
 
     public String getStudyDuration() { return studyDuration; }
 
-    public FirebaseRTDBHelper(String userId, String studyDuration) {
+    public StudyDurationHelper(String userId, String studyDuration) {
         this.userId = userId;
         this.studyDuration = studyDuration;
     }

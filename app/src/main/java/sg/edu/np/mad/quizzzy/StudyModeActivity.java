@@ -33,13 +33,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.AppLifecycleObserver;
-import sg.edu.np.mad.quizzzy.Models.FirebaseRTDBHelper;
+import sg.edu.np.mad.quizzzy.Models.StudyDurationHelper;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
 public class StudyModeActivity extends AppCompatActivity implements SensorEventListener {
@@ -106,41 +105,23 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
         firebaseReference = firebaseDB.getReference("studyDuration");
 
-        FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", "100");
-        Map<String, Object> a = new HashMap<>();
-        a.put("text", "aaaaaaaaaaaa");
-        firebaseReference.push().setValue(a).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
-                }
-                else {
-                    Log.d("firebase", String.valueOf(task.getResult()));
-                }
-            }
-        });
-
-        //studyDuration = Integer.parseInt(firebaseReference.child(userId).getKey());
-
-        firebaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Object value = dataSnapshot.getValue();
-                Log.d("Firebase", "Value is: " + value.toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("Firebase", "Failed to read value.", error.toException());
-            }
-        });
-
         TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
+
+        firebaseReference.child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DataSnapshot dataSnapshot = task.getResult();
+                    studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child("studyDuration").getValue()));
+                    studyTime.setText(formatStudyTime(studyDuration));
+
+                    Log.d("Read Firebase", "StudyDuration: " + studyDuration);
+                } else {
+                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                }
+            }
+        });
 
         // Manager for gyroscope tracking
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -151,19 +132,6 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", "100");
-                firebaseReference.setValue("test").addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult()));
-                        }
-                    }
-                });
-
                 if (!studyTimerRunning) {
                     studyTimerRunning = true;
 
@@ -229,7 +197,7 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
     private void runTimer() {
         TextView studyTime = findViewById(R.id.studyTime);
         Handler handler = new Handler();
-        FirebaseRTDBHelper helper = new FirebaseRTDBHelper("test", Integer.toString(studyDuration));
+        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));;
 
         handler.post(new Runnable() {
             @Override
@@ -244,7 +212,18 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                 }
                 if (studyTimerRunning) {
                     studyDuration++;
-                    firebaseReference.child("test").push();
+                    helper.setStudyDuration(Integer.toString(studyDuration));
+                    firebaseReference.child(userId).setValue(helper).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            }
+                            else {
+                                Log.d("firebase", String.valueOf(task.getResult()));
+                            }
+                        }
+                    });
                 }
 
                 handler.postDelayed(this, 1000);
