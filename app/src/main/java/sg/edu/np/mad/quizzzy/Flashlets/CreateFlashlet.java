@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -56,7 +57,7 @@ public class CreateFlashlet extends AppCompatActivity {
     ArrayList<Flashcard> flashcards = new ArrayList<Flashcard>();
 
     // View Variables
-    private Button addNewFlashcardBtn;
+    private TextView addNewFlashcardBtn;
     private Button createFlashletBtn;
     private LinearLayout flashcardListView;
     private EditText createFlashletTitle;

@@ -96,16 +96,16 @@
 
                 <TextView
                     android:id="@+id/uCMember"
-                    android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:text="Add Members"
+                    android:layout_height="wrap_content"
+                    android:text="Update Members"
                     android:textColor="@color/black"
-                    android:textSize="28sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/uCAddMember"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/uCAddMember"
@@ -126,6 +126,9 @@
                 android:id="@+id/uCUpdateMembers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:showDividers="middle"
+                android:divider="@drawable/empty_list_divider"
+                android:gravity="top"
                 android:layout_marginStart="25dp"
                 android:layout_marginEnd="25dp"
                 android:orientation="vertical"></LinearLayout>

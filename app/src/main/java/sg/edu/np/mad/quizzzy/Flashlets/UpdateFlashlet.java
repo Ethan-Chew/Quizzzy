@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -52,7 +53,7 @@ public class UpdateFlashlet extends AppCompatActivity {
 
     // View Variables
     LinearLayout flashcardListView;
-    Button addNewFlashcard;
+    TextView addNewFlashcard;
     Button updateFlashletBtn;
     EditText updateFlashletTitle;
     Switch isFlashletPublicSwitch;
