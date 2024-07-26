@@ -1,13 +1,9 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,17 +35,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.Classes.ClassList;
-import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
-import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;

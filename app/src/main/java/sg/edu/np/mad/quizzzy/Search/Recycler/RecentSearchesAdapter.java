@@ -17,7 +17,6 @@ import sg.edu.np.mad.quizzzy.R;
 public class RecentSearchesAdapter extends RecyclerView.Adapter<RecentSearchesViewHolder> {
     private final RecyclerViewInterface recyclerViewInterface;
     private OnResultChangeListener onResultChangeListener;
-
     private ArrayList<String> recentSearches;
     private SQLiteRecentSearchesManager db;
 

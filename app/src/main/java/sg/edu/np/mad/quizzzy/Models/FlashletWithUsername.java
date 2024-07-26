@@ -1,7 +1,5 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-import java.util.ArrayList;
-
 public class FlashletWithUsername extends FlashletWithInsensitive {
     private String ownerUsername;
     private String ownerId;

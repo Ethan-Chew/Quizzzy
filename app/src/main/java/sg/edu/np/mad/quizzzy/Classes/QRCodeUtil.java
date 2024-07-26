@@ -1,10 +1,11 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
+import android.graphics.Bitmap;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.common.BitMatrix;
-import android.graphics.Bitmap;
+import com.google.zxing.qrcode.QRCodeWriter;
 public class QRCodeUtil {
     public static Bitmap generateQRCode(String totpUri) throws WriterException {
         QRCodeWriter writer = new QRCodeWriter();

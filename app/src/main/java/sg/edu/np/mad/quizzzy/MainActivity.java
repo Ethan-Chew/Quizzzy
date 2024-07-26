@@ -1,7 +1,6 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,11 +23,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
-
 
 public class MainActivity extends AppCompatActivity {
 
