@@ -73,4 +73,4 @@ For our Stage 2 Submission, every member on our team worked on an independent fe
 1. [Global Search and Optical Character Recognition](./docs/features/GlobalSearch.md) - Ethan Chew (S10255990K)
 2. [Two Factor Authentication](./docs/features/2FA.md) - Hervin Sie (S10262115)
 3. [Flashlet Collaboration / Sharing & Flashlet Download](./docs/features/FlashletSharing&Downloading.md) - Charlotte Lee (S1025027K)
-4. [Statistics & Flashcard UI](./docs/features/Statistics&Flashcard UI.md) - Shin Thant (S10261787)
+4. [Statistics & Flashcard UI](./docs/features/Statistics&Flashcard%20UI.md) - Shin Thant (S10261787)
