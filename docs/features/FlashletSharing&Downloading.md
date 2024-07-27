@@ -55,6 +55,14 @@ If the user des not already have the Flashlet, they will be redirected to the Ho
 
 If the user already has the Flashlet, they will be redirected to the Home screen, and a toast message will appear at the bottom of the screen, informing them that they have already have the Flashlet.
 
+<div style="display: flex; gap: 10px;">
+  <img src="../../images/leaveflashlet.png" alt="Leave Flashlet" style="width: 200px; height: auto;">
+  <img src="../../images/deleteflashlet.png" alt="Delete Flashlet" style="width: 200px; height: auto;">
+</div>
+When the user joins the Flashlet, they will not be to delete the Flashlet as they are not the original creators of the Flashlet as shown in the image on the left.
+
+Then if the user is the creator of the Flashlet, then they will have the option of deleting the Flashlet as shown on the right.
+
 ## Downloading Flashlet in PDF Format
 This feature allows users to download any Flashlet they choose in PDF format.
 
