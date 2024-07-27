@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-feature android:name="android.hardware.camera.any" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -9,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".Models.QuizzzyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,15 +22,23 @@
         android:theme="@style/Theme.Quizzzy"
         tools:targetApi="31">
         <activity
+            android:name=".ClassStudyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".StudyModeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".QrCodeScannerActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Search.OCRActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="false"
-            android:screenOrientation="portrait"  />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".UserProfileActivity"
             android:windowSoftInputMode="adjustPan"
@@ -37,8 +48,8 @@
             android:name=".Search.SearchActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="false"
-            android:theme="@style/Theme.Quizzzy"
-            android:screenOrientation="portrait"  />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Quizzzy" />
         <activity
             android:name=".Classes.UpdateClass"
             android:windowSoftInputMode="adjustPan"
@@ -78,15 +89,18 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="quizzzy" android:host="flashlet" />
-            </intent-filter>
 
+                <data
+                    android:host="flashlet"
+                    android:scheme="quizzzy" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -141,7 +155,10 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <meta-data android:name="GEMINI_API_KEY" android:value="${GEMINI_API_KEY}" />
+
+        <meta-data
+            android:name="GEMINI_API_KEY"
+            android:value="${GEMINI_API_KEY}" />
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr, ocr_chinese" />

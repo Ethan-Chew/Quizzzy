@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,6 +22,14 @@ import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -42,6 +50,7 @@ public class FlashcardList extends AppCompatActivity {
     private ArrayList<Flashcard> flashcards;
     private CardView flashcard_front, flashcard_back;
     private boolean isFront = true;
+    UsageStatistic usage;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -60,7 +69,7 @@ public class FlashcardList extends AppCompatActivity {
         User user = localDB.getUser().getUser();
 
         // Create new UsageStatistic class and start the update loop
-        UsageStatistic usage = new UsageStatistic();
+        usage = new UsageStatistic();
         localDB.updateStatisticsLoop(usage, 0, user.getId());
 
         // Handle Back Navigation Toolbar
@@ -100,14 +109,13 @@ public class FlashcardList extends AppCompatActivity {
         };
         this.getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
+        RelativeLayout card_main = findViewById(R.id.card_main);
+
         //Find CardView
         flashcard_front = findViewById(R.id.flashcard_front);
         flashcard_back = findViewById(R.id.flashcard_back);
 
         //Find Button
-        Button btnFlipper = findViewById(R.id.btnFlipper);
-        Button btnNext = findViewById(R.id.btnNext);
-        Button btnBack = findViewById(R.id.btnBack);
         Button btnShuffle = findViewById(R.id.btnShuffle);
         Button btnEdit = findViewById(R.id.btnEdit);
 
@@ -130,7 +138,7 @@ public class FlashcardList extends AppCompatActivity {
         arrayIndex = 0;
 
         //Flip the flashcard
-        btnFlipper.setOnClickListener(new View.OnClickListener() {
+        card_main.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flip_card_anim();
             }
@@ -147,49 +155,6 @@ public class FlashcardList extends AppCompatActivity {
             }
         });
 
-        //Switch to next flashcard
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                arrayIndex++;
-                usage.nextFlashcardAccessed();
-
-                if (!isFront) {flip_card_anim();}
-
-                if (arrayIndex < flashcards.size()) {
-                    tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
-                    tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
-                } else {
-                    Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
-                    arrayIndex = 0;
-                }
-
-            }
-        });
-
-        //Switch to previous flashcard
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (arrayIndex > 0) {
-                    arrayIndex--;
-                    usage.nextFlashcardAccessed();
-                } else {
-                    Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
-                }
-
-                if (!isFront) { flip_card_anim(); }
-
-                if (arrayIndex >= 0) {
-
-                    tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
-                    tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
-                } else {
-                    Toast.makeText(FlashcardList.this, "No more flashcards", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
         //Set ActivityResultLauncher for starting an activiyt to edit flashcard
         ActivityResultLauncher<Intent> editFlashcardLauncher = registerForActivityResult(
@@ -228,6 +193,18 @@ public class FlashcardList extends AppCompatActivity {
             intent.putExtra("flashletJson", gson.toJson(flashlet));
             editFlashcardLauncher.launch(intent);
         });
+
+        //Set gesture detector
+        GestureDetector gestureDetector = new GestureDetector(this, new SwipeGestureDetector());
+
+        card_main.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+
+
     }
 
     // To re-initialize the DB update loop when returning to the screen
@@ -251,4 +228,64 @@ public class FlashcardList extends AppCompatActivity {
 
         isFront = !isFront;
     }
+
+    private class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
+
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                        result = true;
+                    }
+                }
+                result = true;
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+    }
+
+    private void onSwipeRight() {
+        if (arrayIndex > 0) {
+            arrayIndex--;
+            usage.nextFlashcardAccessed();
+            showFlashcard();
+        } else {
+            Toast.makeText(this, "No more flashcards to the left", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void onSwipeLeft() {
+        if (arrayIndex < flashcards.size() - 1) {
+            arrayIndex++;
+            usage.nextFlashcardAccessed();
+            showFlashcard();
+        } else {
+            Toast.makeText(this, "No more flashcards to the right", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showFlashcard() {
+        TextView tvKeyword = findViewById(R.id.tvFCKeyword);
+        TextView tvDefinition = findViewById(R.id.tvFCDefinition);
+        tvKeyword.setText(flashcards.get(arrayIndex).getKeyword());
+        tvDefinition.setText(flashcards.get(arrayIndex).getDefinition());
+
+        if (!isFront){ flip_card_anim();}
+
+    }
+
 }
