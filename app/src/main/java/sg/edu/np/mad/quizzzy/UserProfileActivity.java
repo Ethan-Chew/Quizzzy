@@ -184,6 +184,13 @@ public class UserProfileActivity extends AppCompatActivity implements RecyclerVi
         String secret = UserProfileActivity.secret.secret;
         Button register2FA = findViewById(R.id.register2FA);
         Button unregister2FA = findViewById(R.id.unregister2FA);
+
+        // Hide 2FA if user shown is not logged in user
+        if (!Objects.equals(loggedInUser.getUser().getId(), user.getId())) {
+            register2FA.setVisibility(View.GONE);
+            unregister2FA.setVisibility(View.GONE);
+        }
+
         FirebaseAuth mAuth;
         mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();

@@ -49,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore firebase;
     String flashletId;
+    PopupWindow popupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                                                         String secret = document.getData().get("2faSecret").toString();
                                                         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                                                         View popupView = inflater.inflate(R.layout.login_2fa_popup, null);
-                                                        PopupWindow popupWindow = getPopupWindow(popupView);
+                                                        popupWindow = getPopupWindow(popupView);
 
                                                         // Show the popup window at the center of the layout
                                                         popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
@@ -141,24 +142,23 @@ public class LoginActivity extends AppCompatActivity {
                                                         pin4.addTextChangedListener(new LoginActivity.TOTPWatcher(pin4, pin5, popupView, secret));
                                                         pin5.addTextChangedListener(new LoginActivity.TOTPWatcher(pin5, pin6, popupView, secret));
                                                         pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
-
                                                     } else {
-                                                            // Save the User to our SQLite (Local) Database
-                                                            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                            String userJson = gson.toJson(document.getData());
-                                                            User user = gson.fromJson(userJson, User.class);
-                                                            localDB.addUser(new UserWithRecents(user));
+                                                        // Save the User to our SQLite (Local) Database
+                                                        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                        String userJson = gson.toJson(document.getData());
+                                                        User user = gson.fromJson(userJson, User.class);
+                                                        localDB.addUser(new UserWithRecents(user));
                                                         if (flashletId != null) {
                                                             // Handle flashlet addition if flashletId exists
                                                             handleFlashletAddition(flashletId, currentUser.getUid());
                                                             flashletId = null;
+                                                            finish();
                                                         } else {
                                                             // Send User to Home Screen
                                                             Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                             startActivity(homeScreenIntent);
                                                         }
-                                                        }
-                                                    finish();
+                                                    }
                                                 }
                                             }
                                         });
@@ -170,6 +170,14 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
     }
 
     // Handle flashlet addition to the user's account
@@ -302,6 +310,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // Handle flashlet addition if flashletId exists
                                     handleFlashletAddition(flashletId, currentUser.getUid());
                                     flashletId = null; // Reset flashlet ID
+                                    finish();
                                 }
                                 else {
                                     // Send User to Home Screen
