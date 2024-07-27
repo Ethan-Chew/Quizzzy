@@ -86,61 +86,74 @@ public class SignupActivity extends AppCompatActivity {
                 } else if (!confirmPassword.getText().toString().equals(password)) {
                     Toast.makeText(SignupActivity.this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-
-                                    if (task.isSuccessful()) {
-                                        // Create user in Firebase
-                                        FirebaseUser currentUser = mAuth.getCurrentUser();
-                                        if (currentUser != null) {
-                                            User userInfo = new User(currentUser.getUid(), username, username.toLowerCase() ,email, new ArrayList<>());
-                                            firebase.collection("users").document(currentUser.getUid()).set(userInfo)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
-                                                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                        if (task.isSuccessful()) {
-                                                                            DocumentSnapshot document = task.getResult();
-                                                                            if (document != null) {
-                                                                                String userJson = gson.toJson(document.getData());
-                                                                                User user = gson.fromJson(userJson, User.class);
-                                                                                localDB.addUser(new UserWithRecents(user));
-
-                                                                                if (flashletId != null) {
-                                                                                    handleFlashletAddition(flashletId, currentUser.getUid());
-                                                                                    flashletId = null;
-                                                                                } else {
-                                                                                    Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
-                                                                                    startActivity(homeScreenIntent);
-                                                                                    finish(); // End SignupActivity
-                                                                                }
-                                                                            } else {
-                                                                                Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
-                                                                            }
-                                                                        } else {
-                                                                            Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
-                                                                        }
-                                                                    }
-                                                                });
-                                                            } else {
-                                                                Toast.makeText(SignupActivity.this, "Failed to create user in Firestore.", Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
-                                        } else {
-                                            Toast.makeText(SignupActivity.this, "User is null after signup.", Toast.LENGTH_SHORT).show();
-                                        }
+                    // Check if username already exists
+                    firebase.collection("users").whereEqualTo("username", username).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    if (!task.getResult().isEmpty()) {
+                                        Toast.makeText(SignupActivity.this, "Username already exists.", Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(SignupActivity.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                        mAuth.createUserWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                                        if (task.isSuccessful()) {
+                                                            // Create user in Firebase
+                                                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                                                            if (currentUser != null) {
+                                                                User userInfo = new User(currentUser.getUid(), username, username.toLowerCase() ,email, new ArrayList<>());
+                                                                firebase.collection("users").document(currentUser.getUid()).set(userInfo)
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    DocumentReference docRef = firebase.collection("users").document(currentUser.getUid());
+                                                                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                        @Override
+                                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                            if (task.isSuccessful()) {
+                                                                                                DocumentSnapshot document = task.getResult();
+                                                                                                if (document != null) {
+                                                                                                    String userJson = gson.toJson(document.getData());
+                                                                                                    User user = gson.fromJson(userJson, User.class);
+                                                                                                    localDB.addUser(new UserWithRecents(user));
+
+                                                                                                    if (flashletId != null) {
+                                                                                                        handleFlashletAddition(flashletId, currentUser.getUid());
+                                                                                                        flashletId = null;
+                                                                                                    } else {
+                                                                                                        Intent homeScreenIntent = new Intent(SignupActivity.this, HomeActivity.class);
+                                                                                                        startActivity(homeScreenIntent);
+                                                                                                        finish(); // End SignupActivity
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            } else {
+                                                                                                Toast.makeText(SignupActivity.this, "Failed to retrieve user data.", Toast.LENGTH_SHORT).show();
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                                } else {
+                                                                                    Toast.makeText(SignupActivity.this, "Failed to create user in Firestore.", Toast.LENGTH_SHORT).show();
+                                                                                }
+                                                                            }
+                                                                        });
+                                                            } else {
+                                                                Toast.makeText(SignupActivity.this, "User is null after signup.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        } else {
+                                                            Toast.makeText(SignupActivity.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                });
                                     }
+                                } else {
+                                    Log.e("SignupActivity", "Error getting existing username", task.getException());
                                 }
                             });
+
                 }
             }
         });
