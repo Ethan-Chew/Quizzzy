@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.content.Context;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -179,14 +180,17 @@ public class StatisticsActivity extends AppCompatActivity {
         BarData barData = new BarData(barDataSet);
         barChart.setData(barData);
         barChart.getDescription().setText("Weekly Flashlet Usage");
+        barChart.getDescription().setTextSize(15f);
 
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new StatisticsActivity.DayAxisValueFormatter(daysOfWeek));
         xAxis.setGranularity(1f); //interval
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setLabelRotationAngle(-45f);
+        xAxis.setTextSize(12f);
 
         barChart.getAxisLeft().setGranularity(1f); //interval
+        barChart.getAxisLeft().setTextSize(12f); //set text size
         barChart.getAxisRight().setEnabled(false); //remove right y-axis
 
         barChart.setFitBars(true);
@@ -204,5 +208,9 @@ public class StatisticsActivity extends AppCompatActivity {
         public String getFormattedValue(float value) {
             return daysOfWeek.get((int) value % daysOfWeek.size());
         }
+    }
+
+    public static float convertSpToPixels(float sp, Context context) {
+        return sp * context.getResources().getDisplayMetrics().scaledDensity;
     }
 }
