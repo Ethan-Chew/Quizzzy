@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -52,10 +53,12 @@ import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 public class StudyModeActivity extends AppCompatActivity implements SensorEventListener {
     FirebaseDatabase firebaseDB;
     DatabaseReference firebaseReference;
+    TextView studyTime;
+    private Handler handler;
+    private Runnable runnable;
     private String userId;
     private int studyDuration;
-    private boolean studyTimerRunning;
-    private boolean wasStudyTimerRunning;
+    private boolean studyTimerRunning = false;
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -81,7 +84,7 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
 
         // Configure Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.stats);
+        bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 
@@ -102,60 +105,83 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
             }
         });
 
-        Button pause = findViewById(R.id.startStopStudyTimer);
+
+        ImageView startStopImage = findViewById(R.id.startStopStudyTimerImage);
 
         // Manager for gyroscope tracking
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
-
-        pause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!studyTimerRunning) {
-                    studyTimerRunning = true;
-
-                    // Prevents creating more timer instances
-                    if (!wasStudyTimerRunning) {
-                        runTimer();
-                        wasStudyTimerRunning = true;
-                    }
-                } else {
-                    studyTimerRunning = false;
-                }
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        }
 
+        // Setup databases
         firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
         firebaseReference = firebaseDB.getReference("studyDuration");
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(StudyModeActivity.this);
         userId = localDB.getUser().getUser().getId();
-        TextView studyTime = findViewById(R.id.studyTime);
 
+        // Setup views
+        studyTime = findViewById(R.id.studyTime);
+        ImageView startStopImage = findViewById(R.id.startStopStudyTimerImage);
+        Button startStopTimer = findViewById(R.id.startStopStudyTimer);
+
+        startStopTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!studyTimerRunning) {
+                    studyTimerRunning = true;
+                    startStopImage.setImageResource(R.drawable.pause);
+                    runTimer();
+                } else {
+                    stopTimer();
+                    startStopImage.setImageResource(R.drawable.play);
+                }
+            }
+        });
+
+        // Get data from database
         firebaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.isSuccessful()) {
                     DataSnapshot dataSnapshot = task.getResult();
 
+                    // Check if data has already been logged
                     if (dataSnapshot.hasChild(userId)) {
                         studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child(userId).child("studyDuration").getValue()));
+                        long pauseTime = (long) dataSnapshot.child(userId).child("pauseTime").getValue();
 
+                        // Check if "pauseTime" exists, which means that the activity had been paused unexpectedly
+                        // Either going to a different activity, or turning the screen off
+                        // Gets the elapsed time between the pause and reopening this Activity and adds to studyDuration
+                        if (pauseTime != 0) {
+                            int elapsedTime = (int) Math.floorDiv(System.currentTimeMillis() - pauseTime, 1000);
+                            studyDuration += elapsedTime;
+                            studyTimerRunning = true;
+                            runTimer();
+                        }
+
+                        // Change image of button
+                        if (studyTimerRunning) {
+                            startStopImage.setImageResource(R.drawable.pause);
+                        } else {
+                            startStopImage.setImageResource(R.drawable.play);
+                        }
+
+                        // Check if the data has not been logged in the past day, and reset it if true
                         if (!dataSnapshot.child(userId).child("currentDate").getValue().toString().equals(SimpleDateFormat.getDateInstance().format(new Date()).toString())) {
                             StudyDurationHelper helper = new StudyDurationHelper(userId, "0");
                             firebaseReference.child(userId).setValue(helper);
@@ -165,31 +191,51 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                         studyDuration = 0;
                     }
                     studyTime.setText(formatStudyTime(studyDuration));
-
-                    Log.d("Read Firebase", "StudyDuration: " + studyDuration);
                 } else {
                     studyDuration = 0;
-
-                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
                 }
             }
         });
+
+        // Starts listening using accelerometer (gyroscope) when activity is resumed
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        // Unregister sensor when activity is paused to save battery (Since it is only needed in this activity)
         sensorManager.unregisterListener(this);
+
+        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));
+
+        // Check if app is in the background while the screen is on (User exits app)
+        // Then checks if the study timer is still running (User did not pause)
+        if (studyTimerRunning) {
+            helper.setPauseTime(System.currentTimeMillis());
+
+            // Passes userId to AppLifeCycleObserver
+            // If the app goes into the background, pauseTimer would be reset in FireBase
+            // This is because onPause is called before the Application detects that the app goes into the background
+            AppLifecycleObserver.setUserId(userId);
+        }
+        firebaseReference.child(userId).setValue(helper);
+        stopTimer();
     }
 
+    // Gyroscope tracker
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float z = event.values[2]; // Acceleration in the Z-axis
+            // Acceleration in the Z-axis
+            float z = event.values[2];
 
-            // If gyroscope is face down
+            // If screen is face down, dim the screen
+            // When the screen is no longer face down (picked up), reset brightness
             if (z < -9.0) {
-                Log.d("Gyroscope", "Screen is face down");
                 dimScreen();
             } else {
                 restoreScreenBrightness();
@@ -216,29 +262,43 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void runTimer() {
-        TextView studyTime = findViewById(R.id.studyTime);
-        Handler handler = new Handler();
-        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));
-        Log.d("date", "runTimer: " + helper.getCurrentDate());;
-
-        handler.post(new Runnable() {
+        handler = new Handler();
+        runnable = new Runnable() {
             @Override
             public void run() {
-                String studyDurationFormatted = formatStudyTime(studyDuration);
-                studyTime.setText(studyDurationFormatted);
-
-                // Check if app is in the background while the screen is on and pauses the timer
-                if (!AppLifecycleObserver.getAppInForeground() && AppLifecycleObserver.getScreenOn()) {
-                    studyTimerRunning = false;
-                }
+                // Run the timer, increment the study duration var and update the DB
                 if (studyTimerRunning) {
-                    studyDuration++;
-                    helper.setStudyDuration(Integer.toString(studyDuration));
-                    firebaseReference.child(userId).setValue(helper);
+                    updateTimer();
+
+                    // Delays post by 1 second, to update both the TextView and DB per second
+                    handler.postDelayed(this, 1000);
                 }
-                handler.postDelayed(this, 1000);
             }
-        });
+        };
+        handler.post(runnable);
+    }
+
+    // Stops the timer and kills the runnable
+    private void stopTimer() {
+        if (studyTimerRunning) {
+            studyTimerRunning = false;
+            handler.removeCallbacks(runnable);
+        }
+    }
+
+    // Updates the timer in app and in the Firebase RTDB
+    private void updateTimer() {
+        StudyDurationHelper helper = new StudyDurationHelper(userId, Integer.toString(studyDuration));
+        String studyDurationFormatted = formatStudyTime(studyDuration);
+
+        studyTime.setText(studyDurationFormatted);
+
+        // Writes to Firebase db
+        if (studyTimerRunning) {
+            studyDuration++;
+            helper.setStudyDuration(Integer.toString(studyDuration));
+            firebaseReference.child(userId).setValue(helper);
+        }
     }
 
     // Formats time to Hours:Minutes:Seconds, with leading 0 if there is only 1 digit in the value
