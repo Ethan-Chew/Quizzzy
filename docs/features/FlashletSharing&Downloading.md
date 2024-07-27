@@ -1,4 +1,4 @@
-# Global Search and Auto-Generated Flashlets.
+# Flashlet Sharing / Collaboration & Downloading
 For [Charlotte's](https://github.com/mellamadrama) Stage 2 feature, I developed two feature, the first allowing users to share their flashlets with other user through a generated QR code. Second is allowing users to download their flashlet(s) into pdf files on their devices.
 
 ### Breakdown of Features Developed
