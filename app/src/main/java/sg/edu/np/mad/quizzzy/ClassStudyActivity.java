@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -43,6 +44,7 @@ public class ClassStudyActivity extends AppCompatActivity {
         Intent receivingIntent = getIntent();
         String classTitle = receivingIntent.getStringExtra("classTitle");
         ArrayList<String> classMembers = receivingIntent.getStringArrayListExtra("classMembers");
+        ArrayList<String> userIds = receivingIntent.getStringArrayListExtra("classMemberId");
 
         // Configure Back Button
         Toolbar toolbar = findViewById(R.id.classStudyToolbar);
@@ -82,9 +84,12 @@ public class ClassStudyActivity extends AppCompatActivity {
             }
         });
 
+        TextView classTitleView = findViewById(R.id.ClassTitle);
+        classTitleView.setText(classTitle);
+
         RecyclerView recyclerView = findViewById(R.id.ClassStudyRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        ClassStudyAdapter adapter = new ClassStudyAdapter(this, classMembers);
+        ClassStudyAdapter adapter = new ClassStudyAdapter(this, classMembers, userIds);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
     }
