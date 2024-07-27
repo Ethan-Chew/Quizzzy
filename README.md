@@ -67,6 +67,7 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
 3. Flashlet Collaboration / Sharing & Flashlet Download - Charlotte Lee
 4. 2 Factor Authentication - Hervin Sie
 5. Statistics and Flashcard UI - Shin Thant
+6. Study Mode - Darius Koh
 
 ## Stage 2 Features
 For our Stage 2 Submission, every member on our team worked on an independent feature.
@@ -74,3 +75,4 @@ For our Stage 2 Submission, every member on our team worked on an independent fe
 2. [Two Factor Authentication](./docs/features/2FA.md) - Hervin Sie (S10262115)
 3. [Flashlet Collaboration / Sharing & Flashlet Download](./docs/features/FlashletSharing&Downloading.md) - Charlotte Lee (S1025027K)
 4. [Statistics & Flashcard UI](./docs/features/Statistics&Flashcard%20UI.md) - Shin Thant (S10261787)
+5. [Study Mode](./docs/features/StudyMode.md) - Darius Koh (S10255626K)
