@@ -29,7 +29,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import sg.edu.np.mad.quizzzy.R;
 
+/**
+ * <b>PushNotificationService</b> is the manager which handles the receiving and sending of Firebase Cloud Messaging (FCM) messages.<br>
+ * This service allows for the feature where Flashlet Owners would get a notification when their Flashlet has been cloned.
+ * */
 public class PushNotificationService extends FirebaseMessagingService {
+    /**
+     * Creates a Notification when a message is received using FCM
+     * When a message is sent to the User ID of the current Logged In User, this function is called
+     * */
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         String title = message.getData().get("title");
@@ -53,6 +61,12 @@ public class PushNotificationService extends FirebaseMessagingService {
         super.onMessageReceived(message);
     }
 
+    /**
+     * Subscribes the current device to a topic (the user's User ID) in FCM
+     * Allows the device to receive notifications intended for the given user ID.
+     *
+     * @param userId The user ID to which the device will subscribe in FCM.
+     */
     public void subscribeToUserIDTopic(String userId) {
         FirebaseMessaging.getInstance().subscribeToTopic(userId)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -71,6 +85,13 @@ public class PushNotificationService extends FirebaseMessagingService {
         FirebaseMessaging.getInstance().unsubscribeFromTopic(userId);
     }
 
+    /**
+     * Sends a push notification to a specified user indicating that their Flashlet has been cloned.
+     * This is achieved by making an HTTP POST request to our custom endpoint.
+     *
+     * @param receiverUserId The user ID of the original Flashlet Owner
+     * @param flashletName The name of the Flashlet that was cloned.
+     */
     public void sendFlashletCloneMessage(String receiverUserId, String flashletName) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -78,9 +99,8 @@ public class PushNotificationService extends FirebaseMessagingService {
             @Override
             public void run() {
                 final OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(120, TimeUnit.SECONDS) // Set the connection timeout
-                        .writeTimeout(120, TimeUnit.SECONDS)   // Set the write timeout
-                        .readTimeout(120, TimeUnit.SECONDS)    // Set the read timeout
+                        .connectTimeout(120, TimeUnit.SECONDS) // Connection timeout
+                        .writeTimeout(120, TimeUnit.SECONDS)   // Write timeout
                         .build();
 
                 String jsonData = "{\"topic\":\"" + receiverUserId + "\",\"message\":\"" + "Someone cloned your Flashlet: " + flashletName + "\"}";

@@ -1,5 +1,9 @@
 package sg.edu.np.mad.quizzzy.Models;
 
+/**
+ * <b>FlashletWithUsername</b> extends the Flashlet Owner's Username and Id to the original Flashlet class
+ * Used in the SearchActivity to make associating a Flashlet with it's Owner easier
+ * */
 public class FlashletWithUsername extends FlashletWithInsensitive {
     private String ownerUsername;
     private String ownerId;

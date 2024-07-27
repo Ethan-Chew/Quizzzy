@@ -1,10 +1,12 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.content.Context;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -22,6 +24,18 @@ import java.util.HashMap;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.components.XAxis;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class StatisticsActivity extends AppCompatActivity {
 
@@ -137,5 +151,67 @@ public class StatisticsActivity extends AppCompatActivity {
         weekFlashcardAvg.setText(String.valueOf(averageFlashcardUsage));
         weekFlashletAvg.setText(String.valueOf(averageFlashletUsage));
         weekClassAvg.setText(String.valueOf(averageClassUsage));
+
+        //BarChart
+        BarChart barChart = findViewById(R.id.barChart);
+
+        //Adding data for barchart into an ArrayList
+        ArrayList<BarEntry> entries = new ArrayList<>();
+
+        final List<String> daysOfWeek = new ArrayList<>();
+        daysOfWeek.add("Sun");
+        daysOfWeek.add("Mon");
+        daysOfWeek.add("Tue");
+        daysOfWeek.add("Wed");
+        daysOfWeek.add("Thu");
+        daysOfWeek.add("Fri");
+        daysOfWeek.add("Sat");
+
+        //Change null data to zero
+        for (int i = 0; i < daysOfWeek.size(); i++) {
+            String day = daysOfWeek.get(i);
+            statistics.putIfAbsent(day, 0);
+            Integer value = statistics.get(day);
+            entries.add(new BarEntry(i, value)); // Replace null with 0
+        }
+
+        BarDataSet barDataSet = new BarDataSet(entries, "Usage");
+        barDataSet.setColor(ColorTemplate.MATERIAL_COLORS[0]);
+        barDataSet.setValueTextColor(Color.BLACK);
+        BarData barData = new BarData(barDataSet);
+        barChart.setData(barData);
+        barChart.getDescription().setText("Weekly Flashlet Usage");
+        barChart.getDescription().setTextSize(15f);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new StatisticsActivity.DayAxisValueFormatter(daysOfWeek));
+        xAxis.setGranularity(1f); //interval
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelRotationAngle(-45f);
+        xAxis.setTextSize(12f);
+
+        barChart.getAxisLeft().setGranularity(1f); //interval
+        barChart.getAxisLeft().setTextSize(12f); //set text size
+        barChart.getAxisRight().setEnabled(false); //remove right y-axis
+
+        barChart.setFitBars(true);
+        barChart.invalidate(); //refresh the chart
+    }
+
+    private static class DayAxisValueFormatter extends ValueFormatter{
+        private final List<String> daysOfWeek;
+
+        public DayAxisValueFormatter(List<String> daysOfWeek) {
+            this.daysOfWeek = daysOfWeek;
+        }
+
+        @Override
+        public String getFormattedValue(float value) {
+            return daysOfWeek.get((int) value % daysOfWeek.size());
+        }
+    }
+
+    public static float convertSpToPixels(float sp, Context context) {
+        return sp * context.getResources().getDisplayMetrics().scaledDensity;
     }
 }
