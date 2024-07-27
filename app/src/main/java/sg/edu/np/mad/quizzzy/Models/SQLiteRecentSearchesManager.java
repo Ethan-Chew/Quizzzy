@@ -8,6 +8,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+/**
+ * <b>SQLiteRecentSearchesManager</b> manages the User's Recent Searches in a SQLite Database.
+ * It allows for the CRUD (Create, Read, Update and Delete) of Recent Searches. Results returned are sorted by timestamp
+ *
+ * Main Functionalities:
+ * 1. Retrieve Recent Search Queries (sorted by timestamp)
+ * 2. Add a new Search Query with it's timestamp
+ * 3. Deleting a Specific Search Query
+ * 4. Deleting All Search Queries
+ * */
+
 public class SQLiteRecentSearchesManager extends SQLiteOpenHelper {
     private static SQLiteRecentSearchesManager sqLiteManager;
     private static final String DATABASE_NAME = "SearchRecents";

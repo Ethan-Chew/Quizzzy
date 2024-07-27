@@ -31,51 +31,63 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".QrCodeScannerActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Search.OCRActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".UserProfileActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Search.SearchActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Quizzzy" />
         <activity
             android:name=".Classes.UpdateClass"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.ClassDetail"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.AddClass"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Classes.ClassList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.EditFlashcard"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.FlashcardList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".StatisticsActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
@@ -97,34 +109,42 @@
         </activity>
         <activity
             android:name=".HomeActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".SignupActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.FlashletList"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.FlashletDetail"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.UpdateFlashlet"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.CreateFlashlet"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".Flashlets.CreateClassFlashlet"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:screenOrientation="portrait" />
 
