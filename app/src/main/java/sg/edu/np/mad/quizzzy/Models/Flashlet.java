@@ -1,15 +1,12 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-import androidx.appcompat.app.AlertDialog;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Flashlet {
     String id; // Unique UUID
     String title;
     String description; // Description
-    String creatorID;
+    ArrayList<String> creatorID;
     String classId;
     ArrayList<Flashcard> flashcards;
     Boolean isPublic;
@@ -19,7 +16,7 @@ public class Flashlet {
     public void setId(String id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
-    public void setCreatorID(String creatorID) { this.creatorID = creatorID; }
+    public void setCreatorID(ArrayList<String> creatorID) { this.creatorID = creatorID; }
     public void setClassId(String classId) { this.classId = classId; }
     public void setFlashcards(ArrayList<Flashcard> flashcards) { this.flashcards = flashcards; }
     public void setLastUpdatedUnix(long lastUpdatedUnix) { this.lastUpdatedUnix = lastUpdatedUnix; }
@@ -29,7 +26,7 @@ public class Flashlet {
     public String getId() { return this.id; }
     public String getTitle() { return this.title; }
     public String getDescription() { return this.description; }
-    public String getCreatorID() { return this.creatorID; }
+    public ArrayList<String> getCreatorID() { return this.creatorID; }
     public String getClassId() { return this.classId; }
     public ArrayList<Flashcard> getFlashcards() { return this.flashcards; }
     public Boolean getIsPublic() { return this.isPublic; }
@@ -41,7 +38,7 @@ public class Flashlet {
     }
 
     // Constructor
-    public Flashlet(String id, String title, String description, String creatorID, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix, Boolean isPublic) {
+    public Flashlet(String id, String title, String description, ArrayList<String> creatorID, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix, Boolean isPublic) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -52,3 +49,4 @@ public class Flashlet {
         this.isPublic = isPublic;
     }
 }
+

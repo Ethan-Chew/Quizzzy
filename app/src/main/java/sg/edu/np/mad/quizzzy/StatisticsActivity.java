@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.HashMap;
+
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
@@ -97,7 +99,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
         int totalFlashcardUsage = statistics.get("totalFlashcardUsage");
         int averageFlashcardUsage = statistics.get("averageFlashcardUsage");
-
 
         int totalFlashletUsage = statistics.get("totalFlashletUsage");
         int averageFlashletUsage = statistics.get("averageFlashletUsage");

@@ -2,6 +2,10 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,12 +14,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -23,7 +21,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
-import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -31,6 +28,10 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.SearchedFlashletsAdapter;
 
+/*
+* The SearchFlashletFragment file takes in the searched Flashlets from the SearchAdapter,
+* and populates it into the RecyclerView
+* */
 public class SearchFlashletFragment extends Fragment implements RecyclerViewInterface {
 
     RecyclerView flashletRecyclerView;
@@ -67,14 +68,14 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
         flashletRecyclerView.setAdapter(searchedFlashletsAdapter);
     }
 
+    // When the User taps on any Flashlet in the RecyclerView, the app would bring them to the related FlashletDetail page
     @Override
     public void onItemClick(int position) {
-        // Get Current Logged in User
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(getActivity());
         UserWithRecents currentUser = localDB.getUser();
 
         FlashletWithUsername flashlet = flashlets.get(position);
-        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet.getFlashlet()));
+        Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
         sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());
 
         startActivity(sendToFlashletDetail);

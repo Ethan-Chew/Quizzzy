@@ -32,8 +32,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,18 +40,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.Classes.ClassDetail;
 import sg.edu.np.mad.quizzzy.HomeActivity;
-import sg.edu.np.mad.quizzzy.LoginActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
-import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -240,7 +237,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                newFlashlet = new Flashlet(id, title, "", userId, null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
+                newFlashlet = new Flashlet(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);

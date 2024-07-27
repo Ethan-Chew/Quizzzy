@@ -1,7 +1,6 @@
 package sg.edu.np.mad.quizzzy;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,38 +30,34 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import sg.edu.np.mad.quizzzy.Classes.ClassList;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
-import sg.edu.np.mad.quizzzy.Flashlets.UpdateFlashlet;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.PushNotificationService;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
+import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 
@@ -188,7 +183,7 @@ public class HomeActivity extends AppCompatActivity  {
                     public boolean onMenuItemClick(MenuItem item) {
                         int itemId = item.getItemId();
                         if (itemId == R.id.logout) {
-                            localDB.dropUser(FirebaseAuth.getInstance().getUid());
+                            localDB.dropUser(userWithRecents.getUser().getId());
                             recentSearchesDB.dropAllSearchQuery();
                             FirebaseAuth.getInstance().signOut();
                             // Unsubscribe from Firebase FCM
@@ -222,7 +217,21 @@ public class HomeActivity extends AppCompatActivity  {
                 startActivity(showclassintent);
             }
         });
+
+        TextView openStudyMode = findViewById(R.id.hSStudyMode);
+        openStudyMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openStudyModeIntent = new Intent(getApplicationContext(), StudyModeActivity.class);
+                startActivity(openStudyModeIntent);
+            }
+        });
+
+        // Reset Data
         horiRecentlyViewed.removeAllViews(); // Clear the Recently Viewed List
+        createdFlashletsContainer.removeAllViews(); // Clear the List of Created Flashlets
+        recentlyViewedFlashlets.clear();
+        createdFlashlets.clear();
 
         // If there are no Recently Viewed, display text
         recentlyOpenedFlashletsIds = userWithRecents.getRecentlyOpenedFlashlets();
@@ -250,40 +259,64 @@ public class HomeActivity extends AppCompatActivity  {
                                 if (recentlyViewedFlashlets.isEmpty()) {
                                     recentlyOpenedFlashletsIds.clear();
                                     localDB.updateRecentlyViewed(userWithRecents.getUser().getId(), recentlyOpenedFlashletsIds);
-                                    onResume();
-                                }
+                                } else {
+                                    // Retrieve Usernames for the Flashlet Owners
+                                    CollectionReference userColRef = db.collection("users");
+                                    userColRef
+                                            .whereIn("id", recentlyViewedFlashlets.stream().map(flashlet -> flashlet.getCreatorID().get(0)).collect(Collectors.toList()))
+                                            .get()
+                                            .addOnCompleteListener(userTask -> {
+                                                if (userTask.isSuccessful()) {
+                                                    Map<String, String> userMap = new HashMap<>();
 
-                                // Display Recently Viewed Flashlet and Display on Screen
-                                for (int i = 0; i < recentlyViewedFlashlets.size(); i++) {
-                                    View recentlyViewedView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.flashlet_recently_viewed, null, false);
-                                    Flashlet flashlet = recentlyViewedFlashlets.get(i);
-                                    TextView nRVTitle = recentlyViewedView.findViewById(R.id.fRVTitle);
-                                    nRVTitle.setText(flashlet.getTitle());
-                                    TextView nRVDesc = recentlyViewedView.findViewById(R.id.fRVDescription);
-                                    nRVDesc.setText("Flashlet");
+                                                    for (QueryDocumentSnapshot document : userTask.getResult()) {
+                                                        String userJson = gson.toJson(document.getData());
+                                                        User user = gson.fromJson(userJson, User.class);
+                                                        userMap.put(user.getId(), user.getUsername());
+                                                    }
 
-                                    recentlyViewedView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent sendToRecentlyViewed = new Intent(HomeActivity.this, FlashletDetail.class);
-                                            sendToRecentlyViewed.putExtra("flashletJSON", gson.toJson(flashlet));
-                                            startActivity(sendToRecentlyViewed);
-                                        }
-                                    });
-                                    horiRecentlyViewed.addView(recentlyViewedView);
+                                                    // Display Recently Viewed Flashlet and Display on Screen
+                                                    for (int i = 0; i < recentlyViewedFlashlets.size(); i++) {
+                                                        View recentlyViewedView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.flashlet_recently_viewed, null, false);
+                                                        Flashlet flashlet = recentlyViewedFlashlets.get(i);
+                                                        TextView nRVTitle = recentlyViewedView.findViewById(R.id.fRVTitle);
+                                                        nRVTitle.setText(flashlet.getTitle());
+                                                        TextView nRVDesc = recentlyViewedView.findViewById(R.id.fRVDescription);
+                                                        nRVDesc.setText(userMap.get(flashlet.getCreatorID().get(0)));
 
-                                    // Add Spacer View
-                                    View spacerView = new View(HomeActivity.this);
-                                    LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
-                                            30,
-                                            LinearLayout.LayoutParams.MATCH_PARENT
-                                    );
-                                    horiRecentlyViewed.addView(spacerView, spacerParams);
+                                                        recentlyViewedView.setOnClickListener(new View.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(View v) {
+                                                                Intent sendToRecentlyViewed = new Intent(HomeActivity.this, FlashletDetail.class);
+                                                                sendToRecentlyViewed.putExtra("flashletJSON", gson.toJson(flashlet));
+                                                                startActivity(sendToRecentlyViewed);
+                                                            }
+                                                        });
+                                                        horiRecentlyViewed.addView(recentlyViewedView);
+
+                                                        // Add Spacer View
+                                                        View spacerView = new View(HomeActivity.this);
+                                                        LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                                                                30,
+                                                                LinearLayout.LayoutParams.MATCH_PARENT
+                                                        );
+                                                        horiRecentlyViewed.addView(spacerView, spacerParams);
+                                                    }
+                                                } else {
+                                                    Toast.makeText(HomeActivity.this, "Failed to get Usernames for Recently Viewed", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+
+
                                 }
                             } else {
                                 Log.e("Firebase", "Error getting Recently Viewed Flashlets");
                             }
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d("Retrieve Usernames", e.getLocalizedMessage());
+                        Toast.makeText(HomeActivity.this, "Failed to get Usernames for Recently Viewed", Toast.LENGTH_SHORT).show();
                     });
         }
 

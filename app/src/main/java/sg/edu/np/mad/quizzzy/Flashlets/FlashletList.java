@@ -13,11 +13,11 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -50,8 +50,8 @@ import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
+import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
 import sg.edu.np.mad.quizzzy.R;
-import sg.edu.np.mad.quizzzy.Search.OCRActivity;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
@@ -120,9 +120,6 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                 return false;
             }
         });
-
-        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
-        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
 
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.fLViewToolbar);
@@ -194,6 +191,8 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                             startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
                         } else if (itemId == R.id.cFOAutogenerate) {
                             handleBottomDialogView();
+                        } else if (itemId == R.id.cFOJoinFlashlet) {
+                            startActivity(new Intent(FlashletList.this, QrCodeScannerActivity.class));
                         }
                         return true;
                     }
@@ -201,9 +200,21 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                 popupMenu.show();
             }
         });
+    }
 
-        // Update User Interface with Updated Data
-        ArrayList<String> userFlashletIDs = userWithRecents.getUser().getCreatedFlashlets();
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        RecyclerView recyclerView = findViewById(R.id.fLRecyclerView);
+        LinearLayout noFlashletNotif = findViewById(R.id.fLNoFlashlets);
+
+        /// Get the latest user from the localDB
+        userWithRecents = localDB.getUser();
+
+        /// Update User Interface with Updated Data
+        ArrayList<String> userFlashletIDs = new ArrayList<>();
+        userFlashletIDs.addAll(userWithRecents.getUser().getCreatedFlashlets());
 
         TextView flashletCount = findViewById(R.id.fLCounterLabel);
         String flashletCountStr = "You have " + userFlashletIDs.size() + " Total Flashlet" + (userFlashletIDs.size() == 1 ? "" : "s");
@@ -232,6 +243,8 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
                                 startActivity(new Intent(FlashletList.this, CreateFlashlet.class));
                             } else if (itemId == R.id.cFOAutogenerate) {
                                 handleBottomDialogView();
+                            } else if (itemId == R.id.cFOJoinFlashlet) {
+                                startActivity(new Intent(FlashletList.this, QrCodeScannerActivity.class));
                             }
                             return true;
                         }
@@ -251,6 +264,7 @@ public class FlashletList extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    userFlashlets.clear();
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String flashletJson = gson.toJson(document.getData());
                         userFlashlets.add(gson.fromJson(flashletJson, Flashlet.class));

@@ -36,8 +36,8 @@ public class SearchedFlashletsAdapter extends RecyclerView.Adapter<SearchedFlash
         FlashletWithUsername flashletListItem = flashlets.get(position);
 
         // Set Text of Elements on the UI
-        holder.flashletTitleLabel.setText(flashletListItem.getFlashlet().getTitle());
-        String flashletCountText = flashletListItem.getFlashlet().getFlashcards().size() + " Flashcards";
+        holder.flashletTitleLabel.setText(flashletListItem.getTitle());
+        String flashletCountText = flashletListItem.getFlashcards().size() + " Flashcards";
         holder.flashcardCountLabel.setText(flashletCountText);
         holder.ownerUsernameLabel.setText(flashletListItem.getOwnerUsername());
     }
