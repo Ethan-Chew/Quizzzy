@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         });
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
+
         View loginBtn = findViewById(R.id.loginBtn);
         View signupBtn = findViewById(R.id.signupBtn);
 
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
                 startActivity(intent);
-                MainActivity.this.flashletId = null;
             }
         });
 
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("FLASHLET_ID", flashletId);
                 }
                 startActivity(intent);
-                MainActivity.this.flashletId = null;
             }
         });
 
@@ -85,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Handle when the user scans the QR Code externally and direct back to MainActivity
     private void handleIntent(Intent intent) {
+        if (intent.getBooleanExtra("LOGOUT", false)) {
+            flashletId = null;
+        }
+
         Uri data = intent.getData();
         if (data != null && data.isHierarchical()) {
             flashletId = data.getQueryParameter("id"); // Extract flashlet ID from query parameter
