@@ -23,11 +23,13 @@ Once a user displays the QR code for the Flashlet, another user can scan the QR 
 This feature allows users to scan a QR code using an in-built scanner, enabling them to join the Flashlet directly.
 
 <img src="../../images/joinflashlet.png" alt="Join Flashlet" style="width: 200px; height: auto;">
-If the user wants to use the in-built scanner, they need to navigate to the Flashlet list page. From there, they can click on the "+" button next to "Your Flashlets" and select the "Join Flashlet" option.\
+If the user wants to use the in-built scanner, they need to navigate to the Flashlet list page. From there, they can click on the "+" button next to "Your Flashlets" and select the "Join Flashlet" option.
+<br />
 
 
 <img src="../../images/scanqrcode.jpg" alt="In-built Scanner" style="width: 200px; height: auto;">
-If the user decides to use the in-built scanner, they will be taken to the screen featuring the in-built scanner. The scanner screen has a navigation bar at the top with a back button. The middle of the screen is the camera area where they can scan the QR code, with the word "Scanning..." displayed in the center. At the bottom, there is a "Join Flashlet" button. Once the scanning is complete, the message "Scanning Complete" will be shown.\
+If the user decides to use the in-built scanner, they will be taken to the screen featuring the in-built scanner. The scanner screen has a navigation bar at the top with a back button. The middle of the screen is the camera area where they can scan the QR code, with the word "Scanning..." displayed in the center. At the bottom, there is a "Join Flashlet" button. Once the scanning is complete, the message "Scanning Complete" will be shown.
+<br />
 
 <div style="display: flex; gap: 10px;">
   <img src="../../images/joinedflashlet.jpg" alt="In-built Scanner" style="width: 200px; height: auto;">
@@ -43,7 +45,8 @@ If the user already has the Flashlet, a toast message will appear on the bottom 
 This feature allows users to scan a QR code using their phones Qr Code scanner, enabling them to join the Flashlet directly.
 
 <img src="../../images/externalscanner.jpg" alt="External Scanner" style="width: 200px; height: auto;">
-If the user chooses to scan the QR code with an external scanner, the interface will vary depending on the phone. Once the Flashlet QR code is scanned, a pop-up will appear at the bottom of the screen. This pop-up will display the link to the Flashlet, including the app name, Flashlet, and flashletId.\
+If the user chooses to scan the QR code with an external scanner, the interface will vary depending on the phone. Once the Flashlet QR code is scanned, a pop-up will appear at the bottom of the screen. This pop-up will display the link to the Flashlet, including the app name, Flashlet, and flashletId.
+<br />
 
 <div style="display: flex; gap: 10px;">
   <img src="../../images/flashletadded.jpg" alt="External Scanner" style="width: 200px; height: auto;">
@@ -59,13 +62,16 @@ If the user already has the Flashlet, they will be redirected to the Home screen
 This feature allows users to download any Flashlet they choose in PDF format.
 
 <img src="../../images/sharedownload.png" alt="Download Flashlet" style="width: 200px; height: auto;">
-At the top of the Flashlet, I have added a kebab menu with two options: "Share Flashlet" and "Download Flashlet." When users select "Download Flashlet" an Alert Dialog box will appear.\
+At the top of the Flashlet, I have added a kebab menu with two options: "Share Flashlet" and "Download Flashlet." When users select "Download Flashlet" an Alert Dialog box will appear.
+<br />
 
 <img src="../../images/downloadpdf.jpg" alt="Download Flashlet Dialog" style="width: 200px; height: auto;">
-An Alert Dialog appears in the center above the Flashlet, with a tinted background, asking the user if they want to download a PDF version of the Flashet, with a "No" or "Yes" buttons.\
+An Alert Dialog appears in the center above the Flashlet, with a tinted background, asking the user if they want to download a PDF version of the Flashet, with a "No" or "Yes" buttons.
+<br />
 
 <img src="../../images/downloadedpdftoast.jpg" alt="Download Flashlet Toast" style="width: 200px; height: auto;">
-Once the user clicks on the "Yes" option, a pop-up will appear at the bottom of the screen displaying various app options for opening the downloaded PDF of the Flashlet. Additionally, a toast message will inform the user that the Flashlet has been successfully downloaded.\
+Once the user clicks on the "Yes" option, a pop-up will appear at the bottom of the screen displaying various app options for opening the downloaded PDF of the Flashlet. Additionally, a toast message will inform the user that the Flashlet has been successfully downloaded.
+<br />
 
 <div style="display: flex; gap: 10px;">
   <img src="../../images/pdfformat.jpg" alt="PDF 1" style="width: 200px; height: auto;">
