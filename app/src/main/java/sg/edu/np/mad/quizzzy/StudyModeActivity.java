@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,8 +54,8 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
     DatabaseReference firebaseReference;
     private String userId;
     private int studyDuration;
-    private boolean studyTimerRunning = false;
-    private boolean wasStudyTimerRunning = false;
+    private boolean studyTimerRunning;
+    private boolean wasStudyTimerRunning;
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -68,8 +69,6 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        Log.d("TAG", "run: " + AppLifecycleObserver.getAppInForeground() + AppLifecycleObserver.getScreenOn());
 
         // Configure Back Button
         Toolbar toolbar = findViewById(R.id.studyToolbar);
@@ -109,45 +108,7 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
             }
         });
 
-        firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        firebaseReference = firebaseDB.getReference("studyDuration");
-
-        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(StudyModeActivity.this);
-        userId = localDB.getUser().getUser().getId();
-
-        TextView studyTime = findViewById(R.id.studyTime);
         Button pause = findViewById(R.id.startStopStudyTimer);
-
-        Log.d("date", "" + SimpleDateFormat.getDateInstance().format(new Date()));
-
-        firebaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DataSnapshot dataSnapshot = task.getResult();
-
-                    if (dataSnapshot.hasChild(userId)) {
-                        studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child(userId).child("studyDuration").getValue()));
-
-                        if (dataSnapshot.child(userId).child("currentDate").getValue() != SimpleDateFormat.getDateInstance().format(new Date())){
-                            StudyDurationHelper helper = new StudyDurationHelper(userId, "0");
-                            firebaseReference.child(userId).setValue(helper);
-                            studyDuration = 0;
-                        }
-                    } else {
-                        studyDuration = 0;
-                    }
-                    studyTime.setText(formatStudyTime(studyDuration));
-
-                    Log.d("Read Firebase", "StudyDuration: " + studyDuration);
-                } else {
-                    studyDuration = 0;
-
-                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                }
-            }
-        });
-        //studyTime.setText(formatStudyTime(studyDuration));
 
         // Manager for gyroscope tracking
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -179,6 +140,40 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
+
+        firebaseDB = FirebaseDatabase.getInstance("https://quizzzy-21bea-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        firebaseReference = firebaseDB.getReference("studyDuration");
+        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(StudyModeActivity.this);
+        userId = localDB.getUser().getUser().getId();
+        TextView studyTime = findViewById(R.id.studyTime);
+
+        firebaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DataSnapshot dataSnapshot = task.getResult();
+
+                    if (dataSnapshot.hasChild(userId)) {
+                        studyDuration = Integer.parseInt(String.valueOf(dataSnapshot.child(userId).child("studyDuration").getValue()));
+
+                        if (!dataSnapshot.child(userId).child("currentDate").getValue().toString().equals(SimpleDateFormat.getDateInstance().format(new Date()).toString())) {
+                            StudyDurationHelper helper = new StudyDurationHelper(userId, "0");
+                            firebaseReference.child(userId).setValue(helper);
+                            studyDuration = 0;
+                        }
+                    } else {
+                        studyDuration = 0;
+                    }
+                    studyTime.setText(formatStudyTime(studyDuration));
+
+                    Log.d("Read Firebase", "StudyDuration: " + studyDuration);
+                } else {
+                    studyDuration = 0;
+
+                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                }
+            }
+        });
     }
 
     @Override
@@ -235,24 +230,12 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
                 // Check if app is in the background while the screen is on and pauses the timer
                 if (!AppLifecycleObserver.getAppInForeground() && AppLifecycleObserver.getScreenOn()) {
                     studyTimerRunning = false;
-                    Log.d("Study", "run: " + studyTimerRunning);
                 }
                 if (studyTimerRunning) {
                     studyDuration++;
                     helper.setStudyDuration(Integer.toString(studyDuration));
-                    firebaseReference.child(userId).setValue(helper).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            }
-                            else {
-                                Log.d("firebase", String.valueOf(task.getResult()));
-                            }
-                        }
-                    });
+                    firebaseReference.child(userId).setValue(helper);
                 }
-
                 handler.postDelayed(this, 1000);
             }
         });

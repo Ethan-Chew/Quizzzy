@@ -27,6 +27,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".StudyModeActivity"
+            android:launchMode="singleInstance"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
