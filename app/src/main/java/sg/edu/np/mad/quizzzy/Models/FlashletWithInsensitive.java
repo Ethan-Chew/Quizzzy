@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Models;
 
 import java.util.ArrayList;
 
+// FlashletWithInsensitive is used to decode the Firebase Object sent back from Firebase.
 public class FlashletWithInsensitive extends Flashlet {
     String insensitiveTitle;
 

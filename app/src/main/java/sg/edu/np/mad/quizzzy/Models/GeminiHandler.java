@@ -19,6 +19,10 @@ import java.util.concurrent.Executors;
 
 import sg.edu.np.mad.quizzzy.BuildConfig;
 
+/**
+ * <b>GeminiHandler</b> handles the auto-generation of Flashlets from a user-entered topic. <br>
+ * GeminiHandler contains the <b>generateFlashletOnKeyword</b> function which sends a request is made to the Gemini 1.5 Flash Model, and the Model's response is properly parsed as a <i>GeminiHandlerResponse</i> before being returned from the function.
+ * */
 public class GeminiHandler {
     static public void generateFlashletOnKeyword(String topic, GeminiResponseEventHandler callback) {
         GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", BuildConfig.GEMINI_API_KEY);
@@ -41,6 +45,8 @@ public class GeminiHandler {
                 "Chlorophyll/The green pigment in plants that absorbs light energy for photosynthesis--Stomata/Tiny openings in plant leaves that allow for gas exchange";
 
         // Define Chat History
+        /// NOTE: This is a workaround to give the Gemini Model a 'Role', which defines the context of the request
+        /// Seen here: https://www.googlecloudcommunity.com/gc/AI-ML/Gemini-Pro-Context-Option/m-p/684917
         Content.Builder userContentBuilder = new Content.Builder();
         userContentBuilder.setRole("user");
         userContentBuilder.addText(prompt);
@@ -96,7 +102,6 @@ public class GeminiHandler {
                 } else if (t instanceof ResponseStoppedException) {
                     callback.onError(new Exception("Your prompt is invalid or inappropriate. Please re-enter your prompt"));
                 } else {
-                    System.out.println(new Exception(t).getLocalizedMessage());
                     callback.onError(new Exception(t));
                 }
             }

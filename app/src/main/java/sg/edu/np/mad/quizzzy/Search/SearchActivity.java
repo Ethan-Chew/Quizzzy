@@ -62,7 +62,7 @@ interface OnSearchEventListener {
 }
 
 /*
- * SearchActivityis the main user-facing screen responsible for handling the Global Search for Flashlets and User
+ * SearchActivity is the main user-facing screen responsible for handling the Global Search for Flashlets and User
  * */
 public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnResultChangeListener {
 
@@ -290,6 +290,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         SearchResult searchResult = new SearchResult();
 
         // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
+        // NOTE: searchQuery is casted to lower case to ensure for searches to be non case-sensitive
         flashletColRef
                 .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase())
                 .whereLessThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase() + "\uf8ff")
