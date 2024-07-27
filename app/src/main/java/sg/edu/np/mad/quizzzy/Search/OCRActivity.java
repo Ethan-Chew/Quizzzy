@@ -67,6 +67,12 @@ import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
 import sg.edu.np.mad.quizzzy.Models.GeminiResponseEventHandler;
 import sg.edu.np.mad.quizzzy.R;
 
+/**
+ * The <b>OCRActivity</b> handles the Optical Character Recognition (OCR) feature, allowing users to scan text in real-life.<br>
+ * Text can only be scanned if it falls within a 'White Bounding Box' on the screen. Multiple Languages (English and Chinese) are also supported.<br>
+ *
+ * Technologies Used: CameraX, MLKit Vision (TextRecognition)
+ * */
 public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     Gson gson = new Gson();
 

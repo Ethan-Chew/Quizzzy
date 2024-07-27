@@ -49,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore firebase;
     String flashletId;
+    PopupWindow popupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                                                         String secret = document.getData().get("2faSecret").toString();
                                                         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                                                         View popupView = inflater.inflate(R.layout.login_2fa_popup, null);
-                                                        PopupWindow popupWindow = getPopupWindow(popupView);
+                                                        popupWindow = getPopupWindow(popupView);
 
                                                         // Show the popup window at the center of the layout
                                                         popupWindow.showAtLocation(v, android.view.Gravity.CENTER, 0, 0);
@@ -141,23 +142,23 @@ public class LoginActivity extends AppCompatActivity {
                                                         pin4.addTextChangedListener(new LoginActivity.TOTPWatcher(pin4, pin5, popupView, secret));
                                                         pin5.addTextChangedListener(new LoginActivity.TOTPWatcher(pin5, pin6, popupView, secret));
                                                         pin6.addTextChangedListener(new LoginActivity.TOTPWatcher(pin6, null, popupView, secret));
-
                                                     } else {
-                                                            // Save the User to our SQLite (Local) Database
-                                                            SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
-                                                            String userJson = gson.toJson(document.getData());
-                                                            User user = gson.fromJson(userJson, User.class);
-                                                            localDB.addUser(new UserWithRecents(user));
+                                                        // Save the User to our SQLite (Local) Database
+                                                        SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
+                                                        String userJson = gson.toJson(document.getData());
+                                                        User user = gson.fromJson(userJson, User.class);
+                                                        localDB.addUser(new UserWithRecents(user));
                                                         if (flashletId != null) {
+                                                            // Handle flashlet addition if flashletId exists
                                                             handleFlashletAddition(flashletId, currentUser.getUid());
                                                             flashletId = null;
+                                                            finish();
                                                         } else {
                                                             // Send User to Home Screen
                                                             Intent homeScreenIntent = new Intent(LoginActivity.this, HomeActivity.class);
                                                             startActivity(homeScreenIntent);
                                                         }
-                                                        }
-
+                                                    }
                                                 }
                                             }
                                         });
@@ -171,27 +172,39 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+    }
+
+    // Handle flashlet addition to the user's account
     private void handleFlashletAddition(String flashletId, String userId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(LoginActivity.this);
 
         userRef.get().addOnCompleteListener(task -> {
+            // Check if document retrieval was successful
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    // Check if flashlet already exists
                     if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
                         navigateToHome(flashletId);
                         Toast.makeText(LoginActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Update user and flashlet documents
                         updateUserAndFlashlet(userRef, flashletId);
                         ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
                         createdFlashletIds.add(flashletId);
                         localDB.updateCreatedFlashcards(userId, createdFlashletIds);
                         Toast.makeText(LoginActivity.this, "Flashlet added successfully.", Toast.LENGTH_SHORT).show();
                     }
-                    LoginActivity.this.flashletId = null;
+                    LoginActivity.this.flashletId = null; // Reset flashlet ID
                 }
             } else {
                 Log.e("LoginActivity", "Error checking user document", task.getException());
@@ -199,14 +212,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Update user and flashlet documents in Firestore
     private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
 
+        // Update the user's list of created flashlets
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
                 .addOnSuccessListener(aVoid -> Log.d("LoginActivity", "User flashlets updated successfully"))
                 .addOnFailureListener(e -> Log.e("LoginActivity", "Failed to update user createdFlashlets", e));
 
+        // Update the flashlet's list of creators
         flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
                 .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
                 .addOnFailureListener(e -> Log.e("LoginActivity", "Failed to update flashlet creatorID", e));
@@ -214,6 +230,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToHome(String flashletId) {
         Intent resultIntent = new Intent(LoginActivity.this, HomeActivity.class);
+        // Pass flashlet ID to HomeActivity
         resultIntent.putExtra("FLASHLET_ID", flashletId);
         startActivity(resultIntent);
         finish();
@@ -290,8 +307,10 @@ public class LoginActivity extends AppCompatActivity {
                                 User user = gson.fromJson(userJson, User.class);
                                 localDB.addUser(new UserWithRecents(user));
                                 if (flashletId != null) {
+                                    // Handle flashlet addition if flashletId exists
                                     handleFlashletAddition(flashletId, currentUser.getUid());
-                                    flashletId = null;
+                                    flashletId = null; // Reset flashlet ID
+                                    finish();
                                 }
                                 else {
                                     // Send User to Home Screen

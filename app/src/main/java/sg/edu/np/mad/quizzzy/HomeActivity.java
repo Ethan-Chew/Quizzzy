@@ -189,7 +189,11 @@ public class HomeActivity extends AppCompatActivity  {
                             // Unsubscribe from Firebase FCM
                             PushNotificationService pushNotificationService = new PushNotificationService();
                             pushNotificationService.unsubscribeFromUserIDTopic(userWithRecents.getUser().getId());
-                            startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.putExtra("LOGOUT", true);
+                            startActivity(intent);
+                            finish();
                         } else if (itemId == R.id.profile) {
                             Intent profileIntent = new Intent(HomeActivity.this, UserProfileActivity.class);
                             profileIntent.putExtra("userJSON", gson.toJson(userWithRecents.getUser()));
@@ -315,7 +319,6 @@ public class HomeActivity extends AppCompatActivity  {
                         }
                     })
                     .addOnFailureListener(e -> {
-                        Log.d("Retrieve Usernames", e.getLocalizedMessage());
                         Toast.makeText(HomeActivity.this, "Failed to get Usernames for Recently Viewed", Toast.LENGTH_SHORT).show();
                     });
         }

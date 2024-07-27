@@ -1,4 +1,4 @@
-# Global Search and Auto-Generated Flashlets.
+# Global Search and Auto-Generated Flashlets
 For [Ethan's](https://github.com/ethan-chew) Stage 2 feature, I developed a feature allowing users to search our database for Flashlets and clone them as needed. In addition, Auto-Generated Flashlets were made possible using Generative AI.
 
 ### Breakdown of Features Developed
@@ -65,7 +65,9 @@ Auto-Generated Flashlets allows users to create a flashlet by simply entering a 
 Users can create an Auto-Generated Flashlet from either the OCR Screen or the Flashlet List by tapping the '+' button. When this button is tapped, a Bottom Sheet Modal _(shown above)_ is displayed, prompting the user to enter their Flashlet Topic Term. Tapping the 'Generate Flashlet' button initiates the flashlet creation process. Once the flashlet is created, the user is directed to the Flashlet Detail page.
 
 ## Push Notifications
-When another User clones one’s public flashlet, a notification will be sent to the owner. This helps keep the owner informed about the usage of their Flashlet.  
+<img src="../../images/PushNotification.jpg" alt="Push Notification" style="width: 200px; height: auto;">
+
+When another User clones one’s public flashlet, a notification will be sent to the original flashlet owner. This helps keep the owner informed about the usage of their Flashlet.  
 
 To make this feature work, the Firebase Cloud Messaging service was used. All notification requests are sent to a custom backend which handles the request. Push Notifications for Cloned Flashlets will work in real-time.  
 
