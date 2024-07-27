@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+// Helper for writing to RTDB
 public class StudyDurationHelper {
     String userId;
     String studyDuration;

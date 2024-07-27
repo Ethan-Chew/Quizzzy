@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -57,21 +59,25 @@ public class ClassStudyAdapter extends RecyclerView.Adapter<ClassStudyViewHolder
     @Override
     public void onBindViewHolder(ClassStudyViewHolder holder, int position) {
         String userId = userIds.get(position);
-
+        Animation animation = AnimationUtils.loadAnimation(holder.circleBackground.getContext(), R.anim.zoom);
         holder.username.setText(usernames.get(position));
 
-        firebaseReference.addValueEventListener(new ValueEventListener() {
+        // Called when a value is changed in the Firebase RTDB
+        firebaseReference.child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Check if there is relevant data
                 if (snapshot.hasChild(userId)) {
                     int studyDuration = Integer.parseInt(snapshot.child(userId).child("studyDuration").getValue(String.class));
-                    Log.d("database is gay", "onDataChange: " + usernames + " " + userIds);
                     holder.studyDuration.setText(String.format(
                             Locale.getDefault(), "%02d:%02d:%02d",
                             studyDuration / 3600,
                             (studyDuration % 3600) / 60,
                             studyDuration % 60
                     ));
+
+                    // Start animation
+                    holder.circleBackground.startAnimation(animation);
                 }
             }
 

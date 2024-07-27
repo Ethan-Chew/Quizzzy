@@ -20,31 +20,40 @@
         app:navigationIcon="?attr/homeAsUpIndicator" />
 
     <LinearLayout
-        android:id="@+id/classStudyTitleContainer"
+        android:id="@+id/classStudyHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
+        android:background="@drawable/search_screen_header_background"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/classStudyToolbar">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/ClassTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginEnd="25dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="30dp"
             android:text="Class Name"
-            android:textColor="@color/black"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/statsTodayTotalContainer"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/white"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/StudyModeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="35dp"
+            android:text="To Study Mode"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp"/>
+
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -55,11 +64,12 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="25dp"
         android:layout_marginBottom="25dp"
+        android:foregroundGravity="center"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/classStudyTitleContainer" />
+        app:layout_constraintTop_toBottomOf="@+id/classStudyHeader" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
