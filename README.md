@@ -26,7 +26,10 @@ _Important Note: This Wireframe is not a full reflection of the final design of 
 ### Colours
 **Purple** was chosen as our Primary Colour as purple communicates in a positive way. It is said to have the power to uplift, calm nerves and encourage creativity, making it an all-inclusive color. All ages, genders, and cultures can relate to purple.
 
-## Features
+### Environment Variables
+Environment Variables were used in our Project to ensure that our API Keys were kept secret. For **Quizzzy** to work locally on your device, you have to create a `GEMINI_API_KEY` in the root folder, and retrieve a [API Key from Google](https://ai.google.dev/).
+
+## Stage 1 Features
 For our Stage 1 Submission, every member on our team were assigned a particular 'section' to work on.  
 1. [Account Creation](./docs/features/AccountCreation.md) - Hervin Sie
 2. [Class Management](./docs/features/ClassManagement.md) - Charlotte Lee
@@ -63,9 +66,11 @@ For our Stage 1 Submission, every member on our team were assigned a particular 
     - Optical Character Recognition (OCR) to detect text and search for it
 3. Flashlet Collaboration / Sharing & Flashlet Download - Charlotte Lee
 4. 2 Factor Authentication - Hervin Sie
+5. Statistics and Flashcard UI - Shin Thant
 
 ## Stage 2 Features
 For our Stage 2 Submission, every member on our team worked on an independent feature.
 1. [Global Search and Optical Character Recognition](./docs/features/GlobalSearch.md) - Ethan Chew (S10255990K)
 2. [Two Factor Authentication](./docs/features/2FA.md) - Hervin Sie (S10262115)
 3. [Flashlet Collaboration / Sharing & Flashlet Download](./docs/features/FlashletSharing&Downloading.md) - Charlotte Lee (S1025027K)
+4. [Statistics & Flashcard UI](./docs/features/Statistics&Flashcard UI.md) - Shin Thant (S10261787)
