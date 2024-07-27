@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 
 import sg.edu.np.mad.quizzzy.Models.SearchResult;
 
+/*
+* The SearchAdapter handles the tabbing system after the user searches for something.
+* Depending on the Tab (Flashlet or User) that the user has tapped on, the screen is updated to show the FlashletFragment or the UserFragment respectively
+* */
 public class SearchAdapter extends FragmentStateAdapter {
 
     final private SearchResult searchResult;

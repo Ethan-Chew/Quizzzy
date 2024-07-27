@@ -15,23 +15,23 @@ The second tab in Quizzzy is now replaced with the Global Search feature. It all
 This feature fosters a collaborative learning environment within Quizzzy. If users need to study a particular topic, they are able to search for it on our platform and simply start studying.
 
 <div style="display: flex; gap: 10px;">
-  <img src="../../images/SearchNR.jpg" alt="Image 1" style="width: 300px; height: auto;">
-  <img src="../../images/SearchRecents.jpg" alt="Image 2" style="width: 300px; height: auto;">
+  <img src="../../images/SearchNR.jpg" alt="Image 1" style="width: 200px; height: auto;">
+  <img src="../../images/SearchRecents.jpg" alt="Image 2" style="width: 200px; height: auto;">
 </div>
 When the Search Page is opened, the header displays a Search Bar and a Camera Icon beside it. The Camera Icon activates the OCR functionality, which will be explained later. A list view showcases the user's recent searches, with an option to clear all recent searches. Users can delete individual recent searches by tapping the 'X' beside the search term. If there are no recent searches, a message is shown.  
 
 <div style="display: flex; gap: 10px;">
-  <img src="../../images/SearchFlashlets.jpg" alt="Search Flashlets" style="width: 300px; height: auto;">
-  <img src="../../images/SearchUsers.jpg" alt="Search Users" style="width: 300px; height: auto;">
+  <img src="../../images/SearchFlashlets.jpg" alt="Search Flashlets" style="width: 200px; height: auto;">
+  <img src="../../images/SearchUsers.jpg" alt="Search Users" style="width: 200px; height: auto;">
 </div>
 After entering a search term into the search bar, flashlet and user results are displayed. Users can switch between flashlet and user searches using the tab bar. Clicking on a specific flashlet or user navigates the user to the flashlet detail page or user profile page, respectively.  
 
-<img src="../../images/SearchNoResults.jpg" alt="No Search Results" style="width: 300px; height: auto;">
+<img src="../../images/SearchNoResults.jpg" alt="No Search Results" style="width: 200px; height: auto;">
 
 If no related search results are found, a relevant message is shown to the user, ensuring a clear and informative user experience.
 
 ## Flashlet Cloning
-<img src="../../images/FlashletCloning.jpg" alt="No Search Results" style="width: 300px; height: auto;">
+<img src="../../images/FlashletCloning.jpg" alt="No Search Results" style="width: 200px; height: auto;">
 
 Flashlet Cloning allows users to make a copy of any public flashlet, enabling them to edit and expand upon the original content. This feature ensures that users can personalize and enhance their study materials.  
 
@@ -42,12 +42,24 @@ OCR integration allows users to scan and convert text from real-life sources, su
 
 By leveraging OCR, users can enhance their learning experience through more convenient and efficient study methods.
 
+<img src="../../images/OCRScan.jpg" alt="No Search Results" style="width: 200px; height: auto;">  
+
+On the OCR Screen, users can point their camera towards the subject they want to detect. By ensuring that your text is in the white bounding box, the app will scan the text and the detected text will be shown in the textbox below.
+
+<img src="../../images/OCRLanguages.jpg" alt="No Search Results" style="width: 200px; height: auto;">  
+
+Currently, the OCR Feature supports two languages. English and Chinese. By default, the detection language is set to English. Switch the languages by tapping on the 'Globe' button on the toolbar and tap on the desired language. A Toast would then be displayed to confirm the selected language.
+
+<img src="../../images/DetectOCR.jpg" alt="No Search Results" style="width: 200px; height: auto;">  
+
+After tapping on the 'Done' button, users can edit the detected text if required. They are then able to tap on the 'Search' button to search for related Flashlets or Users and 'Generate Flashlet' to auto-generate a Flashlet based on the search term.
+
 ## Auto-Generated Flashlets
 Auto-Generated Flashlets allows users to create a flashlet by simply entering a topic. Quizzzy uses Generative AI to create Flashlets which are relating to the entered topic. Currently, the free-tier of Google’s Gemini 1.5 Flash is being used. Auto-Generated Flashlets saves users time and effort by allowing them to study effectively though related flashcards by simply inputting their desired topic.  
 
 <div style="display: flex; gap: 10px;">
-    <img src="../../images/AutoGenerateFlashletMenu.jpg" alt="No Search Results" style="width: 300px; height: auto;">
-    <img src="../../images/AutoGenerateFlashlet.jpg" alt="Search Users" style="width: 300px; height: auto;">
+    <img src="../../images/AutoGenerateFlashletMenu.jpg" alt="No Search Results" style="width: 200px; height: auto;">
+    <img src="../../images/AutoGenerateFlashlet.jpg" alt="Search Users" style="width: 200px; height: auto;">
 </div>
 
 Users can create an Auto-Generated Flashlet from either the OCR Screen or the Flashlet List by tapping the '+' button. When this button is tapped, a Bottom Sheet Modal _(shown above)_ is displayed, prompting the user to enter their Flashlet Topic Term. Tapping the 'Generate Flashlet' button initiates the flashlet creation process. Once the flashlet is created, the user is directed to the Flashlet Detail page.

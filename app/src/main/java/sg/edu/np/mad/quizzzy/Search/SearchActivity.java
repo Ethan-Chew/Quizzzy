@@ -2,14 +2,11 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -19,7 +16,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,15 +28,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -51,7 +44,7 @@ import java.util.stream.Collectors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
-import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
 import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -62,17 +55,22 @@ import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
 
+// Callback function to handle Searches; onSearchResult is called after the search result is returned from the Firebase Query
 interface OnSearchEventListener {
     void onSearchResult(SearchResult searchResult);
     void onError(Exception err);
 }
 
-public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnEmptyListener {
+/*
+ * SearchActivityis the main user-facing screen responsible for handling the Global Search for Flashlets and User
+ * */
+public class SearchActivity extends AppCompatActivity implements RecyclerViewInterface, RecentSearchesAdapter.OnResultChangeListener {
 
     // Search Result Items
     private TabLayout searchResultTabs;
     private ViewPager2 searchResultViewPager;
     private ScrollView recentsListContainer;
+    private RecentSearchesAdapter searchesAdapter;
     private LinearLayout noRecentsContainer;
     private RecyclerView recentsContainer;
     private SearchAdapter searchAdapter;
@@ -137,8 +135,14 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
         recentsListContainer = findViewById(R.id.aSRecentsListContainer);
         searchResultTabs = findViewById(R.id.aSResultsTabBar);
         searchResultViewPager = findViewById(R.id.aSResultsViewPager);
-        searchResultTabs.setVisibility(View.GONE);
-        searchResultViewPager.setVisibility(View.GONE);
+        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+
+        // Bind the RecyclerView
+        searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches, this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        recentsContainer.setLayoutManager(layoutManager);
+        recentsContainer.setItemAnimator(new DefaultItemAnimator());
+        recentsContainer.setAdapter(searchesAdapter);
 
         // Display list of Recent Searches or container showing No Recent Searches
         onResume();
@@ -262,19 +266,16 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         noRecentsContainer = findViewById(R.id.aSNoRecentsList);
         recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
+
+        searchesAdapter.updateAdapterData(recentSearches);
+
         if (recentSearches.isEmpty()) {
             noRecentsContainer.setVisibility(View.VISIBLE);
             recentsContainer.setVisibility(View.GONE);
         } else {
+            recentsContainer.setVisibility(View.VISIBLE);
             noRecentsContainer.setVisibility(View.GONE);
         }
-
-        recentsContainer = findViewById(R.id.aSRecentsRecyclerView);
-        RecentSearchesAdapter searchesAdapter = new RecentSearchesAdapter(SearchActivity.this, recentSearches, this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
-        recentsContainer.setLayoutManager(layoutManager);
-        recentsContainer.setItemAnimator(new DefaultItemAnimator());
-        recentsContainer.setAdapter(searchesAdapter);
     }
 
     // Handle Search Results
@@ -290,15 +291,15 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
         // Query the Cloud Firestore Database to search for Flashlet titles and User usernames similar to the searchQuery
         flashletColRef
-                .whereGreaterThanOrEqualTo("title", searchQuery)
-                .whereLessThanOrEqualTo("title", searchQuery + "\uf8ff")
+                .whereGreaterThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase())
+                .whereLessThanOrEqualTo("insensitiveTitle", searchQuery.toLowerCase() + "\uf8ff")
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Convert the Flashlets from JSON to a Flashlet Object, and if it's public, add it to the list
-                        ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
+                        ArrayList<FlashletWithInsensitive> flashletList = new ArrayList<FlashletWithInsensitive>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String flashletJson = gson.toJson(document.getData());
-                            Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
+                            FlashletWithInsensitive flashlet = gson.fromJson(flashletJson, FlashletWithInsensitive.class);
                             if (flashlet.getIsPublic()) {
                                 flashletList.add(flashlet);
                             }
@@ -306,8 +307,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
 
                         // Retrieve Users with Usernames similar to the searchQuery
                         usersColRef
-                                .whereGreaterThanOrEqualTo("username", searchQuery)
-                                .whereLessThanOrEqualTo("username", searchQuery + "\uf8ff")
+                                .whereGreaterThanOrEqualTo("insensitiveUsername", searchQuery.toLowerCase())
+                                .whereLessThanOrEqualTo("insensitiveUsername", searchQuery.toLowerCase() + "\uf8ff")
                                 .get().addOnCompleteListener(userTask -> {
                                     if (userTask.isSuccessful()) {
                                         // Convert the Users from JSON to a User Object, only if the User is not the currently logged in user
@@ -324,7 +325,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                         // If there were any Flashlets found, get the Username of the Owner
                                         if (!flashletList.isEmpty()) {
                                             usersColRef
-                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID()).collect(Collectors.toList()))
+                                                    .whereIn("id", flashletList.stream().map(flashlet -> flashlet.getCreatorID().get(0)).collect(Collectors.toList()))
                                                     .get().addOnCompleteListener(ownerTask -> {
                                                         if (ownerTask.isSuccessful()) {
                                                             Map<String, User> userMap = new HashMap<>();
@@ -335,12 +336,14 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                                             }
 
                                                             ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
-                                                            for (Flashlet flashlet : flashletList) {
-                                                                User owner = userMap.get(flashlet.getCreatorID());
+                                                            for (FlashletWithInsensitive flashlet : flashletList) {
+                                                                User owner = userMap.get(flashlet.getCreatorID().get(0));
+
                                                                 if (owner != null) {
                                                                     flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
                                                                 }
                                                             }
+
                                                             searchResult.setFlashlets(flashletWithUsernames);
                                                             callback.onSearchResult(searchResult);
                                                         } else {
@@ -367,10 +370,12 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
     @Override
-    public void isRecentsEmpty(Boolean isEmpty) {
+    public void handleChange(Boolean isEmpty) {
         if (isEmpty) {
             noRecentsContainer.setVisibility(View.VISIBLE);
             recentsContainer.setVisibility(View.GONE);
+        } else {
+            onResume();
         }
     }
 

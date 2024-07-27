@@ -44,7 +44,7 @@ public class SearchedUsersAdapter extends RecyclerView.Adapter<SearchedUsersView
         User userListItem = users.get(position);
 
         // Get the number of public flashlets for the user
-        Query query = db.collection("flashlets").whereEqualTo("creatorID", userListItem.getId()).whereEqualTo("isPublic", true);
+        Query query = db.collection("flashlets").whereArrayContains("creatorID", userListItem.getId()).whereEqualTo("isPublic", true);
         AggregateQuery publicFlashletCount = query.count();
         publicFlashletCount.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

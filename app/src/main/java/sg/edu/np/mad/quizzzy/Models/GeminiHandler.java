@@ -1,19 +1,16 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.ChatFutures;
 import com.google.ai.client.generativeai.java.GenerativeModelFutures;
 import com.google.ai.client.generativeai.type.Content;
 import com.google.ai.client.generativeai.type.GenerateContentResponse;
+import com.google.ai.client.generativeai.type.ResponseStoppedException;
+import com.google.ai.client.generativeai.type.UnknownException;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.ai.client.generativeai.type.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

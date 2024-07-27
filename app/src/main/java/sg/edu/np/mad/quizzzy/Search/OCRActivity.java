@@ -2,7 +2,6 @@ package sg.edu.np.mad.quizzzy.Search;
 
 import static android.Manifest.permission_group.CAMERA;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,11 +10,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +19,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,11 +62,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
-import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.GeminiHandler;
 import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
 import sg.edu.np.mad.quizzzy.Models.GeminiResponseEventHandler;
-import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.R;
 
 public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -104,6 +97,7 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
         // Handle Back Navigation Toolbar
         Toolbar toolbar = findViewById(R.id.oAViewToolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,6 +105,10 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
             }
         });
 
+        /*
+        * Check if the User has allowed the app to access their device's camera;
+        * If yes, start the preview. Else, request permission to use the camera
+        */
         if (checkCameraPermission()) {
             startCameraPreview();
         } else {
@@ -164,7 +162,9 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                         generateBtn.setEnabled(false);
                         searchBtn.setEnabled(false);
 
-                        TextInputEditText editText = dialogView.findViewById(R.id.oBSEditText);
+                        TextInputEditText editText = dialogView.findViewById(R.id.oBSEditText); // Retrieve the edited OCR Text from the EditText
+
+                        // Send it to the GeminiHandler to call the AI Model, and wait for either a Response or Error
                         GeminiHandler.generateFlashletOnKeyword(editText.getText().toString(), new GeminiResponseEventHandler() {
                             @Override
                             public void onResponse(GeminiHandlerResponse handlerResponse) {
@@ -189,7 +189,6 @@ public class OCRActivity extends AppCompatActivity implements SurfaceHolder.Call
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        System.out.println(err.getLocalizedMessage());
                                         Toast.makeText(OCRActivity.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                                         // Enable the Button
                                         generateBtn.setText("Generate Flashlet");

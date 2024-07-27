@@ -1,11 +1,9 @@
 package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,13 +35,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
-import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
+import sg.edu.np.mad.quizzzy.Classes.ClassList;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
@@ -61,7 +57,6 @@ public class AddClass extends AppCompatActivity {
     int id = 0;
 
     private Button addMemberBtn;
-    private View newMemberView;
     ArrayList<EditText> usernameInputs = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,22 +154,22 @@ public class AddClass extends AppCompatActivity {
         LinearLayout addmem = findViewById(R.id.acaddmembers);
         Intent receivingIntent = getIntent();
         String userId = receivingIntent.getStringExtra("userId");
+        String userName = receivingIntent.getStringExtra("username");
+
         addMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
+                View newMemberView = LayoutInflater.from(AddClass.this).inflate(R.layout.add_class_members, null, false);
 
                 EditText memberUsernameInput = newMemberView.findViewById(R.id.acmusername);
                 memberUsernameInput.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
                     @Override
                     public void afterTextChanged(Editable s) {
-                        if (s.toString().equals(userId)) {
+                        if (s.toString().equals(userName)) {
                             memberUsernameInput.setError("You cannot add yourself as a member.");
                         }
                     }
@@ -212,11 +207,12 @@ public class AddClass extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please give your class a name!", Toast.LENGTH_LONG).show();
                     return;
                 }
+
                 ArrayList<String> newMemberUsernames = new ArrayList<>();
+                Set<String> uniqueUsernames = new HashSet<>();
                 for (EditText editText : usernameInputs) {
-                    if (!editText.getText().toString().equals(userId)) {
-                        newMemberUsernames.add(editText.getText().toString());
-                    }
+                    String username = editText.getText().toString();
+                    newMemberUsernames.add(username);
                 }
 
                 // Check if there is at least one new member
@@ -231,15 +227,28 @@ public class AddClass extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         ArrayList<String> newMemberIds = new ArrayList<>();
+                        Set<String> seenUsernames = new HashSet<>();
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String userJson = gson.toJson(document.getData());
                                 User user = gson.fromJson(userJson, User.class);
+                                String username = user.getUsername();
+
+                                // Check if the member userId matches the creating userId
+                                if (user.getId().equals(userId)) {
+                                    Toast.makeText(getApplicationContext(), "You cannot add yourself as a member!", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+                                if (!seenUsernames.add(username)) {
+                                    Toast.makeText(getApplicationContext(), "Duplicate member added: " + username, Toast.LENGTH_LONG).show();
+                                    return;
+                                }
 
                                 newMemberIds.add(user.getId());
                             }
 
-                            if (newMemberIds.size() != usernameInputs.size()) {
+                            if (newMemberIds.size() != newMemberUsernames.size()) {
                                 Toast.makeText(getApplicationContext(), "One or More of the Usernames entered do not exist!", Toast.LENGTH_LONG).show();
                             } else {
                                 String classId = UUID.randomUUID().toString();
@@ -269,7 +278,7 @@ public class AddClass extends AppCompatActivity {
                                 });
                             }
                         } else {
-                            Toast.makeText(getApplicationContext(), "Failed to check all member's existance!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Failed to check all member's existence!", Toast.LENGTH_LONG).show();
                         }
                     }
                 });

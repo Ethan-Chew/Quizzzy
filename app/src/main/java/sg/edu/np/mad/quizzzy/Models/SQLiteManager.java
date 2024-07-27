@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 import java.util.stream.IntStream;
 
 /**
@@ -99,7 +97,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     ArrayList<String> createdFlashlets = convertStringToArray(result.getString(3));
                     ArrayList<String> recentlyViewedFlashlets = convertStringToArray(result.getString(4));
 
-                    user = new User(id, username, email, createdFlashlets);
+                    user = new User(id, username, username.toLowerCase(), email, createdFlashlets);
                     userWithRecents = new UserWithRecents(user, recentlyViewedFlashlets);
                 }
             }

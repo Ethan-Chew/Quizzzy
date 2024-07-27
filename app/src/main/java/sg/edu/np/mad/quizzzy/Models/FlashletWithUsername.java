@@ -1,14 +1,10 @@
 package sg.edu.np.mad.quizzzy.Models;
 
-public class FlashletWithUsername {
-    private Flashlet flashlet;
+public class FlashletWithUsername extends FlashletWithInsensitive {
     private String ownerUsername;
     private String ownerId;
 
     // Getters
-    public Flashlet getFlashlet() {
-        return this.flashlet;
-    }
     public String getOwnerUsername() {
         return this.ownerUsername;
     }
@@ -17,9 +13,6 @@ public class FlashletWithUsername {
     }
 
     // Setters
-    public void setFlashlet(Flashlet flashlet) {
-        this.flashlet = flashlet;
-    }
     public void setOwnerUsername(String ownerUsername) {
         this.ownerUsername = ownerUsername;
     }
@@ -27,8 +20,10 @@ public class FlashletWithUsername {
         this.ownerId = ownerId;
     }
 
-    public FlashletWithUsername(Flashlet flashlet, String ownerUsername, String ownerId) {
-        this.flashlet = flashlet;
+    // Constructor
+    public FlashletWithUsername(FlashletWithInsensitive flashlet, String ownerUsername, String ownerId) {
+        super(flashlet.id, flashlet.title, flashlet.description, flashlet.creatorID, flashlet.classId, flashlet.flashcards, flashlet.lastUpdatedUnix, flashlet.isPublic, flashlet.insensitiveTitle);
+
         this.ownerUsername = ownerUsername;
         this.ownerId = ownerId;
     }

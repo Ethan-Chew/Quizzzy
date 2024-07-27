@@ -1,28 +1,38 @@
 package sg.edu.np.mad.quizzzy.Flashlets;
 
-import android.app.Activity;
+import android.app.Dialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,19 +43,30 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import sg.edu.np.mad.quizzzy.HomeActivity;
+import sg.edu.np.mad.quizzzy.MainActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.Models.PushNotificationService;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
-import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
-import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.SwipeGestureDetector;
+import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
@@ -64,6 +85,12 @@ public class FlashletDetail extends AppCompatActivity {
     LinearLayout flashcardViewList;
     ViewFlipper flashcardPreview;
     GestureDetector gestureDetector;
+    TextView optionbtn;
+    TextView flashletNameTextView;
+    ImageView dialogQrCodeImageView;
+    UserWithRecents userWithRecents;
+    SQLiteManager localDB;
+    UsageStatistic usage;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -77,6 +104,14 @@ public class FlashletDetail extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Get User from SQLite DB
+        localDB = SQLiteManager.instanceOfDatabase(FlashletDetail.this);
+        userWithRecents = localDB.getUser();
+
+        // Create new UsageStatistic class and start the update loop
+        usage = new UsageStatistic();
+        localDB.updateStatisticsLoop(usage, 1, userWithRecents.getUser().getId());
 
         // Get Flashlet from Intent
         Intent receiveIntent = getIntent();
@@ -169,7 +204,7 @@ public class FlashletDetail extends AppCompatActivity {
         ImageView cloneFlashletBtn = findViewById(R.id.fDCloneOption);
 
         /// If User ID does not match the Owner of the Flashlet, disable editing
-        if (!Objects.equals(userId, flashlet.getCreatorID())) {
+        if (!flashlet.getCreatorID().contains(userId)) {
             editFlashletBtn.setVisibility(View.GONE);
             /// Handle clone onClick
             cloneFlashletBtn.setOnClickListener(new View.OnClickListener() {
@@ -180,10 +215,10 @@ public class FlashletDetail extends AppCompatActivity {
                             .setMessage("Do you want to clone this flashlet?")
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 final String id = UUID.randomUUID().toString();
-                                final String originalCreatorId = flashlet.getCreatorID();
+                                final ArrayList<String> originalCreatorId = flashlet.getCreatorID();
                                 Flashlet newFlashlet = flashlet;
                                 newFlashlet.setId(id);
-                                newFlashlet.setCreatorID(userId);
+                                newFlashlet.setCreatorID(new ArrayList<String>(Arrays.asList(userId)));
                                 db.collection("flashlets")
                                         .document(id)
                                         .set(newFlashlet)
@@ -201,9 +236,11 @@ public class FlashletDetail extends AppCompatActivity {
                                                             @Override
                                                             public void onSuccess(Void unused) {
                                                                 Toast.makeText(FlashletDetail.this, "Flashlet Created!", Toast.LENGTH_LONG).show();
-                                                                // Send Message via Firebase FCM notifying the Owner of the flashlet their flashlet was cloned
+                                                                // Send Message via Firebase FCM notifying the each Owner of the flashlet their flashlet was cloned
                                                                 PushNotificationService pushNotificationService = new PushNotificationService();
-                                                                pushNotificationService.sendFlashletCloneMessage(originalCreatorId, flashlet.getTitle());
+                                                                for (String creatorId : originalCreatorId) {
+                                                                    pushNotificationService.sendFlashletCloneMessage(creatorId, flashlet.getTitle());
+                                                                }
 
                                                                 // Send User to their cloned flashlet
                                                                 Intent flashletCloneIntent = new Intent(getApplicationContext(), FlashletDetail.class);
@@ -352,7 +389,311 @@ public class FlashletDetail extends AppCompatActivity {
                 return true;
             }
         });
+
+        /// If User is somehow null, return user back to login page
+        if (userWithRecents == null) {
+            Intent returnToLoginIntent = new Intent(FlashletDetail.this, MainActivity.class);
+
+            // Save statistics to SQLite DB before changing Activity.
+            // timeType of 1 because this is a Flashlet Activity
+            localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+            // Kills updateStatisticsLoop as we are switching to another activity.
+            usage.setActivityChanged(true);
+
+            startActivity(returnToLoginIntent);
+        }
+
+
+        // sharing qr code and download flashlet
+        optionbtn = findViewById(R.id.fDOptionbtn);
+
+        optionbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(FlashletDetail.this, v);
+                popupMenu.inflate(R.menu.flashlet_detail_options);
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
+
+                        // Save statistics to SQLite DB before changing Activity.
+                        // timeType of 1 because this is a Flashlet Activity
+                        localDB.updateStatistics(usage, 1, userWithRecents.getUser().getId());
+                        // Kills updateStatisticsLoop as we are switching to another activity.
+                        usage.setActivityChanged(true);
+
+                        if (itemId == R.id.fDOShare) {
+                            String flashletId = flashlet.getId();
+                            if (flashletId != null && !flashletId.isEmpty()) {
+                                showDialog(flashletId);
+                            } else {
+                                Toast.makeText(FlashletDetail.this, "Flashlet ID is invalid.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (itemId == R.id.fDODownload) {
+                            showDownloadPdfDialog();
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
     }
+
+    private void showDialog(String id){
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_qr_code);
+        dialog.setCancelable(false);
+
+        dialogQrCodeImageView = dialog.findViewById(R.id.dialogQrCodeImageView);
+        flashletNameTextView = dialog.findViewById(R.id.flashletNameTextView);
+        flashletNameTextView.setText(flashlet.getTitle());
+        generateQrCode(id, dialogQrCodeImageView);
+
+        dialog.show();
+
+        ImageView dialogCloseButton = dialog.findViewById(R.id.dialogCloseButton);
+        dialogCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+
+    private void generateQrCode(String flashletId, ImageView imageView) {
+        QRCodeWriter writer = new QRCodeWriter();
+        try {
+            // Create a URL with a custom scheme for the QR code
+            String qrContent = "quizzzy://flashlet/?id=" + flashletId;
+            Bitmap bitmap = toBitmap(writer.encode(qrContent, BarcodeFormat.QR_CODE, 512, 512));
+            imageView.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private Bitmap toBitmap(com.google.zxing.common.BitMatrix matrix){
+        int width = matrix.getWidth();
+        int height = matrix.getHeight();
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bmp.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            }
+        }
+        return bmp;
+    }
+
+    private void showDownloadPdfDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Download PDF")
+                .setMessage("Do you want to download a PDF version of the flashlet?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        createPdf();
+                    }
+                })
+                .setNegativeButton("No", null);
+        builder.show();
+    }
+
+    private void createPdf() {
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+        int margin = 40; // Margin at the top of the page
+        int topMargin = 60; // Extra space at the top of each new page
+        int lineHeight = 30;
+        int pageHeight = pageInfo.getPageHeight();
+        int rightMargin = 10; // Right margin for text wrapping
+
+        // Starting the first page
+        PdfDocument.Page page = document.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(40);
+
+        int x = pageInfo.getPageWidth() / 2;
+        int y = topMargin;
+        int remainingHeight = pageHeight - y - margin;
+
+        // Flashlet Title
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        canvas.drawText(flashlet.getTitle().toUpperCase(), x, y, paint);
+        y += 40; // Increase space after the title
+        remainingHeight -= 40;
+
+        // Flashcard Count
+        paint.setTextSize(20);
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        canvas.drawText(flashlet.getFlashcards().size() + " Total Flashcards", x, y, paint);
+        y += 60; // Increase space after the count
+        remainingHeight -= 60;
+
+        // Flashcards
+        paint.setTextAlign(Paint.Align.LEFT);
+        for (Flashcard flashcard : flashlet.getFlashcards()) {
+            // Check if we have enough space on the current page, otherwise create a new page
+            if (remainingHeight < lineHeight * 2 + 70) { // Adjust based on the content to be added
+                document.finishPage(page);
+                page = document.startPage(pageInfo);
+                canvas = page.getCanvas();
+                y = margin + topMargin; // Add extra space at the top of the new page
+                remainingHeight = pageHeight - y - margin;
+            }
+
+            paint.setTextSize(24);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            canvas.drawText("Keyword:", 40, y, paint);
+            y += lineHeight;
+            remainingHeight -= lineHeight;
+
+            paint.setTextSize(20);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+            String wrappedKeyword = wrapText(flashcard.getKeyword(), pageInfo.getPageWidth() - 80, rightMargin, paint);
+            for (String line : wrappedKeyword.split("\n")) {
+                canvas.drawText(line, 40, y, paint);
+                y += lineHeight;
+                remainingHeight -= lineHeight;
+            }
+
+            y += 10;
+            remainingHeight -= 10;
+
+            paint.setTextSize(24);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            canvas.drawText("Description:", 40, y, paint);
+            y += lineHeight;
+            remainingHeight -= lineHeight;
+
+            paint.setTextSize(20);
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+            String wrappedDescription = wrapText(flashcard.getDefinition(), pageInfo.getPageWidth() - 80, rightMargin, paint);
+            for (String line : wrappedDescription.split("\n")) {
+                canvas.drawText(line, 40, y, paint);
+                y += lineHeight;
+                remainingHeight -= lineHeight;
+            }
+
+            y += 70; // Increase space between flashcards
+            remainingHeight -= 70;
+        }
+
+        // Date and Time
+        String dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(dateTime, x, pageInfo.getPageHeight() - 40, paint);
+
+        document.finishPage(page);
+
+        // Write the document content to a file in the Downloads directory
+        String fileName = flashlet.getTitle().toUpperCase() + ".pdf";
+        OutputStream outputStream = null;
+        Uri pdfUri = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+            pdfUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+
+            if (pdfUri != null) {
+                try {
+                    outputStream = getContentResolver().openOutputStream(pdfUri);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+            try {
+                outputStream = new FileOutputStream(filePath);
+                pdfUri = Uri.fromFile(filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (outputStream != null) {
+            try {
+                document.writeTo(outputStream);
+                Toast.makeText(this, "PDF downloaded: " + fileName, Toast.LENGTH_LONG).show();
+
+                // Open the PDF file
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(pdfUri, "application/pdf");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error creating PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } finally {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        document.close();
+    }
+
+    private String wrapText(String text, int maxWidth, int rightMargin, Paint paint) {
+        // Adjust maxWidth to account for the right margin
+        int effectiveWidth = maxWidth - rightMargin;
+
+        String[] words = text.split(" ");
+        StringBuilder wrappedText = new StringBuilder();
+        StringBuilder line = new StringBuilder();
+
+        for (String word : words) {
+            // Measure the width of the current line with the next word
+            float lineWidthWithWord;
+            if (line.length() == 0) {
+                lineWidthWithWord = paint.measureText(word);
+            } else {
+                lineWidthWithWord = paint.measureText(line.toString() + " " + word);
+            }
+
+            if (lineWidthWithWord > effectiveWidth) {
+                // If the current line with the next word exceeds effectiveWidth, add the current line to wrappedText and start a new line
+                if (wrappedText.length() > 0) {
+                    wrappedText.append("\n");
+                }
+                wrappedText.append(line.toString().trim());
+                line = new StringBuilder(word);
+            } else {
+                // Otherwise, append the word to the current line
+                if (line.length() > 0) {
+                    line.append(" ");
+                }
+                line.append(word);
+            }
+        }
+
+        // Append the remaining line to wrappedText
+        if (line.length() > 0) {
+            if (wrappedText.length() > 0) {
+                wrappedText.append("\n");
+            }
+            wrappedText.append(line.toString().trim());
+        }
+
+        return wrappedText.toString();
+    }
+
+
+
+
 
     // To re-initialize the DB update loop when returning to the screen
     @Override
