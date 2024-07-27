@@ -67,8 +67,8 @@ public class ClassStudyAdapter extends RecyclerView.Adapter<ClassStudyViewHolder
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // Check if there is relevant data
-                if (snapshot.hasChild(userId)) {
-                    int studyDuration = Integer.parseInt(snapshot.child(userId).child("studyDuration").getValue(String.class));
+                if (snapshot.hasChild("studyDuration")) {
+                    int studyDuration = Integer.parseInt(snapshot.child("studyDuration").getValue(String.class));
                     holder.studyDuration.setText(String.format(
                             Locale.getDefault(), "%02d:%02d:%02d",
                             studyDuration / 3600,
