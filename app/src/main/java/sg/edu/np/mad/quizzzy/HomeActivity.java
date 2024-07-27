@@ -306,7 +306,6 @@ public class HomeActivity extends AppCompatActivity  {
                         }
                     })
                     .addOnFailureListener(e -> {
-                        Log.d("Retrieve Usernames", e.getLocalizedMessage());
                         Toast.makeText(HomeActivity.this, "Failed to get Usernames for Recently Viewed", Toast.LENGTH_SHORT).show();
                     });
         }

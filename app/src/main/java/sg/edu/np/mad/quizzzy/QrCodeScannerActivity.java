@@ -60,9 +60,12 @@ import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
 
 public class QrCodeScannerActivity extends AppCompatActivity {
 
+    // Request code for camera permission
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     private static final String TAG = "QrCodeScannerActivity";
-    private final MultiFormatReader reader = new MultiFormatReader(); // Move this outside the scanBarcode method
+
+    // QR code reader
+    private final MultiFormatReader reader = new MultiFormatReader();
     PreviewView previewView;
     TextView textViewResult;
     TextView scanComplete;
@@ -71,9 +74,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     String scannedFlashletId;
     FirebaseFirestore db;
     FirebaseAuth auth;
-    SQLiteManager localDB;
-    UsageStatistic usage;
-    UserWithRecents userWithRecents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +96,11 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
+        // Set initial text for scan result
         textViewResult.setText("Scanning...");
         joinFlashletButton.setOnClickListener(v -> joinFlashlet());
 
+        // Check and request camera permission if not granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
@@ -126,11 +128,14 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void startCamera() {
+        // Get a future for the camera provider
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(() -> {
             try {
+                // Get the camera provider
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                // Bind preview to the camera
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
                 Log.e(TAG, "Camera provider error: ", e);
@@ -139,6 +144,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
     }
 
     private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
+        // Select the back camera
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
@@ -146,6 +152,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
+        // Set resolution strategy for image analysis
         ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
                 .setResolutionStrategy(new ResolutionStrategy(new Size(640, 480), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                 .build();
@@ -155,6 +162,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
+        // Set the analyzer for image analysis
         imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy image) {
@@ -162,6 +170,7 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             }
         });
 
+        // Bind the camera to the lifecycle of this activity
         Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
 
@@ -172,21 +181,24 @@ public class QrCodeScannerActivity extends AppCompatActivity {
             textViewResult.setText("Scanning...");
         });
 
+        // Get image planes
         ImageProxy.PlaneProxy[] planes = image.getPlanes();
         if (planes.length > 0) {
             ByteBuffer buffer = planes[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
 
+            // Create luminance source and binary bitmap
             PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
                     bytes, image.getWidth(), image.getHeight(), 0, 0, image.getWidth(), image.getHeight(), false);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
             try {
+                // Decode the QR code
                 Result result = reader.decode(bitmap);
                 String scannedContent = result.getText();
-                Log.d(TAG, "Scanned content: " + scannedContent);
 
+                // Handle scanned content on the UI thread
                 runOnUiThread(() -> {
                     textViewResult.setVisibility(View.GONE);
                     scanComplete.setVisibility(View.VISIBLE);
@@ -197,7 +209,6 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                     scannedFlashletId = extractFlashletId(scannedContent);
                     if (scannedFlashletId != null) {
                         joinFlashletButton.setEnabled(true);
-                        Log.d(TAG, "Extracted Flashlet ID: " + scannedFlashletId);
                     } else {
                         Toast.makeText(QrCodeScannerActivity.this, "Invalid QR code scanned.", Toast.LENGTH_SHORT).show();
                     }
@@ -237,16 +248,17 @@ public class QrCodeScannerActivity extends AppCompatActivity {
                         // Proceed with joining the flashlet
                         DocumentReference flashletRef = db.collection("flashlets").document(scannedFlashletId);
 
+                        // Create a batch to update user and flashlet documents
                         WriteBatch batch = db.batch();
                         batch.update(userRef, "createdFlashlets", FieldValue.arrayUnion(scannedFlashletId));
                         batch.update(flashletRef, "creatorID", FieldValue.arrayUnion(userId));
 
                         batch.commit()
                                 .addOnSuccessListener(aVoid -> {
+                                    // Update local database and navigate to flashlet detail
                                     ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
                                     createdFlashletIds.add(scannedFlashletId);
                                     localDB.updateCreatedFlashcards(userId, createdFlashletIds);
-                                    Log.d(TAG, "Flashlet and user updated successfully");
                                     Toast.makeText(this, "Flashlet joined successfully", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(this, FlashletDetail.class);
                                     intent.putExtra("FLASHLET_ID", scannedFlashletId);

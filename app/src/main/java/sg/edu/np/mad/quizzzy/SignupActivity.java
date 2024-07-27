@@ -119,6 +119,7 @@ public class SignupActivity extends AppCompatActivity {
                                                                                                     User user = gson.fromJson(userJson, User.class);
                                                                                                     localDB.addUser(new UserWithRecents(user));
 
+                                                                                                    // Handle flashlet addition if applicable
                                                                                                     if (flashletId != null) {
                                                                                                         handleFlashletAddition(flashletId, currentUser.getUid());
                                                                                                         flashletId = null;
@@ -159,6 +160,7 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    // Handle adding flashlet to user account
     private void handleFlashletAddition(String flashletId, String userId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference userRef = firebase.collection("users").document(userId);
@@ -169,12 +171,13 @@ public class SignupActivity extends AppCompatActivity {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     List<String> createdFlashlets = (List<String>) document.get("createdFlashlets");
+                    // Check if the list contains the flashlet ID
                     if (createdFlashlets != null && createdFlashlets.contains(flashletId)) {
-                        Log.d("SignupActivity", "Flashlet already exists in user createdFlashlets.");
                         Toast.makeText(SignupActivity.this, "You already have this flashlet.", Toast.LENGTH_SHORT).show();
                         navigateToHome(flashletId);
                     } else {
                         updateUserAndFlashlet(userRef, flashletId);
+                        // Update the local database with the new flashlet ID
                         ArrayList<String> createdFlashletIds = localDB.getUser().getUser().getCreatedFlashlets();
                         createdFlashletIds.add(flashletId);
                         localDB.updateCreatedFlashcards(userId, createdFlashletIds);
@@ -188,16 +191,18 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    // Update user and flashlet documents in Firestore
     private void updateUserAndFlashlet(DocumentReference userRef, String flashletId) {
         FirebaseFirestore firebase = FirebaseFirestore.getInstance();
         DocumentReference flashletRef = firebase.collection("flashlets").document(flashletId);
 
+        // Update user document with new flashlet ID
         userRef.update("createdFlashlets", FieldValue.arrayUnion(flashletId))
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("SignupActivity", "User flashlets updated successfully");
                 })
                 .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update user createdFlashlets", e));
 
+        // Update flashlet document with user ID
         flashletRef.update("creatorID", FieldValue.arrayUnion(userRef.getId()))
                 .addOnSuccessListener(aVoid -> navigateToHome(flashletId))
                 .addOnFailureListener(e -> Log.e("SignupActivity", "Failed to update flashlet creatorID", e));
