@@ -36,11 +36,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
@@ -137,6 +139,15 @@ public class StudyModeActivity extends AppCompatActivity implements SensorEventL
         studyTime = findViewById(R.id.studyTime);
         ImageView startStopImage = findViewById(R.id.startStopStudyTimerImage);
         Button startStopTimer = findViewById(R.id.startStopStudyTimer);
+        TextView encouragementsText = findViewById(R.id.encouragementText);
+
+        // Generate a motivational quote
+        String[] encouragements = new String[] {
+                "Don’t watch the clock; do what it does. Keep studying",
+                "There is no elevator to success. You have to take the stairs.",
+                "It always seems impossible until it’s done"
+        };
+        encouragementsText.setText(encouragements[new Random().nextInt(encouragements.length)]);
 
         startStopTimer.setOnClickListener(new View.OnClickListener() {
             @Override

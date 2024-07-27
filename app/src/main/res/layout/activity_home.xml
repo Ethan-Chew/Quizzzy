@@ -113,23 +113,6 @@
                         </HorizontalScrollView>
 
                         <TextView
-                            android:id="@+id/hSStudyMode"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="25dp"
-                            android:layout_marginStart="25dp"
-                            android:layout_marginEnd="25dp"
-                            android:background="@drawable/flashlet_class_background"
-                            android:padding="20dp"
-                            android:text="Study Mode"
-                            android:textAlignment="center"
-                            android:textColor="@color/black"
-                            android:textSize="20dp"
-                            android:textStyle="bold"
-                            app:layout_constraintTop_toBottomOf="@id/hPHeaderContainer"
-                            tools:layout_editor_absoluteX="25dp" />
-
-                        <TextView
                             android:id="@+id/hPCFTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -142,7 +125,7 @@
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/hSStudyMode" />
+                            app:layout_constraintTop_toBottomOf="@id/hPHeaderContainer" />
 
                         <LinearLayout
                             android:id="@+id/hSNoFlashlets"
@@ -230,6 +213,23 @@
                             android:textSize="20dp"
                             android:textStyle="bold"
                             app:layout_constraintTop_toBottomOf="@id/hPClassesTitle"
+                            tools:layout_editor_absoluteX="25dp" />
+
+                        <TextView
+                            android:id="@+id/hSStudyMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="25dp"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:background="@drawable/flashlet_class_background"
+                            android:padding="20dp"
+                            android:text="Study Mode"
+                            android:textAlignment="center"
+                            android:textColor="@color/black"
+                            android:textSize="20dp"
+                            android:textStyle="bold"
+                            app:layout_constraintTop_toBottomOf="@id/hSClassList"
                             tools:layout_editor_absoluteX="25dp" />
 
                         <ProgressBar
