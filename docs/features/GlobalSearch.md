@@ -1,4 +1,4 @@
-# Global Search and Auto-Generated Flashlets.
+# Global Search and Auto-Generated Flashlets
 For [Ethan's](https://github.com/ethan-chew) Stage 2 feature, I developed a feature allowing users to search our database for Flashlets and clone them as needed. In addition, Auto-Generated Flashlets were made possible using Generative AI.
 
 ### Breakdown of Features Developed
