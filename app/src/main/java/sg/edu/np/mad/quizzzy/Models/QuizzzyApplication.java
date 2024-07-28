@@ -12,6 +12,8 @@ public class QuizzzyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        // Uses Application class to globally monitor lifecycle of all activites
+        // Using ProcessLifecycleOwner to provide lifecycle and DefaultLifecycleObserver to monitor lifecycle events
         AppLifecycleObserver appLifecycleObserver = new AppLifecycleObserver();
         appLifecycleObserver.setContext(getApplicationContext());
         ProcessLifecycleOwner.get().getLifecycle().addObserver(appLifecycleObserver);

@@ -178,6 +178,7 @@ public class ClassDetail extends AppCompatActivity {
         Intent receiveintent = getIntent();
         userClass = gson.fromJson(receiveintent.getStringExtra("classJson"), UserClass.class);
         ArrayList<String> members = userClass.getMemberId();
+        ArrayList<String> memberIds = new ArrayList<>();
         ArrayList<String> memberUsernames = new ArrayList<>();
         String classId = userClass.getId();
         String userId = receiveintent.getStringExtra("userId");
@@ -234,11 +235,13 @@ public class ClassDetail extends AppCompatActivity {
             }
         });
 
+        // Handle onClick to go to the class study statistics page
         studyDetails.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent viewClassStudyDetails = new Intent(getApplicationContext(), ClassStudyActivity.class);
                 viewClassStudyDetails.putExtra("classTitle", userClass.getClassTitle());
+                viewClassStudyDetails.putExtra("classMemberId", memberIds);
                 viewClassStudyDetails.putExtra("classMembers", memberUsernames);
 
                 // Save statistics to SQLite DB before changing Activity.
@@ -266,6 +269,7 @@ public class ClassDetail extends AppCompatActivity {
                             }
                             for (int i = 0; i < users.size(); i++) {
                                 User user = users.get(i);
+                                memberIds.add(user.getId());
                                 memberUsernames.add(user.getUsername());
 
                                 View memberView = LayoutInflater.from(ClassDetail.this).inflate(R.layout.member_list, null, false);

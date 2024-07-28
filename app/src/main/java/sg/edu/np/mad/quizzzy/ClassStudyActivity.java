@@ -2,8 +2,13 @@ package sg.edu.np.mad.quizzzy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowMetrics;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -43,6 +48,7 @@ public class ClassStudyActivity extends AppCompatActivity {
         Intent receivingIntent = getIntent();
         String classTitle = receivingIntent.getStringExtra("classTitle");
         ArrayList<String> classMembers = receivingIntent.getStringArrayListExtra("classMembers");
+        ArrayList<String> userIds = receivingIntent.getStringArrayListExtra("classMemberId");
 
         // Configure Back Button
         Toolbar toolbar = findViewById(R.id.classStudyToolbar);
@@ -55,7 +61,7 @@ public class ClassStudyActivity extends AppCompatActivity {
 
         // Configure Bottom Navigation Bar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.stats);
+        bottomNavigationView.setSelectedItemId(R.id.home);
         bottomNavigationView.setOnApplyWindowInsetsListener(null);
         bottomNavigationView.setPadding(0,0,0,0);
 
@@ -76,15 +82,38 @@ public class ClassStudyActivity extends AppCompatActivity {
                     overridePendingTransition(0,0);
                     return true;
                 } else if (itemId == R.id.stats) {
+                    startActivity(new Intent(getApplicationContext(), StatisticsActivity.class));
+                    overridePendingTransition(0,0);
                     return true;
                 }
                 return false;
             }
         });
 
+        TextView classTitleView = findViewById(R.id.ClassTitle);
+        Button studyMode = findViewById(R.id.StudyModeButton);
+
+        classTitleView.setText(classTitle + " -\nToday's Study Time");
+        studyMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openStudyModeIntent = new Intent(getApplicationContext(), StudyModeActivity.class);
+                startActivity(openStudyModeIntent);
+            }
+        });
+
+        // Get screen width (dp)
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidthDp = (int) (displayMetrics.widthPixels / displayMetrics.density);
+
+        Log.d("TAG", "onCreate: "+screenWidthDp);
+
+        // Create RecyclerView using GridLayout so that icons will be in a grid
+        // Divided by 150 because that is the size of the icon, so that we make use of differently sized screens
         RecyclerView recyclerView = findViewById(R.id.ClassStudyRecyclerView);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        ClassStudyAdapter adapter = new ClassStudyAdapter(this, classMembers);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, Math.floorDiv(screenWidthDp, 150)));
+        ClassStudyAdapter adapter = new ClassStudyAdapter(this, classMembers, userIds);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
     }
