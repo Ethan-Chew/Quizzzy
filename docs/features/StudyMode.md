@@ -26,6 +26,8 @@ The circle behind each student will pulse if they are currently using Study Mode
    <img src="../../images/StudyModeClassesSmallBackground.jpg" alt="Image of Pulsing Background in Classes" style="width: 200px; height: auto;">
 </div>
 
+In the 2nd image on the right, the purple background under "Jay" is smaller due to it pulsing.
+
 ## Built in Gyroscope
 A gyroscope was added into the Study Duration Activity, which allows the student to place their device face down on their table to dim their screen to its maximum dimness. This feature was added so that the user would not have to unlock their phone every time they need to access their applications when studying, for example when requiring a calculator.
 
