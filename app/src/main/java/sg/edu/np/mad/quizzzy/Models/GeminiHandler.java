@@ -87,9 +87,13 @@ public class GeminiHandler {
                 String title = lines[0];
                 String[] unparsedFlashcards = lines[1].split("--");
                 ArrayList<Flashcard> flashcards = new ArrayList<Flashcard>();
-                for (String part : unparsedFlashcards) {
-                    Flashcard flashcard = new Flashcard(part.split("/")[0], part.split("/")[1]);
-                    flashcards.add(flashcard);
+                try {
+                    for (String part : unparsedFlashcards) {
+                        Flashcard flashcard = new Flashcard(part.split("/")[0], part.split("/")[1]);
+                        flashcards.add(flashcard);
+                    }
+                } catch (Exception e) {
+                    throw new Error("Failed to create Flashcard. Try again.");
                 }
 
                 callback.onResponse(new GeminiHandlerResponse(title, flashcards));
