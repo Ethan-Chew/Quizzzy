@@ -12,8 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -48,6 +50,8 @@ import sg.edu.np.mad.quizzzy.Classes.ClassDetail;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
@@ -63,9 +67,10 @@ public class CreateClassFlashlet extends AppCompatActivity {
     // Data Variables
     Flashlet newFlashlet;
     ArrayList<Flashcard> flashcards = new ArrayList<Flashcard>();
+    private String classJson = "";
 
     // View Variables
-    private Button addNewFlashcardBtn;
+    private TextView addNewFlashcardBtn;
     private Button createFlashletBtn;
     private LinearLayout flashcardListView;
     private View newFlashcardView;
@@ -173,6 +178,16 @@ public class CreateClassFlashlet extends AppCompatActivity {
         Intent receivingIntent = getIntent();
         String classId = receivingIntent.getStringExtra("classId");
         String userId = receivingIntent.getStringExtra("userId");
+        classJson = receivingIntent.getStringExtra("classJson");
+        String autofilledFlashlet = receivingIntent.getStringExtra("autofilledFlashletJSON");
+        if (autofilledFlashlet != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autofillGeminiFlashlet(gson.fromJson(autofilledFlashlet, GeminiHandlerResponse.class));
+                }
+            });
+        }
 
         // Listen for onClick on 'Create Flashlet' button, then create the flashlet
         addNewFlashcardBtn = findViewById(R.id.cFAddNewFlashcardBtn);
@@ -181,38 +196,12 @@ public class CreateClassFlashlet extends AppCompatActivity {
         addNewFlashcardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Create new Flashcard object, and add to ArrayList
                 Flashcard newFlashcard = new Flashcard("", "");
 
-                // Inflate the Item for a new Flashcard
-                newFlashcardView = LayoutInflater.from(CreateClassFlashlet.this).inflate(R.layout.create_flashlet_newflashcard, null, false);
+                // Add the Flashcard to the Screen
+                createFlashcardItem(newFlashcard);
 
-                // Listen for updates in the Flashcard Info
-                EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
-                keywordEditText.addTextChangedListener(new TextWatcher() {
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        newFlashcard.setKeyword(keywordEditText.getText().toString());
-                    }
-                });
-                EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
-                definitionEditText.addTextChangedListener(new TextWatcher() {
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        newFlashcard.setDefinition(definitionEditText.getText().toString());
-                    }
-                });
-                // Add Flashcard to List
                 flashcards.add(newFlashcard);
-
-                // Add Inflated View to LinearLayout Container
-                flashcardListView.addView(newFlashcardView);
             }
         });
 
@@ -235,9 +224,16 @@ public class CreateClassFlashlet extends AppCompatActivity {
                     return;
                 }
 
+                for (Flashcard flashcard : flashcards) {
+                    if (flashcard.getDefinition().isEmpty() || flashcard.getKeyword().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Flashcard Keyword or Definition cannot be empty!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                newFlashlet = new Flashlet(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
+                newFlashlet = new FlashletWithInsensitive(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked(), title.toLowerCase()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);
@@ -279,6 +275,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
                                                                 Toast.makeText(getApplicationContext(), "Flashlet Created!", Toast.LENGTH_LONG).show();
                                                                 // Send User back to class Page
                                                                 Intent flashletListIntent = new Intent(CreateClassFlashlet.this, ClassDetail.class);
+                                                                flashletListIntent.putExtra("classJson", classJson);
 
                                                                 // Save statistics to SQLite DB before changing Activity.
                                                                 // timeType of 1 because this is a Flashlet Activity
@@ -309,6 +306,60 @@ public class CreateClassFlashlet extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private void autofillGeminiFlashlet(GeminiHandlerResponse handlerResponse) {
+        flashcardListView = findViewById(R.id.cFCreateNewFlashcardList);
+        // Set the Title of the Flashlet
+        createFlashletTitle = findViewById(R.id.cFNewTitle);
+        createFlashletTitle.setText(handlerResponse.getTitle());
+
+        // Create the necessary flashcards and add it to the screen
+        flashcards = handlerResponse.getFlashcards();
+        for (Flashcard flashcard : flashcards) {
+            createFlashcardItem(flashcard);
+        }
+    }
+
+    private void createFlashcardItem(Flashcard flashcard) {
+        View newFlashcardView = LayoutInflater.from(CreateClassFlashlet.this).inflate(R.layout.create_flashlet_newflashcard, null, false);
+
+        // Listen for updates in the Flashcard Info
+        EditText keywordEditText = newFlashcardView.findViewById(R.id.newFlashcardKeywordInput);
+        keywordEditText.setText(flashcard.getKeyword());
+        keywordEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                flashcard.setKeyword(keywordEditText.getText().toString());
+            }
+        });
+        EditText definitionEditText = newFlashcardView.findViewById(R.id.newFlashcardDefinitionInput);
+        definitionEditText.setText(flashcard.getDefinition());
+        definitionEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                flashcard.setDefinition(definitionEditText.getText().toString());
+            }
+        });
+
+        // Handle Delete Flashcard Item
+        ImageView deleteFlashcardItem = newFlashcardView.findViewById(R.id.newFlashcardDelete);
+        deleteFlashcardItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flashcards.remove(flashcard);
+                flashcardListView.removeView(newFlashcardView);
+            }
+        });
+
+        // Add Inflated View to LinearLayout Container
+        flashcardListView.addView(newFlashcardView);
     }
 
     // To re-initialize the DB update loop when returning to the screen

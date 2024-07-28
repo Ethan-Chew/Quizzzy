@@ -2,6 +2,7 @@ package sg.edu.np.mad.quizzzy.Classes;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -9,7 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -23,7 +26,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,19 +37,26 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 import sg.edu.np.mad.quizzzy.ClassStudyActivity;
 import sg.edu.np.mad.quizzzy.ClassStudyAdapter;
 import sg.edu.np.mad.quizzzy.Flashlets.CreateClassFlashlet;
+import sg.edu.np.mad.quizzzy.Flashlets.CreateFlashlet;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandler;
+import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
+import sg.edu.np.mad.quizzzy.Models.GeminiResponseEventHandler;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
 import sg.edu.np.mad.quizzzy.Models.User;
 import sg.edu.np.mad.quizzzy.Models.UserClass;
+import sg.edu.np.mad.quizzzy.QrCodeScannerActivity;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.SearchActivity;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -191,17 +203,34 @@ public class ClassDetail extends AppCompatActivity {
         createFlashlet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent createFlashletIntent = new Intent(getApplicationContext(), CreateClassFlashlet.class);
-                createFlashletIntent.putExtra("classId", classId);
-                createFlashletIntent.putExtra("userId",userId);
+                PopupMenu popupMenu = new PopupMenu(ClassDetail.this, v);
+                popupMenu.inflate(R.menu.create_class_flashlets_options);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
 
-                // Save statistics to SQLite DB before changing Activity.
-                // timeType of 2 because this is a Class Activity
-                localDB.updateStatistics(usage, 2, user.getId());
-                // Kills updateStatisticsLoop as we are switching to another activity.
-                usage.setActivityChanged(true);
 
-                startActivity(createFlashletIntent);
+                        if (itemId == R.id.cFOCreate) {
+                            Intent createFlashletIntent = new Intent(getApplicationContext(), CreateClassFlashlet.class);
+                            createFlashletIntent.putExtra("classId", classId);
+                            createFlashletIntent.putExtra("userId",userId);
+                            createFlashletIntent.putExtra("classJson", gson.toJson(userClass));
+
+                            // Save statistics to SQLite DB before changing Activity.
+                            // timeType of 2 because this is a Class Activity
+                            localDB.updateStatistics(usage, 2, user.getId());
+                            // Kills updateStatisticsLoop as we are switching to another activity.
+                            usage.setActivityChanged(true);
+
+                            startActivity(createFlashletIntent);
+                        } else if (itemId == R.id.cFOAutogenerate) {
+                            handleBottomDialogView(classId, userId);
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
 
@@ -315,6 +344,9 @@ public class ClassDetail extends AppCompatActivity {
                                                                                            fVTitle.setText(String.valueOf(flashlet.get("title")).replace("\"", ""));
                                                                                            String pillText = flashlet.get("flashcards").getAsJsonArray().size() + " Keyword" + (flashlet.get("flashcards").getAsJsonArray().size() == 0 ? "" : "s");
                                                                                            fVPill.setText(pillText);
+                                                                                           SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
+                                                                                           String formattedLastUpdate = "Last Updated: " + sdf.format(flashlet.get("lastUpdatedUnix").getAsInt() * 1000L);
+                                                                                           fVDesc.setText(formattedLastUpdate);
 
                                                                                            createdFlashletsContainer.addView(flashletView);
 
@@ -340,6 +372,65 @@ public class ClassDetail extends AppCompatActivity {
                                                }
                                            }
                 });
+    }
+
+    // Create the BottomDialogView to get the user's Search Term to be Autogenerated into a Flashlet
+    private void handleBottomDialogView(String classId, String userId) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ClassDetail.this);
+        View dialogView = LayoutInflater.from(ClassDetail.this).inflate(R.layout.autogenerate_flashlet_bottom_sheet, null);
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.show();
+
+        // Handle Search Button Click
+        TextInputEditText editText = dialogView.findViewById(R.id.aFEditText);
+        Button generateBtn = dialogView.findViewById(R.id.aFGenerateBtn);
+        generateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Disable the Button and show loading
+                generateBtn.setText("Loading...");
+                generateBtn.setEnabled(false);
+
+                // Send the Flashlet to the Gemini AI Handler and await for a response/error
+                GeminiHandler.generateFlashletOnKeyword(editText.getText().toString(), new GeminiResponseEventHandler() {
+                    @Override
+                    public void onResponse(GeminiHandlerResponse handlerResponse) {
+                        Looper.prepare();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Send Intent to CreateFlashlet
+                                Intent sendToCreateFlashlet = new Intent(ClassDetail.this, CreateClassFlashlet.class);
+                                sendToCreateFlashlet.putExtra("autofilledFlashletJSON", gson.toJson(handlerResponse));
+                                sendToCreateFlashlet.putExtra("classId", classId);
+                                sendToCreateFlashlet.putExtra("userId",userId);
+                                sendToCreateFlashlet.putExtra("classJson", gson.toJson(userClass));
+                                startActivity(sendToCreateFlashlet);
+
+                                // Reset the Button
+                                generateBtn.setText("Generate Flashlet");
+                                generateBtn.setEnabled(true);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception err) {
+                        Looper.prepare();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Display an Error to the User
+                                Toast.makeText(ClassDetail.this, err.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                // Enable the Button
+                                generateBtn.setText("Generate Flashlet");
+                                generateBtn.setEnabled(true);
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 
     // To re-initialize the DB update loop when returning to the screen
