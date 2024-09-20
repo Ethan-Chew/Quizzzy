@@ -44,13 +44,13 @@ import java.util.stream.Collectors;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletList;
 import sg.edu.np.mad.quizzzy.HomeActivity;
-import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
-import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithCreator;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.SQLiteRecentSearchesManager;
 import sg.edu.np.mad.quizzzy.Models.SearchResult;
 import sg.edu.np.mad.quizzzy.Models.User;
+import sg.edu.np.mad.quizzzy.Models.Flashlet;
 import sg.edu.np.mad.quizzzy.R;
 import sg.edu.np.mad.quizzzy.Search.Recycler.RecentSearchesAdapter;
 import sg.edu.np.mad.quizzzy.StatisticsActivity;
@@ -297,10 +297,10 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Convert the Flashlets from JSON to a Flashlet Object, and if it's public, add it to the list
-                        ArrayList<FlashletWithInsensitive> flashletList = new ArrayList<FlashletWithInsensitive>();
+                        ArrayList<Flashlet> flashletList = new ArrayList<Flashlet>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String flashletJson = gson.toJson(document.getData());
-                            FlashletWithInsensitive flashlet = gson.fromJson(flashletJson, FlashletWithInsensitive.class);
+                            Flashlet flashlet = gson.fromJson(flashletJson, Flashlet.class);
                             if (flashlet.getIsPublic()) {
                                 flashletList.add(flashlet);
                             }
@@ -336,16 +336,16 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewInt
                                                                 userMap.put(user.getId(), user);
                                                             }
 
-                                                            ArrayList<FlashletWithUsername> flashletWithUsernames = new ArrayList<>();
-                                                            for (FlashletWithInsensitive flashlet : flashletList) {
+                                                            ArrayList<FlashletWithCreator> flashletsWithCreators = new ArrayList<>();
+                                                            for (Flashlet flashlet : flashletList) {
                                                                 User owner = userMap.get(flashlet.getCreatorID().get(0));
 
                                                                 if (owner != null) {
-                                                                    flashletWithUsernames.add(new FlashletWithUsername(flashlet, owner.getUsername(), owner.getId()));
+                                                                    flashletsWithCreators.add(new FlashletWithCreator(flashlet, owner));
                                                                 }
                                                             }
 
-                                                            searchResult.setFlashlets(flashletWithUsernames);
+                                                            searchResult.setFlashlets(flashletsWithCreators);
                                                             callback.onSearchResult(searchResult);
                                                         } else {
                                                             callback.onError(ownerTask.getException());

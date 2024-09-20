@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Flashlet {
     String id; // Unique UUID
     String title;
+    String insensitiveTitle;
     String description; // Description
     ArrayList<String> creatorID;
     String classId;
@@ -41,6 +42,7 @@ public class Flashlet {
     public Flashlet(String id, String title, String description, ArrayList<String> creatorID, String classId, ArrayList<Flashcard> flashcards, long lastUpdatedUnix, Boolean isPublic) {
         this.id = id;
         this.title = title;
+        this.insensitiveTitle = title.toLowerCase();
         this.description = description;
         this.creatorID = creatorID;
         this.classId = classId;

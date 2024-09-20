@@ -9,16 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithCreator;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.R;
 
 public class SearchedFlashletsAdapter extends RecyclerView.Adapter<SearchedFlashletsViewHolder> {
 
     private final RecyclerViewInterface recyclerViewInterface;
-    private ArrayList<FlashletWithUsername> flashlets;
+    private ArrayList<FlashletWithCreator> flashlets;
 
-    public SearchedFlashletsAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<FlashletWithUsername> flashlets) {
+    public SearchedFlashletsAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<FlashletWithCreator> flashlets) {
         this.recyclerViewInterface = recyclerViewInterface;
         this.flashlets = flashlets;
     }
@@ -33,13 +33,13 @@ public class SearchedFlashletsAdapter extends RecyclerView.Adapter<SearchedFlash
 
     @Override
     public void onBindViewHolder(@NonNull SearchedFlashletsViewHolder holder, int position) {
-        FlashletWithUsername flashletListItem = flashlets.get(position);
+        FlashletWithCreator flashletListItem = flashlets.get(position);
 
         // Set Text of Elements on the UI
         holder.flashletTitleLabel.setText(flashletListItem.getTitle());
         String flashletCountText = flashletListItem.getFlashcards().size() + " Flashcards";
         holder.flashcardCountLabel.setText(flashletCountText);
-        holder.ownerUsernameLabel.setText(flashletListItem.getOwnerUsername());
+        holder.ownerUsernameLabel.setText(flashletListItem.getCreator().getUsername());
     }
 
     @Override

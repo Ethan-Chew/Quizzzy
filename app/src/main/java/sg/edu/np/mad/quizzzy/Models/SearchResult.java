@@ -7,11 +7,11 @@ import java.util.ArrayList;
  * Allows for the Search Result to be passed around between files easily
  * */
 public class SearchResult {
-    private ArrayList<FlashletWithUsername> flashlets;
+    private ArrayList<FlashletWithCreator> flashlets;
     private ArrayList<User> users;
 
     // Getters
-    public ArrayList<FlashletWithUsername> getFlashlets() {
+    public ArrayList<FlashletWithCreator> getFlashlets() {
         return this.flashlets;
     }
     public ArrayList<User> getUsers() {
@@ -19,20 +19,20 @@ public class SearchResult {
     }
 
     // Setters
-    public void setFlashlets(ArrayList<FlashletWithUsername> flashlets) {
+    public void setFlashlets(ArrayList<FlashletWithCreator> flashlets) {
         this.flashlets = flashlets;
     }
     public void setUsers(ArrayList<User> users) {
         this.users = users;
     }
 
-    public SearchResult(ArrayList<FlashletWithUsername> flashlets, ArrayList<User> users) {
+    public SearchResult(ArrayList<FlashletWithCreator> flashlets, ArrayList<User> users) {
         this.flashlets = flashlets;
         this.users = users;
     }
 
     public SearchResult() {
-        this.flashlets = new ArrayList<FlashletWithUsername>();
+        this.flashlets = new ArrayList<FlashletWithCreator>();
         this.users = new ArrayList<User>();
     }
 }

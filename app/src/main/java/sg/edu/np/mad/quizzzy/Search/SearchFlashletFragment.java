@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import sg.edu.np.mad.quizzzy.Flashlets.FlashletDetail;
-import sg.edu.np.mad.quizzzy.Models.FlashletWithUsername;
+import sg.edu.np.mad.quizzzy.Models.FlashletWithCreator;
 import sg.edu.np.mad.quizzzy.Models.RecyclerViewInterface;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UserWithRecents;
@@ -37,7 +37,7 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
     RecyclerView flashletRecyclerView;
     LinearLayout noRelatedSearchesContainer;
     Gson gson = new Gson();
-    ArrayList<FlashletWithUsername> flashlets = new ArrayList<FlashletWithUsername>();
+    ArrayList<FlashletWithCreator> flashlets = new ArrayList<FlashletWithCreator>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +51,7 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
 
         // Get Data from Fragment Bundle
         Bundle args = getArguments();
-        Type ArrayOfFlashletsType = new TypeToken<ArrayList<FlashletWithUsername>>(){}.getType();
+        Type ArrayOfFlashletsType = new TypeToken<ArrayList<FlashletWithCreator>>(){}.getType();
         String flashletJson = args.getString("searchedFlashlets");
         flashlets = gson.fromJson(flashletJson, ArrayOfFlashletsType);
 
@@ -74,7 +74,7 @@ public class SearchFlashletFragment extends Fragment implements RecyclerViewInte
         SQLiteManager localDB = SQLiteManager.instanceOfDatabase(getActivity());
         UserWithRecents currentUser = localDB.getUser();
 
-        FlashletWithUsername flashlet = flashlets.get(position);
+        FlashletWithCreator flashlet = flashlets.get(position);
         Intent sendToFlashletDetail = new Intent(getActivity(), FlashletDetail.class);sendToFlashletDetail.putExtra("flashletJSON", gson.toJson(flashlet));
         sendToFlashletDetail.putExtra("userId", currentUser.getUser().getId());
 

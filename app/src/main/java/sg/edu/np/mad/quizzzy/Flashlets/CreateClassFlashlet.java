@@ -50,7 +50,6 @@ import sg.edu.np.mad.quizzzy.Classes.ClassDetail;
 import sg.edu.np.mad.quizzzy.HomeActivity;
 import sg.edu.np.mad.quizzzy.Models.Flashcard;
 import sg.edu.np.mad.quizzzy.Models.Flashlet;
-import sg.edu.np.mad.quizzzy.Models.FlashletWithInsensitive;
 import sg.edu.np.mad.quizzzy.Models.GeminiHandlerResponse;
 import sg.edu.np.mad.quizzzy.Models.SQLiteManager;
 import sg.edu.np.mad.quizzzy.Models.UsageStatistic;
@@ -233,7 +232,7 @@ public class CreateClassFlashlet extends AppCompatActivity {
 
                 // Else, Create the Flashlet
                 String id = UUID.randomUUID().toString();
-                newFlashlet = new FlashletWithInsensitive(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked(), title.toLowerCase()); // Initialise Flashlet with Empty Description
+                newFlashlet = new Flashlet(id, title, "", new ArrayList<>(Arrays.asList(userId)), null, flashcards, System.currentTimeMillis() / 1000L, isFlashletPublicSwitch.isChecked()); // Initialise Flashlet with Empty Description
 
                 if (classId != null) {
                     newFlashlet.setClassId(classId);
